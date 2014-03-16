@@ -15,7 +15,7 @@
 
 &lt;h3&gt;参考官方文档&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//docs.getpelican.com/en/3.2/getting_started.html#writing-content-using-pelican)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Vickyi Zhang</dc:creator><pubDate>Sat, 15 Mar 2014 16:25:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-03-15:pages/2014/03/15/make-publish-error.html</guid><category>pelican</category><category>publishing</category></item><item><title>安装Pelican和Markdown</title><link>http://www.zhuimengle.com/pages/2010/12/03/%E5%AE%89%E8%A3%85Pelican%E5%92%8CMarkdown.html</link><description>&lt;p&gt;My super title&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Sat, 15 Mar 2014 16:25:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-03-15:pages/2014/03/15/make-publish-error.html</guid><category>pelican</category><category>publishing</category></item><item><title>安装Pelican和Markdown</title><link>http://www.zhuimengle.com/pages/2010/12/03/%E5%AE%89%E8%A3%85Pelican%E5%92%8CMarkdown.html</link><description>&lt;p&gt;My super title&lt;/p&gt;
 &lt;h6&gt;&lt;/h6&gt;
 &lt;h3&gt;安装Pelican和Markdown&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;pip&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;pelican&lt;/span&gt;
