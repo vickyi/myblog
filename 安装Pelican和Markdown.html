@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>小V吃鱼卡到了 - pelican</title>
+    <title>安装Pelican和Markdown</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="vk">
@@ -65,7 +65,7 @@
           <div class="nav-collapse">
             <ul class="nav">
                           <li class="divider-vertical"></li>
-                  <li >
+                  <li class="active">
                     <a href="http://www.zhuimengle.com/category/python.html">
 						<i class="icon-folder-open icon-large"></i>Python
 					</a>
@@ -85,31 +85,20 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="http://www.zhuimengle.com/make-publish-error.html">make pusblish error</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2014-03-15T16:25:00">
-        <i class="icon-calendar"></i>2014-03-15 16:25:00
-</abbr>
-<span class="label">By</span>
-<a href="http://www.zhuimengle.com/author/vickyi-zhang.html"><i class="icon-user"></i>Vickyi Zhang</a>
-<span class="label">Category</span>
-<a href="http://www.zhuimengle.com/category/python.html"><i class="icon-folder-open"></i>Python</a>.
-
-
-<span class="label">Tags</span>
-	<a href="http://www.zhuimengle.com/tag/pelican.html"><i class="icon-tag"></i>pelican</a>
-	<a href="http://www.zhuimengle.com/tag/publishing.html"><i class="icon-tag"></i>publishing</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><p>get error when 'make publish'</p>
-                        <a class="btn primary xsmall" href="http://www.zhuimengle.com/make-publish-error.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="http://www.zhuimengle.com/安装Pelican和Markdown.html">安装Pelican和Markdown</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to 安装Pelican和Markdown">
+                                        安装Pelican和Markdown
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
 <abbr class="published" title="2010-12-03T10:20:00">
         <i class="icon-calendar"></i>2010-12-03 10:20:00
@@ -123,13 +112,52 @@
 <span class="label">Tags</span>
 	<a href="http://www.zhuimengle.com/tag/pelican.html"><i class="icon-tag"></i>pelican</a>
 	<a href="http://www.zhuimengle.com/tag/publishing.html"><i class="icon-tag"></i>publishing</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><p>安装Pelican和Markdown</p>
-                        <a class="btn primary xsmall" href="http://www.zhuimengle.com/安装Pelican和Markdown.html">more ...</a>
-                </div>
-        </div>
-        <hr />
+</footer><!-- /.post-info -->                </div>
+                <p>My super title</p>
+<h6></h6>
+<h3>安装Pelican和Markdown</h3>
+<div class="highlight"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">pelican</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">markdown</span>
+</pre></div>
 
+
+<h3>搭建骨架</h3>
+<div class="highlight"><pre><span class="n">mkdir</span> <span class="n">vi</span><span class="o">-</span><span class="n">pelican</span>
+<span class="n">cd</span> <span class="n">vi</span><span class="o">-</span><span class="n">pelican</span>
+<span class="n">pelican</span><span class="o">-</span><span class="n">quickstart</span>
+</pre></div>
+
+
+<p>根据提示一步步输入相应的配置项，不知道如何设置的接受默认即可，后续可以通过编辑pelicanconf.py文件更改配置)</p>
+<p>以下是生成的目录结构：
+    blog/
+    ├── content              # 存放输入的源文件
+    │   └── (pages)          # 存放手工创建的静态页面
+    ├── output               # 生成的输出文件
+    ├── develop_server.sh    # 方便开启测试服务器
+    ├── Makefile             # 方便管理博客的Makefile
+    ├── pelicanconf.py       # 主配置文件
+    └── publishconf.py       # 主发布文件，可删除</p>
+<h3>开始写博文</h3>
+<div class="highlight"><pre><span class="err">在</span><span class="n">content</span><span class="err">目录下用</span><span class="n">Markdown</span><span class="err">语法来写一篇文章，最好选择专业的</span><span class="n">Markdown</span><span class="err">编辑器，在</span><span class="n">Mac</span> <span class="n">OS</span> <span class="n">X</span><span class="err">下推荐使用</span><span class="n">Mou</span><span class="err">，在</span><span class="n">Linux</span><span class="o">/</span><span class="n">Windows</span><span class="err">下请</span><span class="n">Google</span><span class="err">。</span>
+</pre></div>
+                </div><!-- /.entry-content -->
+                <div class="comments">
+                <h2>Comments !</h2>
+                        <div id="disqus_thread"></div>
+                        <script type="text/javascript">
+                           var disqus_identifier = "安装Pelican和Markdown.html";
+                           (function() {
+                                var dsq = document.createElement('script');
+                                dsq.type = 'text/javascript'; dsq.async = true;
+                                dsq.src = 'http://{vic-story}.disqus.com/embed.js';
+                                (document.getElementsByTagName('head')[0] ||
+                                 document.getElementsByTagName('body')[0]).appendChild(dsq);
+                          })();
+                        </script>
+                </div>
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">

@@ -15,7 +15,7 @@
 
 &lt;h3&gt;参考官方文档&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//docs.getpelican.com/en/3.2/getting_started.html#writing-content-using-pelican)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</summary><category term="pelican"></category><category term="publishing"></category></entry><entry><title>My super title</title><link href="http://www.zhuimengle.com/my-super-post.html" rel="alternate"></link><updated>2010-12-03T10:20:00+08:00</updated><author><name>Alexis Metaireau</name></author><id>tag:www.zhuimengle.com,2010-12-03:my-super-post.html</id><summary type="html">&lt;p&gt;My super title&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;</summary><category term="pelican"></category><category term="publishing"></category></entry><entry><title>安装Pelican和Markdown</title><link href="http://www.zhuimengle.com/%E5%AE%89%E8%A3%85Pelican%E5%92%8CMarkdown.html" rel="alternate"></link><updated>2010-12-03T10:20:00+08:00</updated><author><name>vk</name></author><id>tag:www.zhuimengle.com,2010-12-03:安装Pelican和Markdown.html</id><summary type="html">&lt;p&gt;My super title&lt;/p&gt;
 &lt;h6&gt;&lt;/h6&gt;
 &lt;h3&gt;安装Pelican和Markdown&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;pip&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;pelican&lt;/span&gt;
