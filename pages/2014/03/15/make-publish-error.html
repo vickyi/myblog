@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>小V吃鱼卡到了</title>
+    <title>make pusblish error</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="vk">
@@ -65,7 +65,7 @@
           <div class="nav-collapse">
             <ul class="nav">
                           <li class="divider-vertical"></li>
-                  <li >
+                  <li class="active">
                     <a href="http://www.zhuimengle.com/category/python.html">
 						<i class="icon-folder-open icon-large"></i>Python
 					</a>
@@ -86,14 +86,66 @@
       <div class="row">
         <div class="span9" id="content">
 <section id="content">
-<h1>Archives for 小V吃鱼卡到了</h1>
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to make pusblish error">
+                                        make pusblish error
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2014-03-15T16:25:00">
+        <i class="icon-calendar"></i>2014-03-15 16:25:00
+</abbr>
+<span class="label">By</span>
+<a href="http://www.zhuimengle.com/author/vickyi-zhang.html"><i class="icon-user"></i>Vickyi Zhang</a>
+<span class="label">Category</span>
+<a href="http://www.zhuimengle.com/category/python.html"><i class="icon-folder-open"></i>Python</a>.
 
-<dl>
-	<dt>2014-03-15 16:25:00</dt>
-	<dd><a href='pages/2014/03/15/make-publish-error.html'>make pusblish error</a></dd>
-	<dt>2010-12-03 10:20:00</dt>
-	<dd><a href='pages/2010/12/03/安装Pelican和Markdown.html'>安装Pelican和Markdown</a></dd>
-</dl>
+
+<span class="label">Tags</span>
+	<a href="http://www.zhuimengle.com/tag/pelican.html"><i class="icon-tag"></i>pelican</a>
+	<a href="http://www.zhuimengle.com/tag/publishing.html"><i class="icon-tag"></i>publishing</a>
+</footer><!-- /.post-info -->                </div>
+                <h3>make pulish 时遇见的错误</h3>
+<div class="highlight"><pre><span class="p">(</span><span class="n">pyenv2</span><span class="mf">.7</span><span class="p">)[</span><span class="n">vic</span><span class="err">@</span><span class="n">fedora</span><span class="o">-</span><span class="n">vic</span> <span class="n">vi</span><span class="o">-</span><span class="n">pelican</span><span class="p">]</span><span class="err">$</span> <span class="n">make</span> <span class="n">publish</span> 
+<span class="n">pelican</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">vic</span><span class="o">/</span><span class="n">develop</span><span class="o">/</span><span class="n">vc</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">vi</span><span class="o">-</span><span class="n">pelican</span><span class="o">/</span><span class="n">content</span> <span class="o">-</span><span class="n">o</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">vic</span><span class="o">/</span><span class="n">develop</span><span class="o">/</span><span class="n">vc</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">vi</span><span class="o">-</span><span class="n">pelican</span><span class="o">/</span><span class="n">output</span> <span class="o">-</span><span class="n">s</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">vic</span><span class="o">/</span><span class="n">develop</span><span class="o">/</span><span class="n">vc</span><span class="o">/</span><span class="n">git</span><span class="o">/</span><span class="n">vi</span><span class="o">-</span><span class="n">pelican</span><span class="o">/</span><span class="n">publishconf</span><span class="p">.</span><span class="n">py</span> 
+<span class="nl">ERROR:</span> <span class="n">Skipping</span> <span class="p">.</span><span class="o">/</span><span class="n">first_blog</span><span class="p">.</span><span class="n">md</span><span class="o">:</span> <span class="n">could</span> <span class="n">not</span> <span class="n">find</span> <span class="n">information</span> <span class="n">about</span> <span class="err">&#39;</span><span class="n">title</span><span class="err">&#39;</span>
+<span class="nl">Done:</span> <span class="n">Processed</span> <span class="mi">0</span> <span class="n">articles</span> <span class="n">and</span> <span class="mi">0</span> <span class="n">pages</span> <span class="n">in</span> <span class="mf">0.99</span> <span class="n">seconds</span><span class="p">.</span>
+</pre></div>
+
+
+<h3>原因：.md 文档格式错误。</h3>
+<div class="highlight"><pre><span class="o">-</span> <span class="err">需要定义</span><span class="n">title</span><span class="err">、</span><span class="n">date</span><span class="err">、</span><span class="n">Category</span><span class="err">、</span><span class="n">Tags</span><span class="err">、</span><span class="n">Slug</span><span class="err">、</span><span class="n">Author</span><span class="err">、</span><span class="n">Summary</span>
+<span class="o">-</span> <span class="err">参考本文档的定义格式</span>
+</pre></div>
+
+
+<h3>参考官方文档</h3>
+<div class="highlight"><pre><span class="o">-</span> <span class="p">(</span><span class="n">http</span><span class="o">:</span><span class="c1">//docs.getpelican.com/en/3.2/getting_started.html#writing-content-using-pelican)</span>
+</pre></div>
+                </div><!-- /.entry-content -->
+                <div class="comments">
+                <h2>Comments !</h2>
+                        <div id="disqus_thread"></div>
+                        <script type="text/javascript">
+                           var disqus_identifier = "pages/2014/03/15/make-publish-error.html";
+                           (function() {
+                                var dsq = document.createElement('script');
+                                dsq.type = 'text/javascript'; dsq.async = true;
+                                dsq.src = 'http://{vic-story}.disqus.com/embed.js';
+                                (document.getElementsByTagName('head')[0] ||
+                                 document.getElementsByTagName('body')[0]).appendChild(dsq);
+                          })();
+                        </script>
+                </div>
+        </article>
 </section>
         </div><!--/span-->
 

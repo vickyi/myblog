@@ -5,41 +5,41 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/index.html</loc>
-<lastmod>2014-03-17T01:44:53-00:00</lastmod>
+<lastmod>2014-03-17T01:53:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/archives.html</loc>
-<lastmod>2014-03-17T01:44:53-00:00</lastmod>
+<lastmod>2014-03-17T01:53:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/tags.html</loc>
-<lastmod>2014-03-17T01:44:53-00:00</lastmod>
+<lastmod>2014-03-17T01:53:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/categories.html</loc>
-<lastmod>2014-03-17T01:44:53-00:00</lastmod>
+<lastmod>2014-03-17T01:53:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://www.zhuimengle.com/make-publish-error.html</loc>
+<loc>http://www.zhuimengle.com/pages/2014/03/15/make-publish-error.html</loc>
 <lastmod>2014-03-15T16:25:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>
 
 <url>
-<loc>http://www.zhuimengle.com/安装Pelican和Markdown.html</loc>
+<loc>http://www.zhuimengle.com/pages/2010/12/03/安装Pelican和Markdown.html</loc>
 <lastmod>2010-12-03T10:20:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
