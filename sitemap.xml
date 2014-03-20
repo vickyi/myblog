@@ -5,30 +5,37 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/index.html</loc>
-<lastmod>2014-03-20T11:08:32-00:00</lastmod>
+<lastmod>2014-03-20T11:14:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/archives.html</loc>
-<lastmod>2014-03-20T11:08:32-00:00</lastmod>
+<lastmod>2014-03-20T11:14:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/tags.html</loc>
-<lastmod>2014-03-20T11:08:32-00:00</lastmod>
+<lastmod>2014-03-20T11:14:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/categories.html</loc>
-<lastmod>2014-03-20T11:08:32-00:00</lastmod>
+<lastmod>2014-03-20T11:14:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.zhuimengle.com/pages/2014/03/20/说说小人.html</loc>
+<lastmod>2014-03-20T11:13:00-00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
 </url>
 
 <url>
@@ -60,6 +67,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.zhuimengle.com/category/shuo-shuo.html</loc>
+<lastmod>2014-03-20T11:13:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.zhuimengle.com/category/work.html</loc>
 <lastmod>2014-03-20T11:02:00-00:00</lastmod>
 <changefreq>daily</changefreq>
@@ -81,6 +95,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.zhuimengle.com/tag/shuo-shuo.html</loc>
+<lastmod>2014-03-20T11:13:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.zhuimengle.com/tag/gong-zuo-zong-jie.html</loc>
 <lastmod>2014-03-20T11:02:00-00:00</lastmod>
 <changefreq>daily</changefreq>
@@ -89,7 +110,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/author/vk.html</loc>
-<lastmod>2014-03-20T11:02:00-00:00</lastmod>
+<lastmod>2014-03-20T11:13:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
