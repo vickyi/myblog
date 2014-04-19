@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>安装Pelican和Markdown - 小V吃鱼卡到了</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="安装Pelican和Markdown"/>
+            <meta property="og:url" content="http://www.zhuimengle.com/pages/2010/12/03/安装Pelican和Markdown.html"/>
+            <meta property="og:description" content="安装Pelican和Markdown"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://www.zhuimengle.com/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://www.zhuimengle.com/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/style.css" type="text/css"/>
+
+        <link href="http://www.zhuimengle.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="小V吃鱼卡到了 ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://www.zhuimengle.com/" class="navbar-brand">
+小V吃鱼卡到了            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a href="http://www.zhuimengle.com/category/python.html">Python</a>
+                        </li>
+                        <li >
+                            <a href="http://www.zhuimengle.com/category/shuo-shuo.html">说说</a>
+                        </li>
+                        <li >
+                            <a href="http://www.zhuimengle.com/category/work.html">Work</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://www.zhuimengle.com/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://www.zhuimengle.com/pages/2010/12/03/安装Pelican和Markdown.html"
+                       rel="bookmark"
+                       title="Permalink to 安装Pelican和Markdown">
+                        安装Pelican和Markdown
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2010-12-03T10:20:00"> 2010-12-03 10:20:00</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://www.zhuimengle.com/tag/pelican.html">pelican</a>
+        /
+	<a href="http://www.zhuimengle.com/tag/publishing.html">publishing</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>My super title</p>
+<h6></h6>
+<h3>安装Pelican和Markdown</h3>
+<div class="highlight"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">pelican</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">markdown</span>
+</pre></div>
+
+
+<h3>搭建骨架</h3>
+<div class="highlight"><pre><span class="n">mkdir</span> <span class="n">vi</span><span class="o">-</span><span class="n">pelican</span>
+<span class="n">cd</span> <span class="n">vi</span><span class="o">-</span><span class="n">pelican</span>
+<span class="n">pelican</span><span class="o">-</span><span class="n">quickstart</span>
+</pre></div>
+
+
+<p>根据提示一步步输入相应的配置项，不知道如何设置的接受默认即可，后续可以通过编辑pelicanconf.py文件更改配置)</p>
+<p>以下是生成的目录结构：
+    blog/
+    ├── content              # 存放输入的源文件
+    │   └── (pages)          # 存放手工创建的静态页面
+    ├── output               # 生成的输出文件
+    ├── develop_server.sh    # 方便开启测试服务器
+    ├── Makefile             # 方便管理博客的Makefile
+    ├── pelicanconf.py       # 主配置文件
+    └── publishconf.py       # 主发布文件，可删除</p>
+<h3>开始写正文</h3>
+<div class="highlight"><pre><span class="err">在</span><span class="n">content</span><span class="err">目录下用</span><span class="n">Markdown</span><span class="err">语法来写一篇文章，最好选择专业的</span><span class="n">Markdown</span><span class="err">编辑器，在</span><span class="n">Mac</span> <span class="n">OS</span> <span class="n">X</span><span class="err">下推荐使用</span><span class="n">Mou</span><span class="err">，在</span><span class="n">Linux</span><span class="o">/</span><span class="n">Windows</span><span class="err">下请</span><span class="n">Google</span><span class="err">。</span>
+</pre></div>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/vickyi"><i
+                            class="fa fa-github-square fa-lg"></i> Github
+                    </a></li>
+                    <li class="list-group-item"><a href="http://www.linkedin.com/profile/view?id=249151161"><i
+                            class="fa fa-linkedin-square fa-lg"></i> linkedin
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="http://www.zhuimengle.com/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group" id="tags">
+                        <li class="list-group-item tag-1">
+                            <a href="http://www.zhuimengle.com/tag/publishing.html">
+                                publishing
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://www.zhuimengle.com/tag/pelican.html">
+                                pelican
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/shuo-shuo.html">
+                                说说
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/gong-zuo-zong-jie.html">
+                                工作总结
+                            </a>
+                        </li>
+                    </ul>
+                </li>    
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://getpelican.com/" target="_blank">
+                Pelican
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://jinja.pocoo.org/" target="_blank">
+                Jinja2
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://github.com/vickyi" target="_blank">
+                Github
+            </a>
+        </li>
+      </ul>
+    </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2014 vk
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://code.jquery.com/jquery.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+
+</body>
+</html>
