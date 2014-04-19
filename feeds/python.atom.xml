@@ -40,6 +40,6 @@
     ├── Makefile             # 方便管理博客的Makefile
     ├── pelicanconf.py       # 主配置文件
     └── publishconf.py       # 主发布文件，可删除&lt;/p&gt;
-&lt;h3&gt;开始写博文&lt;/h3&gt;
+&lt;h3&gt;开始写正文&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;在&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="err"&gt;目录下用&lt;/span&gt;&lt;span class="n"&gt;Markdown&lt;/span&gt;&lt;span class="err"&gt;语法来写一篇文章，最好选择专业的&lt;/span&gt;&lt;span class="n"&gt;Markdown&lt;/span&gt;&lt;span class="err"&gt;编辑器，在&lt;/span&gt;&lt;span class="n"&gt;Mac&lt;/span&gt; &lt;span class="n"&gt;OS&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="err"&gt;下推荐使用&lt;/span&gt;&lt;span class="n"&gt;Mou&lt;/span&gt;&lt;span class="err"&gt;，在&lt;/span&gt;&lt;span class="n"&gt;Linux&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;Windows&lt;/span&gt;&lt;span class="err"&gt;下请&lt;/span&gt;&lt;span class="n"&gt;Google&lt;/span&gt;&lt;span class="err"&gt;。&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;</summary><category term="pelican"></category><category term="publishing"></category></entry></feed>
