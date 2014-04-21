@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="关于MySQL的各种总结"/>
             <meta property="og:url" content="http://www.zhuimengle.com/pages/2014/04/21/guan-yu-mysqlde-ge-chong-zong-jie.html"/>
-            <meta property="og:description" content="@[mysql|database|总结] 总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。 *原文链接： 若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，...表示省略内容，#之后为代码注释。 配置 使用utf8编码 在MySQL的配置文件中做如下设置： [client] default-character-set = utf8 [mysqld] character-set-server = utf8 然后重启MySQL服务，需要注意的是，已经创建的表不受影响。 启用查询日志 [mysqld] ... general-log=1 general-log-file = /var/log/mysql/general.log ... 禁用Innodb引擎 MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。 在my.cnf的mysqld区块内添加如下两行: [mysqld] ... innodb=OFF default_storage_engine=MyISAM ..."/>
+            <meta property="og:description" content="总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。 *原文链接： 若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，...表示省略内容，#之后为代码注释。 配置 使用utf8编码 在MySQL的配置文件中做如下设置： [client] default-character-set = utf8 [mysqld] character-set-server = utf8 然后重启MySQL服务，需要注意的是，已经创建的表不受影响。 启用查询日志 [mysqld] ... general-log=1 general-log-file = /var/log/mysql/general.log ... 禁用Innodb引擎 MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。 在my.cnf的mysqld区块内添加如下两行: [mysqld] ... innodb=OFF default_storage_engine=MyISAM ... 然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况: mysql> SHOW ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -94,11 +94,14 @@
 
 
 
+<span class="label label-default">Tags</span>
+	<a href="http://www.zhuimengle.com/tag/mysql.html">mysql</a>
+        /
+	<a href="http://www.zhuimengle.com/tag/database.html">database</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>@[mysql|database|总结]</p>
-<p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
+                <p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
 <p>*<a href="http://blog.atime.me/note/mysql-summary.html">原文链接：</a></p>
 <p>若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，<code>...</code>表示省略内容，<code>#</code>之后为代码注释。</p>
 <h2>配置</h2>
@@ -340,13 +343,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/editor.html">
-                                Editor
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/error.html">
-                                error
+                            <a href="http://www.zhuimengle.com/tag/markdown.html">
+                                Markdown
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -360,8 +358,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/markdown.html">
-                                Markdown
+                            <a href="http://www.zhuimengle.com/tag/todo.html">
+                                todo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/editor.html">
+                                Editor
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/database.html">
+                                database
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -370,8 +378,28 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/mysql.html">
+                                mysql
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/error.html">
+                                error
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/publishing.html">
                                 publishing
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/about.html">
+                                about
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/reading.html">
+                                reading
                             </a>
                         </li>
                     </ul>

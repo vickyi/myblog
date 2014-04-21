@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/index.html</loc>
-<lastmod>2014-04-21T16:57:18-00:00</lastmod>
+<lastmod>2014-04-21T16:59:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/archives.html</loc>
-<lastmod>2014-04-21T16:57:18-00:00</lastmod>
+<lastmod>2014-04-21T16:59:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/tags.html</loc>
-<lastmod>2014-04-21T16:57:18-00:00</lastmod>
+<lastmod>2014-04-21T16:59:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/categories.html</loc>
-<lastmod>2014-04-21T16:57:18-00:00</lastmod>
+<lastmod>2014-04-21T16:59:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -137,6 +137,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.zhuimengle.com/tag/about.html</loc>
+<lastmod>2014-04-21T16:29:13-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.zhuimengle.com/tag/markdown.html</loc>
 <lastmod>2014-04-21T15:40:49-00:00</lastmod>
 <changefreq>daily</changefreq>
@@ -151,8 +158,22 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.zhuimengle.com/tag/database.html</loc>
+<lastmod>2014-04-21T13:36:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.zhuimengle.com/tag/career.html</loc>
 <lastmod>2014-03-20T11:02:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.zhuimengle.com/tag/mysql.html</loc>
+<lastmod>2014-04-21T13:36:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -181,6 +202,20 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.zhuimengle.com/tag/error.html</loc>
 <lastmod>2014-04-20T14:26:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.zhuimengle.com/tag/reading.html</loc>
+<lastmod>2014-04-21T16:00:30-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.zhuimengle.com/tag/todo.html</loc>
+<lastmod>2014-04-21T16:00:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
