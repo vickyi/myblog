@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/index.html</loc>
-<lastmod>2014-04-22T10:37:05-00:00</lastmod>
+<lastmod>2014-04-22T12:50:40-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/archives.html</loc>
-<lastmod>2014-04-22T10:37:05-00:00</lastmod>
+<lastmod>2014-04-22T12:50:40-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/tags.html</loc>
-<lastmod>2014-04-22T10:37:05-00:00</lastmod>
+<lastmod>2014-04-22T12:50:40-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/categories.html</loc>
-<lastmod>2014-04-22T10:37:05-00:00</lastmod>
+<lastmod>2014-04-22T12:50:40-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -62,13 +62,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.zhuimengle.com/pages/2014/04/20/google-search-error.html</loc>
 <lastmod>2014-04-20T14:26:00-00:00</lastmod>
-<changefreq>monthly</changefreq>
-<priority>0.7</priority>
-</url>
-
-<url>
-<loc>http://www.zhuimengle.com/pages/2014/03/20/from-jijia-to-laifusi.html</loc>
-<lastmod>2014-03-20T11:02:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>
@@ -153,13 +146,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.zhuimengle.com/tag/gitpages.html</loc>
 <lastmod>2010-12-03T10:20:00-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://www.zhuimengle.com/tag/career.html</loc>
-<lastmod>2014-03-20T11:02:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
