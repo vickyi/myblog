@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>database - 小V吃鱼卡到了</title>
+    <title>python - 小V吃鱼卡到了</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -64,45 +64,16 @@
         <div class="col-sm-9">
 
             <article>
-                <h2><a href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">关于MySQL的各种总结</a></h2>
-                <div class="summary"><p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
-<p>*<a href="http://blog.atime.me/note/mysql-summary.html">原文链接：</a></p>
-<p>若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，<code>...</code>表示省略内容，<code>#</code>之后为代码注释。</p>
-<h2>配置</h2>
-<h3>使用utf8编码</h3>
-<p>在MySQL的配置文件中做如下设置：</p>
-<div class="highlight"><pre><span class="k">[client]</span>
-<span class="na">default-character-set</span> <span class="o">=</span> <span class="s">utf8</span>
-
-<span class="k">[mysqld]</span>
-<span class="na">character-set-server</span> <span class="o">=</span> <span class="s">utf8</span>
-</pre></div>
-
-
-<p>然后重启MySQL服务，需要注意的是，已经创建的表不受影响。</p>
-<h3>启用查询日志</h3>
-<div class="highlight"><pre><span class="k">[mysqld]</span>
-<span class="err">...</span>
-<span class="na">general-log</span><span class="o">=</span><span class="s">1</span>
-<span class="na">general-log-file</span> <span class="o">=</span> <span class="s">/var/log/mysql/general.log</span>
-<span class="err">...</span>
-</pre></div>
-
-
-<h3>禁用Innodb引擎</h3>
-<p>MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。</p>
-<p>在my.cnf的mysqld区块内添加如下两行:</p>
-<div class="highlight"><pre><span class="k">[mysqld]</span>
-<span class="err">...</span>
-<span class="na">innodb</span><span class="o">=</span><span class="s">OFF</span>
-<span class="na">default_storage_engine</span><span class="o">=</span><span class="s">MyISAM</span>
-<span class="err">...</span>
-</pre></div>
-
-
-<p>然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况:</p>
-<div class="highlight"><pre><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">SHOW ...</span></pre></div>
-                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">more ...</a>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/03/15/make-publish-error.html">make pulish 时遇见的错误</a></h2>
+                <div class="summary"><p>get error when 'make publish'</p>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/03/15/make-publish-error.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2010/12/03/blog-with-Pelican.html">安装Pelican和Markdown</a></h2>
+                <div class="summary"><p>安装Pelican和Markdown</p>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2010/12/03/blog-with-Pelican.html">more ...</a>
                 </div>
             </article>
             <hr/>
