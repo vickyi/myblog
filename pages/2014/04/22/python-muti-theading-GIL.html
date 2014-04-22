@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Python 多线程 与 GIL"/>
             <meta property="og:url" content="http://www.zhuimengle.com/pages/2014/04/22/python-muti-theading-GIL.html"/>
-            <meta property="og:description" content="GIL 与 Python 线程的纠葛 转载自 道可叨 | Free Will, 再次感谢！ 水木社区上有关于多线程的讨论：为什么说Python没有真正意义上的多线程？ 关于 GIL GIL 是什么东西？它对我们的 python 程序会产生什么样的影响？我们先来看一个问题。运行下面这段 python 程序，CPU 占用率是多少？ # 请勿在工作中模仿，危险:) def dead_loop(): while True: pass dead_loop() 答案是什么呢，占用 100％ CPU？那是单核！还得是没有超线程的古董 CPU。在我的双核 CPU 上，这个死循环只会吃掉我一个核的工作负荷，也就是只占用 50％ CPU。那如何能让它在双核机器上占用 100％ 的 CPU ..."/>
+            <meta property="og:description" content="转载自 道可叨 | Free Will, 再次感谢！ 水木社区上有关于多线程的讨论：为什么说Python没有真正意义上的多线程？ 关于 GIL GIL 是什么东西？它对我们的 python 程序会产生什么样的影响？我们先来看一个问题。运行下面这段 python 程序，CPU 占用率是多少？ # 请勿在工作中模仿，危险:) def dead_loop(): while True: pass dead_loop() 答案是什么呢，占用 100％ CPU？那是单核！还得是没有超线程的古董 CPU。在我的双核 CPU 上，这个死循环只会吃掉我一个核的工作负荷，也就是只占用 50％ CPU。那如何能让它在双核机器上占用 100％ 的 CPU 呢？答案很容易想到，用两个线程就行了，线程不正是并发分享 ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -95,9 +95,7 @@
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h1>GIL 与 Python 线程的纠葛</h1>
-<hr />
-<hr />
+                <hr />
 <p>转载自 <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html">道可叨 | Free Will</a>, 再次感谢！</p>
 <p>水木社区上有关于多线程的讨论：<a href="http://www.newsmth.net/nForum/#!article/Python/112730">为什么说Python没有真正意义上的多线程？</a></p>
 <h2>关于 GIL</h2>
@@ -194,8 +192,6 @@
 <p>其实，从上面的例子，我们还能看出 ctypes 的一个应用，那就是用 Python 写自动化测试用例，通过 ctypes 直接调用 C 模块的接口来对这个模块进行黑盒测试，哪怕是有关该模块 C 接口的多线程安全方面的测试，ctypes 也一样能做到。</p>
 <h2>结语</h2>
 <p>虽然 CPython 的线程库封装了操作系统的原生线程，但却因为 GIL 的存在导致多线程不能利用多个 CPU 内核的计算能力。好在现在 Python 有了易经筋（multiprocessing）, 吸星大法（C 语言扩展机制）和独孤九剑（ctypes），足以应付多核时代的挑战，GIL 切还是不切已经不重要了，不是吗。</p>
-<hr />
-<hr />
             </div>
             <!-- /.entry-content -->
 <section class="well" id="related-posts">
@@ -273,23 +269,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/markdown.html">
-                                Markdown
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/mysql.html">
-                                mysql
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/threading.html">
-                                Threading
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/google.html">
-                                google
+                            <a href="http://www.zhuimengle.com/tag/about.html">
+                                about
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -298,23 +279,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/editor.html">
-                                Editor
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/todo.html">
-                                todo
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/about.html">
-                                about
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/database.html">
-                                database
+                            <a href="http://www.zhuimengle.com/tag/threading.html">
+                                Threading
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -323,8 +289,38 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/mysql.html">
+                                mysql
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/todo.html">
+                                todo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/database.html">
+                                database
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/markdown.html">
+                                Markdown
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/google.html">
+                                google
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/gitpages.html">
                                 gitpages
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/editor.html">
+                                Editor
                             </a>
                         </li>
                     </ul>
