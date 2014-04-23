@@ -67,6 +67,23 @@
         <div class="col-sm-9">
 
             <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/23/convert-utc-to-localtime.html">如何将UTC时间转成 local datetime</a></h2>
+                <div class="summary"><p>在<code>Python</code>项目中，通常我们会把时间按<code>UTC</code>格式来存储，在显示时用本地的方式来显示，现在的问题是，如何将<code>UTC</code>时间转成 local datetime呢？</p>
+<p>下面提供了一种方法, 将当前的<code>UTC</code>时间转成上海(中国大陆时区)时间：</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pytz</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">local_tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">&#39;Asia/Shanghai&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">utc_2_loctime</span><span class="p">(</span><span class="n">utc_dt</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">local_dt</span> <span class="o">=</span> <span class="n">utc_dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">local_tz</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">local_tz</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">local_dt</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">utc_2_loctime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
+<span class="mi">2014</span><span class="o">-</span><span class="mo">04 ...</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/23/convert-utc-to-localtime.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
                 <h2><a href="http://www.zhuimengle.com/pages/2014/04/22/python-muti-theading-GIL.html">Python 多线程 与 GIL</a></h2>
                 <div class="summary"><p>转载自 <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html"><code>道可叨 | Free Will</code></a>, 再次感谢！</p>
 <p>水木社区上有关于多线程的讨论：<a href="http://www.newsmth.net/nForum/#!article/Python/112730"><code>为什么说Python没有真正意义上的多线程？</code></a></p>
@@ -125,23 +142,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/gitpages.html">
-                                gitpages
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/database.html">
-                                database
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/reading.html">
-                                reading
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/editor.html">
                                 Editor
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/todo.html">
+                                todo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/gitpages.html">
+                                gitpages
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -150,23 +162,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/markdown.html">
-                                Markdown
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/mysql.html">
-                                mysql
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/publishing.html">
                                 publishing
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/todo.html">
-                                todo
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -177,6 +174,26 @@
                         <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/about.html">
                                 about
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/reading.html">
+                                reading
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/database.html">
+                                database
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/markdown.html">
+                                Markdown
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/mysql.html">
+                                mysql
                             </a>
                         </li>
                     </ul>

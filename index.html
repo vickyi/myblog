@@ -67,6 +67,23 @@
         <div class="col-sm-9">
 
             <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/23/convert-utc-to-localtime.html">如何将UTC时间转成 local datetime</a></h2>
+                <div class="summary"><p>在<code>Python</code>项目中，通常我们会把时间按<code>UTC</code>格式来存储，在显示时用本地的方式来显示，现在的问题是，如何将<code>UTC</code>时间转成 local datetime呢？</p>
+<p>下面提供了一种方法, 将当前的<code>UTC</code>时间转成上海(中国大陆时区)时间：</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pytz</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">local_tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">&#39;Asia/Shanghai&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">utc_2_loctime</span><span class="p">(</span><span class="n">utc_dt</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">local_dt</span> <span class="o">=</span> <span class="n">utc_dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">local_tz</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">local_tz</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">local_dt</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">utc_2_loctime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
+<span class="mi">2014</span><span class="o">-</span><span class="mo">04 ...</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/23/convert-utc-to-localtime.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
                 <h2><a href="http://www.zhuimengle.com/pages/2014/04/22/python-muti-theading-GIL.html">Python 多线程 与 GIL</a></h2>
                 <div class="summary"><p>转载自 <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html"><code>道可叨 | Free Will</code></a>, 再次感谢！</p>
 <p>水木社区上有关于多线程的讨论：<a href="http://www.newsmth.net/nForum/#!article/Python/112730"><code>为什么说Python没有真正意义上的多线程？</code></a></p>
@@ -169,49 +186,6 @@
                 </div>
             </article>
             <hr/>
-            <article>
-                <h2><a href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">关于MySQL的各种总结</a></h2>
-                <div class="summary"><p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
-<p>*<a href="http://blog.atime.me/note/mysql-summary.html">原文链接：</a></p>
-<p>若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，<code>...</code>表示省略内容，<code>#</code>之后为代码注释。</p>
-<h2>配置</h2>
-<h3>使用utf8编码</h3>
-<p>在MySQL的配置文件中做如下设置：</p>
-<div class="highlight"><pre><span class="k">[client]</span>
-<span class="na">default-character-set</span> <span class="o">=</span> <span class="s">utf8</span>
-
-<span class="k">[mysqld]</span>
-<span class="na">character-set-server</span> <span class="o">=</span> <span class="s">utf8</span>
-</pre></div>
-
-
-<p>然后重启MySQL服务，需要注意的是，已经创建的表不受影响。</p>
-<h3>启用查询日志</h3>
-<div class="highlight"><pre><span class="k">[mysqld]</span>
-<span class="err">...</span>
-<span class="na">general-log</span><span class="o">=</span><span class="s">1</span>
-<span class="na">general-log-file</span> <span class="o">=</span> <span class="s">/var/log/mysql/general.log</span>
-<span class="err">...</span>
-</pre></div>
-
-
-<h3>禁用Innodb引擎</h3>
-<p>MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。</p>
-<p>在my.cnf的mysqld区块内添加如下两行:</p>
-<div class="highlight"><pre><span class="k">[mysqld]</span>
-<span class="err">...</span>
-<span class="na">innodb</span><span class="o">=</span><span class="s">OFF</span>
-<span class="na">default_storage_engine</span><span class="o">=</span><span class="s">MyISAM</span>
-<span class="err">...</span>
-</pre></div>
-
-
-<p>然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况:</p>
-<div class="highlight"><pre><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">SHOW ...</span></pre></div>
-                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">more ...</a>
-                </div>
-            </article>
-            <hr/>
 
     <ul class="pagination">
             <li class="prev disabled"><a href="#">&laquo;</a></li>
@@ -260,23 +234,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/gitpages.html">
-                                gitpages
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/database.html">
-                                database
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/reading.html">
-                                reading
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/editor.html">
                                 Editor
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/todo.html">
+                                todo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/gitpages.html">
+                                gitpages
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -285,23 +254,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/markdown.html">
-                                Markdown
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/mysql.html">
-                                mysql
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/publishing.html">
                                 publishing
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.zhuimengle.com/tag/todo.html">
-                                todo
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -312,6 +266,26 @@
                         <li class="list-group-item tag-4">
                             <a href="http://www.zhuimengle.com/tag/about.html">
                                 about
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/reading.html">
+                                reading
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/database.html">
+                                database
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/markdown.html">
+                                Markdown
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/mysql.html">
+                                mysql
                             </a>
                         </li>
                     </ul>
