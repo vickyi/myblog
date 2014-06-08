@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/index.html</loc>
-<lastmod>2014-06-06T16:03:58-00:00</lastmod>
+<lastmod>2014-06-08T23:00:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/archives.html</loc>
-<lastmod>2014-06-06T16:03:58-00:00</lastmod>
+<lastmod>2014-06-08T23:00:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/tags.html</loc>
-<lastmod>2014-06-06T16:03:58-00:00</lastmod>
+<lastmod>2014-06-08T23:00:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.zhuimengle.com/categories.html</loc>
-<lastmod>2014-06-06T16:03:58-00:00</lastmod>
+<lastmod>2014-06-08T23:00:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://www.zhuimengle.com/pages/2014/06/06/install-openerp-saas-escpos-under-centos65.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
+<loc>http://www.zhuimengle.com/pages/2014/05/02/install-psycopg2-under-centos65-and-redhat.html</loc>
+<lastmod>2014-05-02T16:29:13-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>
@@ -137,15 +137,8 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>http://www.zhuimengle.com/category/openerp.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
 <loc>http://www.zhuimengle.com/category/work.html</loc>
-<lastmod>2014-04-27T01:04:00-00:00</lastmod>
+<lastmod>2014-05-02T16:29:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -160,13 +153,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.zhuimengle.com/tag/markdown.html</loc>
 <lastmod>2014-04-21T15:40:49-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://www.zhuimengle.com/tag/pos.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -208,7 +194,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/tag/centos65.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
+<lastmod>2014-05-02T16:29:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -216,20 +202,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.zhuimengle.com/tag/publishing.html</loc>
 <lastmod>2014-03-15T16:25:00-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://www.zhuimengle.com/tag/openerp.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://www.zhuimengle.com/tag/saas.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -291,6 +263,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.zhuimengle.com/tag/postgresql.html</loc>
+<lastmod>2014-05-02T16:29:13-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.zhuimengle.com/tag/database.html</loc>
 <lastmod>2014-04-21T13:36:00-00:00</lastmod>
 <changefreq>daily</changefreq>
@@ -320,7 +299,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.zhuimengle.com/author/vk.html</loc>
-<lastmod>2014-06-06T15:50:13-00:00</lastmod>
+<lastmod>2014-05-02T16:29:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
