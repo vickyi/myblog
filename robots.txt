@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 User-agent: *
 Disallow: /post/
+=======
+User-agent: *
+Disallow: /post/
+>>>>>>> 725d7e207fc917cfa5df7571a287727831d76a41
 Sitemap: http://www.zhuimengle.com/sitemap.xml

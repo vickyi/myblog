@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Work - 小V吃鱼卡到了</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Open Graph tags -->
+            <meta property="og:type" content="website"/>
+            <meta property="og:title" content="小V吃鱼卡到了"/>
+            <meta property="og:url" content="http://www.zhuimengle.com"/>
+            <meta property="og:description" content="小V吃鱼卡到了"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://www.zhuimengle.com/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://www.zhuimengle.com/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/style.css" type="text/css"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://www.zhuimengle.com/" class="navbar-brand">
+小V吃鱼卡到了            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li >
+                            <a href="http://www.zhuimengle.com/category/about.html">About</a>
+                        </li>
+                        <li >
+                            <a href="http://www.zhuimengle.com/category/blog.html">Blog</a>
+                        </li>
+                        <li >
+                            <a href="http://www.zhuimengle.com/category/note.html">Note</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://www.zhuimengle.com/category/work.html">Work</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://www.zhuimengle.com/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/05/02/install-psycopg2-under-centos65-and-redhat.html">Install psycopg2  under CentOS6.5 and Redhat</a></h2>
+                <div class="summary"><hr />
+<h4>first，edit your bashrc file in your home drictory,and add the following line:</h4>
+<div class="highlight"><pre><span class="n">export</span> <span class="n">PATH</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">pgsql</span><span class="o">-</span><span class="mf">9.3</span><span class="o">/</span><span class="n">bin</span><span class="o">:</span><span class="err">$</span><span class="n">PATH</span>
+</pre></div>
+
+
+<h4>then,</h4>
+<div class="highlight"><pre><span class="err">$</span>  <span class="n">pip</span> <span class="n">install</span> <span class="n">psycopg2</span>
+<span class="p">...</span>
+<span class="n">Successfully</span> <span class="n">installed</span> <span class="n">psycopg2</span>
+<span class="n">Cleaning</span> <span class="n">up</span><span class="p">...</span>
+</pre></div>
+
+
+<h4>Done!</h4>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/05/02/install-psycopg2-under-centos65-and-redhat.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/27/敏捷开发路线图route-map-of-agile-development.html">敏捷开发路线图Route map of agile development</a></h2>
+                <div class="summary"><hr />
+<p><code>敏捷开发</code>是一种以人为核心、迭代、循序渐进的开发方法。在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。换言之，就是把一个大项目分为多个相互联系，但也可独立运行的小项目，并分别完成，在此过程中软件一直处于可使用状态。</p>
+<h3>Test-Driven Development，测试驱动开发。</h3>
+<p>它是敏捷开发的最重要的部分。在ThoughtWorks，我们实现任何一个功能都是从测试开始，首先对业务需求进行分析，分解为一个一个的Story，记录在Story Card上。然后两个人同时坐在电脑前面，一个人依照Story，从业务需求的角度来编写测试代码，另一个人看着他并且进行思考，如果有不同的意见就会提出来进行讨论，直到达成共识，这样写出来的测试代码就真实反映了业务功能需求。接着由另一个人控制键盘，编写该测试代码的实现。如果没有测试代码，就不能编写功能的实现代码。先写测试代码，能够让开发人员明确目标，就是让测试通过。</p>
+<h3>Continuous Integration，持续集成。</h3>
+<p>在以往的软件开发过程中，集成是一件很痛苦的事情，通常很长时间才会做一次集成，这样的话，会引发很多问题，比如 build未通过或者单元测试失败。敏捷开发中提倡持续集成，一天之内集成十几次甚至几十次，如此频繁的集成能尽量减少冲突 ...</p>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/27/敏捷开发路线图route-map-of-agile-development.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/27/敏捷宣言-四种核心价值观和十二条原则.html">敏捷宣言:四种核心价值观和十二条原则</a></h2>
+                <div class="summary"><h3>四种核心价值观</h3>
+<p>我们一直在实践中探寻更好的软件开发方法，身体力行的同时也帮助他人。由此我们建立了如下价值观：</p>
+<blockquote>
+<ul>
+<li>个体和互动 高于 流程和工具</li>
+<li>工作的软件 高于 详尽的文档</li>
+<li>客户合作 高于 合同谈判</li>
+<li>响应变化 高于 遵循计划</li>
+</ul>
+</blockquote>
+<p>也就是说，尽管右项有其价值，我们更重视左项的价值。</p>
+<hr />
+<h3>十二条原则</h3>
+<p>我们遵循以下原则：</p>
+<blockquote>
+<ul>
+<li>我们最重要的目标，是通过持续不断地及早交付有价值的软件使客户满意。</li>
+<li>欣然面对需求变化，即使在开发后期也一样。善于掌控变化，帮助客户获得竞争优势。</li>
+<li>经常地交付可工作的软件，相隔几星期或一两个月，倾向于采取较短的周期。</li>
+<li>业务人员和开发人员必须相互合作，项目中的每一天都不例外。</li>
+<li>激发个体的斗志，以他们为核心搭建项目。提供他们所需的环境和支持，相信他们能够达成目标。</li>
+<li>不论团队内外，传递信息效果最好效率也最高的方式是面对面的交谈。</li>
+<li>可工作的软件是进度的首要度量标准。</li>
+<li>敏捷过程倡导可持续开发。责任人、开发人员和用户要能够共同维持其步调稳定延续。</li>
+<li>对技术精益求精，对设计不断完善，将提高敏捷能力。</li>
+<li>以简洁为本，极力减少不必要工作量。</li>
+<li>最好的架构、需求和设计出自于自组织的团队。</li>
+<li>团队定期地反思如何能提高成效 ...</li></ul></blockquote>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/27/敏捷宣言-四种核心价值观和十二条原则.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/21/Markdown-editor.html">一款专为印象笔记打造的Markdown编辑器:马克飞象</a></h2>
+                <div class="summary"><p><strong>马克飞象</strong>是一款专为印象笔记（Evernote）打造的Markdown编辑器，通过精心的设计与技术实现，配合印象笔记强大的存储能力，带来前所未有的书写体验。特点概述：</p>
+<ul>
+<li><strong>功能丰富</strong> ：支持高亮代码块、插入 <em>LaTex</em> 公式，工作学习好帮手</li>
+<li><strong>得心应手</strong> ：支持插入图片，无论是本地上传/图片URL/拖放图片/直接截图粘贴，随心所欲</li>
+<li><strong>深度整合</strong> ：支持选择笔记本和添加标签，支持从印象笔记跳转编辑，轻松管理</li>
+</ul>
+<hr />
+<h3>Markdown简介</h3>
+<blockquote>
+<p>Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面。    —— <a href="https://zh.wikipedia.org/wiki/Markdown">维基百科</a></p>
+</blockquote>
+<p>正如您在阅读的这份文档，它使用简单的符号标识不同的标题，将某些文字标记为<strong>粗体</strong>或者<em>斜体</em>，下面列举了几个高级功能，更多语法请按<code>Ctrl + ~</code>查看帮助。</p>
+<h4>代码块</h4>
+<div class="highlight"><pre><span class="nd">@requires_authorization</span>
+<span class="k">def</span> <span class="nf">somefunc</span><span class="p">(</span><span class="n">param1</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">param2</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;A docstring ...</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/21/Markdown-editor.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">关于MySQL的各种总结</a></h2>
+                <div class="summary"><p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
+<p>*<a href="http://blog.atime.me/note/mysql-summary.html">原文链接：</a></p>
+<p>若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，<code>...</code>表示省略内容，<code>#</code>之后为代码注释。</p>
+<h2>配置</h2>
+<h3>使用utf8编码</h3>
+<p>在MySQL的配置文件中做如下设置：</p>
+<div class="highlight"><pre><span class="k">[client]</span>
+<span class="na">default-character-set</span> <span class="o">=</span> <span class="s">utf8</span>
+
+<span class="k">[mysqld]</span>
+<span class="na">character-set-server</span> <span class="o">=</span> <span class="s">utf8</span>
+</pre></div>
+
+
+<p>然后重启MySQL服务，需要注意的是，已经创建的表不受影响。</p>
+<h3>启用查询日志</h3>
+<div class="highlight"><pre><span class="k">[mysqld]</span>
+<span class="err">...</span>
+<span class="na">general-log</span><span class="o">=</span><span class="s">1</span>
+<span class="na">general-log-file</span> <span class="o">=</span> <span class="s">/var/log/mysql/general.log</span>
+<span class="err">...</span>
+</pre></div>
+
+
+<h3>禁用Innodb引擎</h3>
+<p>MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。</p>
+<p>在my.cnf的mysqld区块内添加如下两行:</p>
+<div class="highlight"><pre><span class="k">[mysqld]</span>
+<span class="err">...</span>
+<span class="na">innodb</span><span class="o">=</span><span class="s">OFF</span>
+<span class="na">default_storage_engine</span><span class="o">=</span><span class="s">MyISAM</span>
+<span class="err">...</span>
+</pre></div>
+
+
+<p>然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况:</p>
+<div class="highlight"><pre><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">SHOW ...</span></pre></div>
+                    <a class="btn btn-default btn-xs" href="http://www.zhuimengle.com/pages/2014/04/21/mysql-summary.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+    <ul class="pagination">
+            <li class="prev disabled"><a href="#">&laquo;</a></li>
+                <li class="active"><a
+                        href="http://www.zhuimengle.com/category/work.html">1</a></li>
+                <li class=""><a
+                        href="http://www.zhuimengle.com/category/work2.html">2</a></li>
+            <li class="next"><a
+                    href="http://www.zhuimengle.com/category/work2.html">&raquo;</a></li>
+    </ul>
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/vickyi"><i
+                            class="fa fa-github-square fa-lg"></i> Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://bitbucket.org/vickyi"><i
+                            class="fa fa-bitbucket-square fa-lg"></i> Bitbucket
+                    </a></li>
+                    <li class="list-group-item"><a href="http://www.linkedin.com/profile/view?id=249151161"><i
+                            class="fa fa-linkedin-square fa-lg"></i> Linkedin
+                    </a></li>
+                    <li class="list-group-item"><a href="http://weibo.com/u/2045465495"><i
+                            class="fa fa-weibo-square fa-lg"></i> Weibo
+                    </a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="http://www.zhuimengle.com/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group" id="tags">
+                        <li class="list-group-item tag-1">
+                            <a href="http://www.zhuimengle.com/tag/python.html">
+                                Python
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://www.zhuimengle.com/tag/pelican.html">
+                                pelican
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/pair-programming.html">
+                                Pair-Programming
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/about.html">
+                                about
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/automated-testing.html">
+                                Automated Testing
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/threading.html">
+                                Threading
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/centos65.html">
+                                CentOS6.5
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/google.html">
+                                google
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/markdown.html">
+                                Markdown
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/database.html">
+                                database
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/utc.html">
+                                UTC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/tdd.html">
+                                TDD
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/todo.html">
+                                todo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/datetime.html">
+                                datetime
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/continuous-integration.html">
+                                Continuous Integration
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/editor.html">
+                                Editor
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/postgresql.html">
+                                PostGresql
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/publishing.html">
+                                publishing
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/reading.html">
+                                reading
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/gitpages.html">
+                                gitpages
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/refactoring.html">
+                                Refactoring
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://www.zhuimengle.com/tag/mysql.html">
+                                mysql
+                            </a>
+                        </li>
+                    </ul>
+                </li>    
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://www.zhigui.org/" target="_blank">
+                一路向东
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://blog.atime.me/" target="_blank">
+                MWB
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://eleveni386.7axu.com" target="_blank">
+                eleven
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://neteue.com" target="_blank">
+                小邪兽_deepin
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://frantic1048.com/" target="_blank">
+                Frantic1048
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.dongxf.com/" target="_blank">
+                晓风'Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.linuxzen.com/" target="_blank">
+                cold's world
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://jeffknupp.com/" target="_blank">
+                jeffknupp
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://evilbinary.org/" target="_blank">
+                邪恶的二进制
+            </a>
+        </li>
+      </ul>
+    </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2014 vk
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://code.jquery.com/jquery.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vic-story'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+</body>
+</html>
