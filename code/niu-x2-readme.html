@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niu-X2 pelican主题说明文档 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/font-awesome/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/code/niu-x2-readme.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/code/index.html">
+                      <i class="fa fa-code"></i>代码
+                      (2)</a></li>
+               <li><a href="http://www.zhuimengle.com/collection/index.html">
+                      <i class="fa fa-briefcase"></i>搜藏
+                      (6)</a></li>
+               <li><a href="http://www.zhuimengle.com/essay/index.html">
+                      <i class="fa fa-leaf"></i>随笔
+                      (7)</a></li>
+               <li><a href="http://www.zhuimengle.com/life/index.html">
+                      <i class="fa fa-coffee"></i>日常
+                      (8)</a></li>
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>笔记
+                      (2)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>研究
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Niu-X2 pelican主题说明文档</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p><a href="https://github.com/wilbur-ma/niu-x2">Niu-X2</a> is a responsive theme for pelican, built with bootstrap3 and font-awesome.  As I am pretty new to bootstrap and jinja2, the codes look messy and may be buggy. If you find any bugs, please let me know.</p>
+<h2 id="794df3791a8c800841516007427a2aa3">License</h2>
+<p>BSD 3-Clause License. Please see <a href="https://raw.github.com/wilbur-ma/niu-x2/master/LICENSE.txt">LICENSE.txt</a> for more details.</p>
+<h2 id="f0258b6685684c113bad94d91b8fa02a">Demo</h2>
+<p><img alt="Demo image of niu-x2 theme" src="https://raw.github.com/wilbur-ma/niu-x2/master/screenshot.png" title="niu-x2 demo image" /></p>
+<p>You can check out my blog <a href="http://blog.atime.me">blog.atime.me</a> for a live demo.</p>
+<h2 id="98f770b0af18ca763421bac22b4b6805">Features</h2>
+<ul>
+<li>Bootstrap3.0.0, font-awesome3.2.1 and jQuery1.10 included.</li>
+<li>Responsive. </li>
+<li>Disqus, duoshuo, google analytics and google custom search support.</li>
+<li>Pagination bar with customizable length. </li>
+<li>Tagcloud implemented with <a href="https://code.google.com/p/tagcloud">tagcloud.js</a> which supports incremental search.</li>
+<li>Collapsible monthly archives.</li>
+<li>Auto-generated copyright year range, which is actually from the year of your first article to the lastest.</li>
+<li>Fixed position navigation bar.</li>
+<li>TOC(table of contents) in navigation bar with the help of <a href="https://github.com/wilbur-ma/extract_headings">extract_headings</a> plugin, with no addtional dependencies and no <code>[TOC]</code> in your markdown file. (Currently only markdown is supported)</li>
+<li>Article/Page comment on/off controled by file metadata.</li>
+<li>Pygments theme support.</li>
+<li>Categories shown in a dropdown list.</li>
+<li>Category aliases, which should be useful when you set <code>USE_FOLDER_AS_CATEGORY</code> to <code>True</code>.</li>
+<li>Custom dropdown menu, footer links and footer icons through pelican configuration with font-awesome icons.</li>
+<li>Custom 404 page.</li>
+<li>Translations through pelican configuration.</li>
+</ul>
+<h2 id="c64518704ce0c0d5501a45763f464276">Usage</h2>
+<p>If you are hosting your pelican site locally, please remeber to set the <code>SITEURL</code> variable empty in your pelican configuration, otherwise the theme will not be able to find the css and js static files correctly. </p>
+<p>For more theme related configurations, please refer to <code>Theme settings</code> section below.</p>
+<p>First clone the repository:</p>
+<div class="codehilite"><pre>git clone https://github.com/wilbur-ma/niu-x2
+</pre></div>
+
+
+<p>Then set <code>THEME</code> variable to the path of the repository folder you have just cloned in your pelican configuration.</p>
+<div class="codehilite"><pre>THEME = ~/repo/niu-x2
+</pre></div>
+
+
+<p>The theme depends on the jinja2 <code>expression statement</code> extension which should be added to your pelican configuration as below:</p>
+<div class="codehilite"><pre>JINJA_EXTENSIONS = [&#39;jinja2.ext.ExprStmtExtension&#39;,]
+</pre></div>
+
+
+<h2 id="b7b1e314614cf326c6e2b6eba1540682">TODO</h2>
+<ol>
+<li>Better SEO support.</li>
+</ol>
+<h2 id="24ef90eba8179a42bbac09d57b021eac">Global pelican settings</h2>
+<p>Currently the following pelican configuration variables are supported:</p>
+<ul>
+<li><code>DISQUS_SITENAME</code> is your disqus site ID.</li>
+<li><code>GOOGLE_ANALYTICS</code> is your Google analytics ID.</li>
+</ul>
+<h2 id="00e04b10b071ec3c2add6defcf320011">Custom css</h2>
+<p>You can define custom css codes in <code>niu-x2/static/css/custom.css</code>, and they will be available to all the templates.</p>
+<h2 id="55b8deb25fdc0f8b628027f7d1d21cbe">Theme settings</h2>
+<p>Note that:</p>
+<ul>
+<li>All the following theme configuration variables are optional.</li>
+<li>All the icons come from font awesome. You can find the icon class name <a href="http://fortawesome.github.io/Font-Awesome/icons/">here</a>.</li>
+</ul>
+<h3 id="d7ee6cb30a76628bb55be31a49d5899e">Enable/Disable comments</h3>
+<p>The theme enables comments for all the articles and pages by default. However you can disable comments for some particular articles or pages by setting <code>Comment</code> metadata to any value other than <code>on</code>, e.g.:</p>
+<div class="codehilite"><pre>Title: An Article With No Comments
+Date: 2013-09-09 21:38:00
+Comment: off
+</pre></div>
+
+
+<h3 id="3a72ba85f90c44f85a17e05a69640a39">Custom 404</h3>
+<ul>
+<li><code>NIUX2_404_TITLE_TRANSL</code> string(default "ERROR 404 Page Not Found!"), title of the 404 page</li>
+<li><code>NIUX2_404_INFO_TRANSL</code> string(default "The requested url was not found!"), warning infomation on the 404 page</li>
+</ul>
+<p>You should add the following setting to your pelican configuration.</p>
+<div class="codehilite"><pre>TEMPLATE_PAGES = {
+    &quot;404.html&quot;: &quot;404.html&quot;,
+}
+</pre></div>
+
+
+<h3 id="8a469ba3cf9c2f5fd527819120c1684f">Pygments theme</h3>
+<p>First make sure you have enabled the <code>codehilite</code> markdown extension(pelican enables it by default). Then you can pick you favorite theme
+in the <code>static/css/pygments</code> folder. Currently all the theme css files come from the <a href="https://github.com/richleland/pygments-css">pygments-css</a> repository. At last you should set the <code>NIUX2_PYGMENTS_THEME</code> variable to the file name of the theme with no .css extension at the end. For example:</p>
+<div class="codehilite"><pre>NIUX2_PYGMENTS_THEME = &#39;borland&#39;
+</pre></div>
+
+
+<p>If <code>NIUX2_PYGMENTS_THEME</code> is not set, niu-x2 uses <code>github</code> theme by default.</p>
+<h3 id="6cec270bbace611f5d6d058e56043563">Google custom search engine</h3>
+<ul>
+<li><code>NIUX2_GOOGLE_CSE_ID</code> is your your google custom <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&amp;answer=2649143">search engine id</a>.</li>
+<li><code>NIUX2_SEARCH_TRANSL</code> is the search text displayed in header bar, which is "Search" by default.</li>
+<li><code>NIUX2_SEARCH_PLACEHOLDER_TRANSL</code> is the placeholder of your search box, which is "Press enter to search ..." by default. </li>
+</ul>
+<p>The css codes above will set the width of your search box to 200px.</p>
+<h4 id="e646e16bee8b32e6ea29e30d01970a6c">Limitations</h4>
+<p>Currently, there is not a search result page in this theme, so I suggest that you display the search results in a Google-hosted page. </p>
+<h3 id="693988bd96bbe0d8014df58c5a824e15">Category aliases</h3>
+<p><code>NIUX2_CATEGORY_MAP</code> is a dictionary of category aliases, of which each item follows the format <code>original name: (display name, icon class)</code>, if you do not want a icon, just leave the icon class empty. e.g.:</p>
+<div class="codehilite"><pre>NIUX2_CATEGORY_MAP = {
+    &quot;code&quot;: (&quot;代码&quot;, &quot;icon-code&quot;)
+    &quot;note&quot;: (&quot;笔记&quot;, &quot;&quot;),
+}
+</pre></div>
+
+
+<h3 id="3e5ee10537dd32df4c4d7e5d54f269f4">Navigation bar</h3>
+<p><code>NIUX2_HEADER_SECTIONS</code> is a list of links displayed on the fixed position navigation bar. Each link element is a tuple with the format <code>(link value, link title, link href, icon class)</code> e.g.:</p>
+<div class="codehilite"><pre>NIUX2_HEADER_SECTIONS = [ 
+     (&quot;关于&quot;, &quot;about&quot;, &quot;/about.html&quot;, &quot;icon-anchor&quot;),
+     (&quot;存档&quot;, &quot;archives&quot;, &quot;/archives.html&quot;, &quot;icon-archive&quot;),
+     (&quot;标签&quot;, &quot;tags&quot;, &quot;/tag/&quot;, &quot;icon-tag&quot;),
+]
+</pre></div>
+
+
+<p><code>NIUX2_HEADER_DROPDOWN_SECTIONS</code> is a dictionary of dropdown menu. The key is a tuple with the format <code>(display name, icon class)</code>, and the corresponding value is actually a <code>NIUX2_HEADER_SECTIONS</code> list, e.g.:</p>
+<div class="codehilite"><pre>NIUX2_HEADER_DROPDOWN_SECTIONS = [
+    (&quot;custom drop down&quot;, &quot;icon-archive&quot;): [
+        (&quot;关于&quot;, &quot;about&quot;, &quot;/about.html&quot;, &quot;icon-anchor&quot;),
+        (&quot;存档&quot;, &quot;archives&quot;, &quot;/archives.html&quot;, &quot;icon-archive&quot;),
+        ],
+    (&quot;custom drop down2&quot;, &quot;icon-folder-open&quot;): [
+        (&quot;标签&quot;, &quot;tags&quot;, &quot;/tag/&quot;, &quot;icon-tag&quot;),
+        ],
+]
+</pre></div>
+
+
+<h3 id="4c3bc9ef50b4a23e0fb0a6ee3d98c6bc">Footer icons</h3>
+<p><code>NIUX2_FOOTER_ICONS</code> is a list of icon links shown in the footer section. Each element follows the format <code>(icon class, link title, link href)</code>, e.g.:</p>
+<div class="codehilite"><pre>NIUX2_FOOTER_ICONS = [
+     (&quot;icon-envelope-alt&quot;, &quot;my email address&quot;, &quot;mailto: wilbur.ma@foxmail.com&quot;),
+     (&quot;icon-github-alt&quot;, &quot;my github page&quot;, &quot;http://github.com/wilbur-ma&quot;),
+     (&quot;icon-rss&quot;, &quot;subscribe my blog via rss&quot;, &quot;http://atime.me/feed.xml&quot;),
+     ]
+</pre></div>
+
+
+<h3 id="b3dda00f4ce1d66748d7bf1a86c99c7d">Translation settings</h3>
+<ul>
+<li><code>NIUX2_404_TITLE_TRANSL</code> string(default "ERROR 404 Page Not Found!"), title of the 404 page</li>
+<li><code>NIUX2_404_INFO_TRANSL</code> string(default "The requested url was not found!"), warning infomation on the 404 page</li>
+<li><code>NIUX2_TAG_TRANSL</code> string(default "Tag"), translation of tag</li>
+<li><code>NIUX2_ARCHIVE_TRANSL</code> string(default "Archive"), translation of archive</li>
+<li><code>NIUX2_CATEGORY_TRANSL</code> string(default "Category"), translation of category</li>
+<li><code>NIUX2_TAG_CLEAR_TRANSL</code> string(default "clear"), name of clear button on the tags page</li>
+<li><code>NIUX2_TAG_FILTER_TRANSL</code> string(default "filter tags"), placeholder of the tag_filter input on the tags page</li>
+<li><code>NIUX2_HEADER_TOC_TRANSL</code> string(default "TOC"), name of the categories dropdown menu</li>
+<li><code>NIUX2_SEARCH_TRANSL</code> string(default "Search"), name displayed for google cse in the header bar</li>
+<li><code>NIUX2_SEARCH_PLACEHOLDER_TRANSL</code> string(default "Press enter to search ..."), placeholder of the header search box</li>
+<li><code>NIUX2_COMMENTS_TRANSL</code> string(default "Comments"), translation of comments</li>
+<li><code>NIUX2_LASTMOD_TRANSL</code> string(default "Last modified:"), translation of last modified label, need pelican update_date plugin support</li>
+</ul>
+<h3 id="c44b4d6677e607ed99e97beb5ad3c886">Misc settings</h3>
+<ul>
+<li><code>NIUX2_PAGINATOR_LENGTH</code> int(default 11), the length of your pagination bar</li>
+<li><code>NIUX2_FAVICON_URL</code> string(default "/favicon.png"), your favicon url</li>
+<li><code>NIUX2_FOOTER_LINKS</code> a <code>NIUX2_HEADER_SECTIONS</code> format list shown right after your copyright info in the footer section</li>
+<li><code>NIUX2_DISPLAY_TITLE</code> boolean(default True), whether to display the title of article and page</li>
+<li><code>NIUX2_DUOSHUO_SHORTNAME</code> string(default None), your duoshuo shortname. Note that if <code>DISQUS_SITENAME</code> is set, duoshuo will not be loaded.</li>
+<li><code>NIUX2_LIB_THEME</code> string(default SITEURL+'/theme'), url of niu-x2 theme root</li>
+<li><code>NIUX2_LIB_FONTAWESOME</code> string(default '//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css'), url of font-awesome</li>
+<li><code>NIUX2_LIB_BOOTSTRAP_JS</code> string(default 'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js'), url of bootstrap javascript</li>
+<li><code>NIUX2_LIB_JQUERY</code> string(default 'http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js'), url of jquery</li>
+</ul>
+    </div>
+    <div id="content-comments">
+<div id="disqus_thread"></div>
+<script type="text/javascript">var disqus_shortname="vic-story";(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src="//"+disqus_shortname+".disqus.com/embed.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-10-23 10:23</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-06-29 03:05</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-code"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/code/index.html">代码</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/doc.html">doc</a><sup>2</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/pelican.html">pelican</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/theme.html">theme</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/python.html">python</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/jinja2.html">jinja2</a><sup>1</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Niu-X2 pelican主题说明文档</a></li>
+            <li><a href='#794df3791a8c800841516007427a2aa3'>License</a></li><li><a href='#f0258b6685684c113bad94d91b8fa02a'>Demo</a></li><li><a href='#98f770b0af18ca763421bac22b4b6805'>Features</a></li><li><a href='#c64518704ce0c0d5501a45763f464276'>Usage</a></li><li><a href='#b7b1e314614cf326c6e2b6eba1540682'>TODO</a></li><li><a href='#24ef90eba8179a42bbac09d57b021eac'>Global pelican settings</a></li><li><a href='#00e04b10b071ec3c2add6defcf320011'>Custom css</a></li><li><a href='#55b8deb25fdc0f8b628027f7d1d21cbe'>Theme settings</a><ol><li><a href='#d7ee6cb30a76628bb55be31a49d5899e'>Enable/Disable comments</a></li><li><a href='#3a72ba85f90c44f85a17e05a69640a39'>Custom 404</a></li><li><a href='#8a469ba3cf9c2f5fd527819120c1684f'>Pygments theme</a></li><li><a href='#6cec270bbace611f5d6d058e56043563'>Google custom search engine</a><ol><li><a href='#e646e16bee8b32e6ea29e30d01970a6c'>Limitations</a></li></ol></li><li><a href='#693988bd96bbe0d8014df58c5a824e15'>Category aliases</a></li><li><a href='#3e5ee10537dd32df4c4d7e5d54f269f4'>Navigation bar</a></li><li><a href='#4c3bc9ef50b4a23e0fb0a6ee3d98c6bc'>Footer icons</a></li><li><a href='#b3dda00f4ce1d66748d7bf1a86c99c7d'>Translation settings</a></li><li><a href='#c44b4d6677e607ed99e97beb5ad3c886'>Misc settings</a></li></ol></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+        / 			<a class="niu2-footer-link" href="/about.html" title="about me">About</a>
+        / 			<a class="niu2-footer-link" href="/agreement.html" title="terms, license and privacy etc.">Agreement</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="mailto: mawenbao@hotmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="http://github.com/mawenbao" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>
