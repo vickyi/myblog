@@ -3,8 +3,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tags - 小V吃鱼卡到了</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.png">
+    <title>标签 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="http://www.zhuimengle.com/theme/font-awesome/css/font-awesome.min.css" type="text/css" />
     <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
@@ -31,14 +31,29 @@
     </div>
     <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
         <ul class="nav navbar-nav">
-        <li><a href="http://www.zhuimengle.com/tag/index.html">
-                <i class="fa fa-tag"></i>Tag</a>
-        </li>
-        <li><a href="http://www.zhuimengle.com/archives.html">
-                <i class="fa fa-archive"></i>Archive
-            </a>
-        </li>
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
         <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+           </ul>
+        </li>
         <!--  self defined dropdown list -->
         </ul>
         
@@ -52,11 +67,11 @@
     
     <div id="body-content">
 <div class="col-md-8 col-md-offset-2">
-    <h1><i class="fa fa-tags"></i>Tag</h1>
-    <input id="niu2-tagcloud-filter-input" type="text" placeholder="filter tags"
+    <h1><i class="fa fa-tags"></i>标签</h1>
+    <input id="niu2-tagcloud-filter-input" type="text" placeholder="过滤标签"
            class="form-control pull-left" onkeyup="tag_filter()">
     <button class="btn btn-success niu2-button" 
-            onclick="$('#niu2-tagcloud-filter-input').val('');tag_filter()">clear</button>
+            onclick="$('#niu2-tagcloud-filter-input').val('');tag_filter()">清空</button>
     <div id="niu2-tagcloud">
     </div>
 </div>
@@ -73,10 +88,24 @@
 	</p>
 	<p>
 		©
-				2013
+		     2013
 		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+        / 			<a class="niu2-footer-link" href="/about.html" title="about me">About</a>
+        / 			<a class="niu2-footer-link" href="/agreement.html" title="terms, license and privacy etc.">Agreement</a>
     </p>
     <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="mailto: mawenbao@hotmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="http://github.com/mawenbao" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
 	</p>
 </div></div>
     
@@ -88,9 +117,6 @@
 <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/tagcloud.min.js"></script>
     <script type="text/javascript">
 var tc = TagCloud.create();
-tc.add('captcha', 1, 'http://www.zhuimengle.com/tag/captcha.html', null);
-tc.add('php', 1, 'http://www.zhuimengle.com/tag/php.html', null);
-tc.add('dokuwiki', 1, 'http://www.zhuimengle.com/tag/dokuwiki.html', null);
 tc.loadEffector('CountSize');tc.loadEffector('CountSize');
 
 function tag_filter() {
