@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 import datetime
 
-AUTHOR = u'Ma Wenbao'
-SITENAME = u'MWB日常笔记'
-SITEURL = 'http://blog.atime.me'
+AUTHOR = u'vk'
+SITENAME = u'小V吃鱼卡到了'
+SITEURL = 'http://www.zhuimengle.com'
 #SITEURL = 'http://localhost:8000'
 
 TIMEZONE = 'Asia/Shanghai'
@@ -134,7 +134,7 @@ NIUX2_LASTMOD_TRANSL = '最后修改'
 NIUX2_PAGE_TITLE_TRANSL = '页面'
 NIUX2_RECENT_UPDATE_TRANSL = '最近修改'
 
-NIUX2_DUOSHUO_SHORTNAME = 'atime-me'
+NIUX2_DUOSHUO_SHORTNAME = 'vic-story'
 NIUX2_PYGMENTS_THEME = 'github'
 NIUX2_PAGINATOR_LENGTH = 11
 NIUX2_RECENT_UPDATE_NUM = 10
