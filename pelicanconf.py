@@ -22,6 +22,7 @@ DEFAULT_LANG = u'zh_CN'
 FILENAME_METADATA = '(?P<slug>.*)'
 #DISQUS_SITENAME = 'atime-me'
 #GOOGLE_ANALYTICS = 'UA-45005256-1'
+
 # feed config
 FEED_DOMAIN = SITEURL
 FEED_ALL_RSS = 'feed.xml'
@@ -29,6 +30,7 @@ FEED_MAX_ITEMS = 20
 FEED_ALL_ATOM = None
 CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
+
 # use directory name as category if not set
 USE_FOLDER_AS_CATEGORY = True
 DELETE_OUTPUT_DIRECTORY = True
@@ -63,6 +65,7 @@ CATEGORY_SAVE_AS = CATEGORY_URL
 TAG_URL = 'tag/{slug}.html'
 TAG_SAVE_AS = TAG_URL
 TAGS_SAVE_AS = 'tag/index.html'
+
 # disable author pages
 AUTHOR_SAVE_AS = ''
 AUTHORS_SAVE_AS = ''
@@ -70,6 +73,7 @@ AUTHORS_SAVE_AS = ''
 TEMPLATE_PAGES = {
         "404.html": "404.html",
         }
+
 JINJA_EXTENSIONS = ['jinja2.ext.ExprStmtExtension',]
 
 # plugin config
@@ -165,6 +169,20 @@ NIUX2_HEADER_SECTIONS = [
         ('存档', 'blog archives', '/archives.html', 'fa-archive'),
         ('标签', 'blog tags', '/tag/', 'fa-tag'),
         ]
+
+# Blogroll
+LINKS = ((u"一路向东", "http://www.zhigui.org/"),
+    ('MWB', 'http://blog.atime.me/'),
+    ('eleven', 'http://eleveni386.7axu.com'),
+    (u'小邪兽_deepin', "http://neteue.com"),
+    (u'Frantic1048', "http://frantic1048.com/"),
+    (u"晓风'Blog", "http://www.dongxf.com/"),
+    (u"cold's world", "http://www.linuxzen.com/"),
+    (u"jeffknupp", "http://jeffknupp.com/"),
+    (u"邪恶的二进制", "http://evilbinary.org/")
+    )
+
+
 #NIUX2_HEADER_DROPDOWN_SECTIONS = {
 #        ('社区', 'fa-user'): [
 #            ('留言板', 'guestbook', 'http://qa.atime.me', 'fa-comment'),
