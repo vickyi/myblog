@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 import datetime
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 AUTHOR = u'vk'
 SITENAME = u'小V吃鱼卡到了'
