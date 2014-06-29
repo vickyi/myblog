@@ -21,7 +21,7 @@ LOCALE = ('zh_CN.utf8',)
 DEFAULT_LANG = u'zh_CN'
 FILENAME_METADATA = '(?P<slug>.*)'
 #DISQUS_SITENAME = 'atime-me'
-GOOGLE_ANALYTICS = 'UA-45005256-1'
+#GOOGLE_ANALYTICS = 'UA-45005256-1'
 # feed config
 FEED_DOMAIN = SITEURL
 FEED_ALL_RSS = 'feed.xml'
@@ -50,7 +50,7 @@ EXTRA_PATH_METADATA = {
         'extra/favicon.ico': { 'path': 'favicon.ico' },
         'extra/LICENSE.txt': { 'path': 'LICENSE.txt' },
         'extra/robots.txt': { 'path': 'robots.txt' },
-        'extra/googlea4ca86ec98912b58.html': {'path': 'googlea4ca86ec98912b58.html' },
+#        'extra/googlea4ca86ec98912b58.html': {'path': 'googlea4ca86ec98912b58.html' },
         'extra/BingSiteAuth.xml': {'path': 'BingSiteAuth.xml' },
 }
 
@@ -142,7 +142,7 @@ NIUX2_PYGMENTS_THEME = 'github'
 NIUX2_PAGINATOR_LENGTH = 11
 NIUX2_RECENT_UPDATE_NUM = 10
 NIUX2_FAVICON_URL = '/favicon.ico'
-NIUX2_GOOGLE_CSE_ID = '016368690064160370938:8u3wwjza9c4'
+#NIUX2_GOOGLE_CSE_ID = '016368690064160370938:8u3wwjza9c4'
 NIUX2_DISPLAY_TITLE = True
 
 #NIUX2_LIB_THEME = 'http://atime-me.qiniudn.com/niu-x2'
@@ -151,12 +151,12 @@ NIUX2_LIB_FONTAWESOME = '//netdna.bootstrapcdn.com/font-awesome/4.0.3'
 NIUX2_LIB_JQUERY = '//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js'
 
 NIUX2_CATEGORY_MAP = {
-        'code': ('代码', 'fa-code'),
-        'collection': ('搜藏', 'fa-briefcase'),
+        'code': ('程序员', 'fa-code'),
+        'collection': ('收藏', 'fa-briefcase'),
         'essay': ('随笔', 'fa-leaf'),
-        'life': ('日常', 'fa-coffee'),
-        'note': ('笔记', 'fa-book'),
-        'research': ('研究', 'fa-flask'),
+        'life': ('生活', 'fa-coffee'),
+        'note': ('印象-笔记', 'fa-book'),
+        'research': ('实验室', 'fa-flask'),
         }
 NIUX2_HEADER_SECTIONS = [
         ('关于', 'about me', '/about.html', 'fa-anchor'),
@@ -165,21 +165,21 @@ NIUX2_HEADER_SECTIONS = [
         ('存档', 'blog archives', '/archives.html', 'fa-archive'),
         ('标签', 'blog tags', '/tag/', 'fa-tag'),
         ]
-NIUX2_HEADER_DROPDOWN_SECTIONS = {
-        ('社区', 'fa-user'): [
-            ('留言板', 'guestbook', 'http://qa.atime.me', 'fa-comment'),
-            (' Wiki', 'dokuwiki', 'http://wiki.atime.me', 'fa-puzzle-piece'),
-            ],
-        }
-NIUX2_FOOTER_LINKS = [
-        ('关于', 'about me', '/about.html', ''),
-        ('协议', 'terms, license and privacy etc.', '/agreement.html', ''),
-        ]
+#NIUX2_HEADER_DROPDOWN_SECTIONS = {
+#        ('社区', 'fa-user'): [
+#            ('留言板', 'guestbook', 'http://qa.atime.me', 'fa-comment'),
+#            (' Wiki', 'dokuwiki', 'http://wiki.atime.me', 'fa-puzzle-piece'),
+#            ],
+#        }
+#NIUX2_FOOTER_LINKS = [
+#        ('关于', 'about me', '/about.html', ''),
+#        ('协议', 'terms, license and privacy etc.', '/agreement.html', ''),
+#        ]
 
 NIUX2_FOOTER_ICONS = [
         ('fa-key', 'my public key', '/my_gnupg.html'),
-        ('fa-envelope-o', 'my email address', 'mailto: mawenbao@hotmail.com'),
-        ('fa-github-alt', 'my github page', 'http://github.com/mawenbao'),
+        ('fa-envelope-o', 'my email address', 'V: dolphinzhang1987@gmail.com'),
+        ('fa-github-alt', 'my github page', 'https://github.com/vickyi'),
         ('fa-rss', 'subscribe my blog', '/feed.xml'),
         ]
 
