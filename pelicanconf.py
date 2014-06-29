@@ -22,6 +22,7 @@ DEFAULT_LANG = u'zh_CN'
 FILENAME_METADATA = '(?P<slug>.*)'
 #DISQUS_SITENAME = 'atime-me'
 #GOOGLE_ANALYTICS = 'UA-45005256-1'
+OUTPUT_RETENTION = ((".git"))
 
 # feed config
 FEED_DOMAIN = SITEURL
