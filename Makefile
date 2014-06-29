@@ -57,6 +57,7 @@ github: html
 	ghp-import -m $(GITHUB_PAGES_UPDATE_MSG) $(OUTPUTDIR)
 	git add -A
 	git commit -am "update site"
+	git pull
 	git push $(GITHUB_PUSH_OPTIONS) $(GITHUB_PAGES_REPO)
 	#git pull origin master
 	#git push $(GITHUB_PUSH_OPTIONS) $(GITHUB_PAGES_REPO)
