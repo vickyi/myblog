@@ -1,0 +1,9 @@
+[submodule "plugins/extract_headings"]
+	path = plugins/extract_headings
+	url = git@github.com:vickyi/extract_headings.git
+[submodule "plugins/update_date"]
+	path = plugins/update_date
+	url = git@github.com:vickyi/pelican-update-date.git
+[submodule "themes/niu-x2-sidebar"]
+	path = themes/niu-x2-sidebar
+	url = git@github.com:vickyi/niu-x2-sidebar.git
