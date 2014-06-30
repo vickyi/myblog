@@ -1,0 +1,2413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>小V吃鱼卡到了</title><link>http://www.zhuimengle.com/</link><description></description><atom:link href="http://www.zhuimengle.com/feed.xml" rel="self"></atom:link><lastBuildDate>Thu, 10 Apr 2014 20:09:00 +0800</lastBuildDate><item><title>Sphinx/Coreseek搭建全文搜索引擎二三事</title><link>http://www.zhuimengle.com/note/sphinx-coreseek-summary.html</link><description>&lt;p&gt;最近忙着做一个coreseek全文检索的项目，都没时间更新博客了。目前项目已接近尾声，这里总结下coreseek的安装，配置和项目的设计考量等，以备将来查询。&lt;/p&gt;
+&lt;h2 id="29c80db55a999c5cd732e46e0c6650c6"&gt;开发环境&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;操作系统: Ubuntu 12.04 x86-64&lt;/li&gt;
+&lt;li&gt;Coreseek: 4.1测试版(Sphinx-2.0.1)&lt;/li&gt;
+&lt;li&gt;Python: 2.7&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="4afdb7df03bb281cc63ab7bfc30a7403"&gt;Sphinx/Coreseek简介&lt;/h2&gt;
+&lt;p&gt;&lt;a href="http://sphinxsearch.com/"&gt;Sphinx&lt;/a&gt;是一个高性能的全文检索引擎，使用C++语言开发，采用GPL协议发布，可购买商业授权，目前的稳定版本是2.1.7。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.coreseek.cn/"&gt;Coreseek&lt;/a&gt;是基于Sphinx的中文全文检索引擎，使用&lt;a href="http://technology.chtsai.org/mmseg/"&gt;MMSEG算法&lt;/a&gt;进行中文分词，并且提供&lt;a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#pysource"&gt;Python数据源&lt;/a&gt;。Coreseek采用GPLv2协议发布，可购买商业授权，目前的稳定版本是3.2.14，基于Sphinx-0.9.9，测试版本是4.1，基于Sphinx-2.0.1。（另外，Coreseek官方论坛在2013年的年末称即将发布&lt;a href="http://www.coreseek.cn/forum/4_11166_0.html"&gt;5.0版本&lt;/a&gt;，不过至今无详细消息）&lt;/p&gt;
+&lt;h2 id="6334257e417ff218d6399cc8168e53df"&gt;Sphinx/Coreseek安装&lt;/h2&gt;
+&lt;p&gt;下载Coreseek-4.1的源代码&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;wget http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz
+tar xvf coreseek-4.1.beta.tar.gz
+cd coreseek-4.1-beta
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解压后发现有三个目录，主要的目录结构如下&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;coreseek-4.1-beta/
+    csft-4.1/           coreseek修改sphinx-2.0.1后的代码
+        api/            sphinx searchd[查询API][6]的实现
+    mmseg-3.2.14/       libmmseg分词库
+    testpack/           测试和配置示例
+    README.txt          介绍和安装指南
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;按照官方的&lt;a href="http://www.coreseek.cn/products-install/install_on_bsd_linux/"&gt;安装指南&lt;/a&gt;，依次安装mmseg和csft。如果在configure过程中提示缺少头文件，可通过apt-file查询需要安装的软件包。&lt;/p&gt;
+&lt;h3 id="d081bf71f6724b49c0c1a17fe1c81122"&gt;安装mmseg-3.2.14&lt;/h3&gt;
+&lt;p&gt;这里完全参考官方的安装指南即可&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd mmseg-3.2.14
+./bootstrap
+./configure --prefix=/usr/local/mmseg3
+make &amp;amp;&amp;amp; sudo make install
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="776de02149d0f2feec873dfaf5d57c92"&gt;安装libiconv-1.14&lt;/h3&gt;
+&lt;p&gt;先安装&lt;a href="https://www.gnu.org/software/libiconv/"&gt;libiconv&lt;/a&gt;，用于字符集编码的转换。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz
+tar xvf libiconv-1.14.tar.gz
+cd libiconv-1.14
+make &amp;amp;&amp;amp; sudo make install
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果你的glibc版本在2.16以上，make时很有可能出现如下错误&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;In file included from progname.c:26:0:
+./stdio.h:1010:1: error: ‘gets’ undeclared here (not in a function)
+_GL_WARN_ON_USE (gets, &amp;quot;gets is a security hole - use fgets instead&amp;quot;);
+^
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;参考&lt;a href="http://forum.z27315.com/topic/15662-%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91libiconv%E6%97%B6%E7%9A%84gets-undeclared-here%E9%94%99%E8%AF%AF/"&gt;这里&lt;/a&gt;的方法，下载&lt;a href="http://www.itkb.ro/userfiles/file/libiconv-glibc-2.16.patch.gz"&gt;patch文件&lt;/a&gt;，解压后打上patch即可。&lt;/p&gt;
+&lt;p&gt;在libiconv-1.14目录下执行&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;wget -O - http://blog.atime.me/static/resource/libiconv-glibc-2.16.patch.gz | gzip -d - | patch -p0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;或者考虑直接注释掉srclib/stdio.in.h文件的第698行（应该没问题），即&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;//  _GL_WARN_ON_USE (gets, &amp;quot;gets is a security hole - use fgets instead&amp;quot;);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="0315abb694b3c20d0437b92ce05a2706"&gt;安装csft-4.1&lt;/h3&gt;
+&lt;p&gt;这里configure的参数和&lt;a href="http://www.coreseek.cn/products-install/install_on_bsd_linux/"&gt;安装指南&lt;/a&gt;上稍有区别，一是添加&lt;code&gt;--with-python&lt;/code&gt;选项来支持Python数据源，二是添加&lt;code&gt;LIBS=-liconv&lt;/code&gt;来避免最后的链接错误。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd csft-4.1
+sh buildconf.sh
+./configure --prefix=/usr/local/coreseek  --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql --with-python LIBS=-liconv
+make -j2 &amp;amp;&amp;amp; sudo make install
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果&lt;code&gt;sh buildconf.sh&lt;/code&gt;最后没有生成configure脚本，且提示&lt;code&gt;automake: warnings are treated as errors&lt;/code&gt;，可以将configure.ac中的这行&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;改为&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;AM_INIT_AUTOMAKE([-Wall foreign])
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;即删掉&lt;code&gt;-Werror&lt;/code&gt;，然后重新运行&lt;code&gt;sh buildconf.sh&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;如果configure的时候提示没有安装MySQL的头文件，安装&lt;code&gt;libmysql++-dev&lt;/code&gt;包即可。&lt;/p&gt;
+&lt;p&gt;如果你的gcc版本在4.7以上，编译的时候可能会因为sphinx的一个&lt;a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378"&gt;bug&lt;/a&gt;报错&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sphinxexpr.cpp:1746:43: error: ‘ExprEval’ was not declared in this scope, and no declarations were found by argument-dependent lookup at the point of instantiation [-fpermissive]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解决方法参考&lt;a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378"&gt;bug报告&lt;/a&gt;里的一个patch，在csft-4.1目录下执行&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;wget -O - http://blog.atime.me/static/resource/sphinxexpr-gcc4.7.patch.gz | gzip -d - | patch -p0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;或者你也可以直接修改src/sphixexpr.cpp文件的1746, 1777和1823行，将三行中的&lt;code&gt;ExprEval&lt;/code&gt;改为&lt;code&gt;this-&amp;gt;ExprEval&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id="220d59a488766e0198f4ce6119e6f5df"&gt;安装辅助工具&lt;/h3&gt;
+&lt;p&gt;将&lt;code&gt;csft-4.1/contrib/scripts&lt;/code&gt;目录下的searchd脚本拷贝到&lt;code&gt;/etc/init.d/&lt;/code&gt;目录下，即可使用service命令启动和终止searchd服务。&lt;/p&gt;
+&lt;p&gt;安装好coreseek后，将&lt;code&gt;/usr/local/coreseek/share/man/&lt;/code&gt;目录下的所有文件和目录都拷贝到&lt;code&gt;/usr/local/share/man/&lt;/code&gt;目录里，即可使用man命令查看indexer和searchd的使用手册。&lt;/p&gt;
+&lt;h2 id="f52aa5bc3f77e48efe37a5971ed541ef"&gt;Sphinx/Coreseek目录结构&lt;/h2&gt;
+&lt;p&gt;按照上面的步骤正确安装Coreseek后，在&lt;code&gt;/usr/local/coreseek&lt;/code&gt;可看到如下几个文件夹&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;bin/            sphinx的程序目录
+    searchd     搜索服务器程序
+    indexer     索引建立工具
+etc/            配置文件目录
+    csft.conf   默认配置文件
+share/
+    man/        sphinx的man手册，建议拷贝到系统man目录，方便查询
+var/
+    data/       默认的索引存放目录
+    log/        默认的日志目录和pid文件目录
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;实际使用sphinx的流程大概如下:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;使用indexer建立或更新索引，如果searchd已经运行，则需要使用&lt;code&gt;--rotate&lt;/code&gt;选项。&lt;/li&gt;
+&lt;li&gt;运行searchd&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;例如：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /usr/local/coreseek
+./bin/indexer --all     # 第一次建立索引，使用默认配置文件/usr/local/coreseek/etc/csft.conf
+./bin/searchd           # 使用默认配置文件/usr/local/coreseek/etc/csft.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="7f336b9406b58dd8901674a146e93a99"&gt;Sphinx/Coreseek配置&lt;/h2&gt;
+&lt;p&gt;配置文件可参考Sphinx的&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/"&gt;官方文档&lt;/a&gt;和配置例子&lt;code&gt;/usr/local/coreseek/etc/sphinx.conf.dist&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id="f9e765f52e12807fbd858ce94988665a"&gt;searchd&lt;/h3&gt;
+&lt;p&gt;配置示例&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;searchd
+{
+    listen          = 9312
+    listen          = 9306:mysql41
+    log             = /usr/local/coreseek/var/log/searchd.log
+    query_log       = /usr/local/coreseek/var/log/query.log
+    read_timeout    = 5
+    max_children    = 30
+    pid_file        = /usr/local/coreseek/var/log/searchd.pid
+    max_matches     = 1000
+    seamless_rotate = 1
+    preopen_indexes = 1
+    unlink_old      = 1
+    workers         = threads # for RT to work
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里面的诸多配置选项可参考&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-searchd.html"&gt;searchd program configuration options&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;其中，通过第二个listen配置&lt;code&gt;listen = 9306:mysql41&lt;/code&gt;，你可以使用mysql的client来访问searchd的索引。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -h 127.0.0.1 -P 9306
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后使用&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/sphinxql-reference.html"&gt;SphinxQL&lt;/a&gt;查询语言即可搜索索引。&lt;/p&gt;
+&lt;h3 id="f45405398724f84de51df1f6c3cfa852"&gt;indexer&lt;/h3&gt;
+&lt;p&gt;配置示例&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;indexer {
+    mem_limit    = 1024M
+    write_buffer = 16M
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;索引工具indexer的配置相对少一些，参考&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-indexer.html"&gt;indexer program configuration options&lt;/a&gt;。需要注意的是，mem_limit如果查过2048M会出问题&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;h3 id="ecf3f3908d70c90cf34892e4f1d39e38"&gt;数据源和索引配置&lt;/h3&gt;
+&lt;p&gt;参考示例配置文件&lt;code&gt;/usr/local/coreseek/etc/sphinx.conf.dist&lt;/code&gt;和官方文档&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-source.html"&gt;Data source configuration options&lt;/a&gt;，&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-index.html"&gt;Index configuration options&lt;/a&gt;即可。&lt;/p&gt;
+&lt;h2 id="c11322c9cc43ce3c004cf03f5ac0acd0"&gt;数据源&lt;/h2&gt;
+&lt;h3 id="696fea72c1ff31f7bffe5ff3627c9b55"&gt;Python数据源&lt;/h3&gt;
+&lt;p&gt;Coreseek开发了一个号称万能的Python数据源，使用起来比xmlpipe2要方便一些。其实就是用Python脚本来获取待索引数据，配置文档见&lt;a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#pysource"&gt;这里&lt;/a&gt;，接口文档见&lt;a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#coreseek-confgroup-pysource"&gt;这里&lt;/a&gt;，示例程序见&lt;a href="http://www.coreseek.cn/products-install/python/"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="08caf24d2adf7c4ad11297b889355fb7"&gt;Xmlpipe2数据源&lt;/h3&gt;
+&lt;p&gt;这是用Sphinx官方支持的一个"万能"数据源，其实就是将待索引数据按照xmlpipe2的&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/xmlpipe2.html"&gt;schema&lt;/a&gt;写入标准输出中。&lt;/p&gt;
+&lt;p&gt;在数据源的配置项中需要设置type为xmlpipe2，另外还要设置一个xmlpipe_command选项，该选项的命令必须输出符合&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/xmlpipe2.html"&gt;xmlpipe2 schema&lt;/a&gt;的xml文档到标准输出流(stdout)里，比如:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;source news_src
+{
+    type = xmlpipe2
+    xmlpipe_command = cat /tmp/xmlpipe2_out.xml
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="4c4c472130611891d3174ce7166e7159"&gt;建立索引&lt;/h2&gt;
+&lt;p&gt;Sphinx使用indexer工具建立和更新索引，据称indexer的索引速度能达到10~15MB/秒&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;。实际使用过程中，我尝试过分别用Python数据源和xmlpipe2数据源来建立索引，xmlpipe2稍微快一点点。使用Python数据源索引14G文本，大约50万个文件，最后生成2.3G索引，最快在2.8MB/秒左右，估计是慢在中文分词上。&lt;/p&gt;
+&lt;h3 id="be5690783b8a141f5b40aa698e97a9cd"&gt;自定义中文词库&lt;/h3&gt;
+&lt;h2 id="bee912d79eefb7335988c4997aa9138d"&gt;查询&lt;/h2&gt;
+&lt;p&gt;Sphinx支持使用SphinxAPI和SphinxQL查询数据。&lt;/p&gt;
+&lt;h3 id="a760b4ca118bf868f0fa8badad7a4e29"&gt;SphinxAPI&lt;/h3&gt;
+&lt;p&gt;SphinxAPI用于和searchd通信，官方提供PHP, Python和Java的实现，API的文档见&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/api-reference.html"&gt;此&lt;/a&gt;。Coreseek携带的API和示例程序实现都放在&lt;code&gt;csft-4.1/api/&lt;/code&gt;目录下。&lt;/p&gt;
+&lt;h3 id="6ac23085ea41f5410c39295ba7b65d8a"&gt;SphinxQL&lt;/h3&gt;
+&lt;p&gt;SphinxQL是Sphinx提供的SQL方言，用于查询和管理索引，相比SphinxAPI，SphinxQL支持的操作更多，比如删除索引等，文档在&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/sphinxql-reference.html"&gt;此&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="0a3168ec9adb92136b230a8aef26e195"&gt;实际应用&lt;/h2&gt;
+&lt;h3 id="dcb8ee94be150f19b518ddee0953d426"&gt;项目简介&lt;/h3&gt;
+&lt;p&gt;项目的部分需求：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;目前需要做全文检索的数据是html网页文件，总数在1000万左右，文件总大小大概是200GB，每天新增几千个文件左右。将来很可能需要检索pdf和mysql等不同的数据来源。&lt;/li&gt;
+&lt;li&gt;提供RESTful风格的搜索接口，返回json格式的查询结果。因为搜索服务主要是内部使用，估计搜索请求的压力不大。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;为缩短开发周期，整个项目采用Python实现，使用coreseek自带的Python数据源建立索引。&lt;/p&gt;
+&lt;p&gt;在开发过程中使用了如下的第三方Python packages:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;lxml-3.3.4: 解析html文件&lt;/li&gt;
+&lt;li&gt;tornado-3.2: 异步http服务器，异步socket通信等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="808267253cd4c75f0a4afec7bce40a80"&gt;设计考量&lt;/h3&gt;
+&lt;h4 id="b271e427962758c71e342a2c06df493a"&gt;索引&lt;/h4&gt;
+&lt;p&gt;上面有提到过，indexer是一个单线程的工具，建立中文索引的速度基本上很难超过3MB/秒，因此可以考虑将大的索引拆分成若干小索引，这些小索引可以同时建立，最后再合并成一个完整的索引。&lt;/p&gt;
+&lt;p&gt;因为待索引文档的基数很大，但每天更新的数量又比较小，所以建立索引的时候最好使用官方推荐的一种&lt;code&gt;Main + Delta&lt;/code&gt;的方式，主(Main)索引只需要最开始建立一次，然后每天重建一次增量(Delta)索引并合并到主索引中，相关文档见&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/delta-updates.html"&gt;Delta index updates&lt;/a&gt;。&lt;/p&gt;
+&lt;h4 id="0e82895b9f8fd648e812cb35dc4748b8"&gt;Python相关&lt;/h4&gt;
+&lt;p&gt;项目里需要使用Python查找和解析html文件。&lt;/p&gt;
+&lt;p&gt;文件查找没有使用Python标准库os的walk函数，当文件数量较多时，walk函数的效率会比较低。有兴趣的可以看下一个叫&lt;a href="https://github.com/benhoyt/betterwalk"&gt;betterwalk&lt;/a&gt;的第三方库，据称比&lt;code&gt;os.walk&lt;/code&gt;快不少。实际项目中，因为待索引文件的目录结构固定且很有规律，直接用&lt;code&gt;os.listdir&lt;/code&gt;和&lt;code&gt;os.lstat&lt;/code&gt;即可解决，&lt;code&gt;os.lstat&lt;/code&gt;可以获取文件的最后修改日期，在建立增量索引的时候非常有用。&lt;/p&gt;
+&lt;p&gt;html文件的解析使用了口碑很给力的lxml库，用lxml解析html文件时通常有多种方法，使用之前最好仔细看一下lxml各个函数的&lt;a href="http://lxml.de/performance.html"&gt;benchmark&lt;/a&gt;，了解一下哪种方法更快一些，比如使用xpath查找html节点时，lxml的XPath类比xpath()函数要快好几倍&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;p&gt;另外，Python的多线程处理计算密集型(CPU Bound)任务是一个众所周知的大坑，比如多线程解析html文件。这时最好用多进程分别做解析任务，然后将解析好的文件收集起来。&lt;/p&gt;
+&lt;p&gt;前面说过indexer比较慢，一般建立索引的时候，速度瓶颈就在indexer上。因此解析好的文件通常要缓存起来，比如缓存在内存里。然而内存是紧俏资源，必须限量节约使用。&lt;/p&gt;
+&lt;p&gt;关于内存的限量使用，在实现时可以为缓存设定一个阀值，缓存满了就先暂停所有的文件扫描和解析进程，等缓存快没了的时候再继续，在Linux上使用SIGSTOP和SIGCONT信号可以很容易就实现这一功能。相比之下，如何准确的获取缓存对象所占用的内存大小倒是比较困难，折中的办法是统计整个进程的内存占用或是&lt;a href="http://stackoverflow.com/questions/563840/how-can-i-check-the-memory-usage-of-objects-in-ipython/565382#565382"&gt;间接的方法&lt;/a&gt;，或者干脆通过限制缓存对象的数目来做限制（这个比较弱智的感觉）。&lt;/p&gt;
+&lt;p&gt;关于内存的节约使用，大家都知道一般的Python对象都会自动创建一个&lt;a href="https://docs.python.org/2/library/stdtypes.html#object.__dict__"&gt;__dict__&lt;/a&gt;属性来存储其他的属性，然而不太广为人知的是，Python的内置类型dict是一个内存大户，当Python对象少的时候可能很难发现，如果在内存里存储十万或一百万个Python对象时，用Memory
+Profiler（比如&lt;a href="http://guppy-pe.sourceforge.net/#Heapy"&gt;Heapy&lt;/a&gt;）做下profiling你会发现，光是&lt;code&gt;__dict__&lt;/code&gt;本身（不包括存在&lt;code&gt;__dict__&lt;/code&gt;里的数据）就能吃掉你巨量的内存。&lt;/p&gt;
+&lt;p&gt;通过设置类属性&lt;a href="https://docs.python.org/release/2.5.2/ref/slots.html"&gt;__slots__&lt;/a&gt;可以禁止&lt;code&gt;__dict__&lt;/code&gt;属性的自动创建，其中一个成功故事在&lt;a href="http://tech.oyster.com/save-ram-with-python-slots/"&gt;这里&lt;/a&gt;，这个哥们通过&lt;code&gt;__slots__&lt;/code&gt;节约了9G内存。需要说明的是，&lt;code&gt;__slots__&lt;/code&gt;会带来一些&lt;a href="http://stackoverflow.com/questions/472000/python-slots"&gt;负面作用&lt;/a&gt;，比较明显的一个是，使用version
+0版本的pickle协议序列化定义了&lt;code&gt;__slots__&lt;/code&gt;属性的对象会有报错，但使用更高级别的pickle协议则没问题&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;（一般很少用到cPickle的&lt;a href="https://docs.python.org/2.7/library/pickle.html#data-stream-format"&gt;protocol version 0&lt;/a&gt;，因为又慢又占空间)。&lt;/p&gt;
+&lt;p&gt;另外缓存所使用的数据结构也比较重要，直接用Python的内置类型list肯定不行，因为缓存应该是一个FIFO的队列，而&lt;code&gt;del(list[0])&lt;/code&gt;操作是O(n)的复杂度&lt;sup id="fnref:5"&gt;&lt;a class="footnote-ref" href="#fn:5" rel="footnote"&gt;5&lt;/a&gt;&lt;/sup&gt;，用collections.deque比较合适。&lt;/p&gt;
+&lt;h2 id="0307a3fd172b3739b3c312b426d3d4ac"&gt;资源和参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/"&gt;Sphinx 2.0.1 Documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://team.91town.com/2011/05/coreseek%E4%B8%8E%E7%AC%AC%E5%9B%9B%E5%9F%8E%E6%90%9C%E7%B4%A2/"&gt;Coreseek与第四城搜索&lt;/a&gt;，有很多性能相关的测试，很详尽。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;Sphinx indexer program configuration options, &lt;a href="http://sphinxsearch.com/docs/archives/2.0.1/conf-mem-limit.html"&gt;mem_limit&lt;/a&gt;，引用于2014-04-17。&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;&lt;a href="http://en.wikipedia.org/wiki/Sphinx_(search_engine)#Performance_and_scalability"&gt;Wikipedia:Sphinx&lt;/a&gt;，引用于2014-04-17。&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:3"&gt;
+&lt;p&gt;lxml benchmarks and speed, &lt;a href="http://lxml.de/performance.html#xpath"&gt;xpath&lt;/a&gt;，引用于2014-04-18。&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:4"&gt;
+&lt;p&gt;&lt;a href="http://stackoverflow.com/questions/3522765/python-pickling-slots-error"&gt;python pickling slots error&lt;/a&gt;，引用于2014-04-18。&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:5"&gt;
+&lt;p&gt;&lt;a href="https://wiki.python.org/moin/TimeComplexity"&gt;Python Time Complexity&lt;/a&gt;，引用于2014-04-18。&amp;#160;&lt;a class="footnote-backref" href="#fnref:5" rev="footnote" title="Jump back to footnote 5 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 10 Apr 2014 20:09:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-04-10:note/sphinx-coreseek-summary.html</guid><category>搜索引擎</category><category>总结</category></item><item><title>googletest和googlemock使用总结</title><link>http://www.zhuimengle.com/note/gtest-gmock-summary.html</link><description>&lt;p&gt;googletest和googlemock使用总结，尚待补充。&lt;/p&gt;
+&lt;p&gt;googletest和googlemock是c++里很好用的单元测试框架。另外，若无特别说明，以下内容均基于googletest 1.7和googlemock 1.7。&lt;/p&gt;
+&lt;h2 id="7ce426278fca4afdd20c3e31d905622a"&gt;googletest&lt;/h2&gt;
+&lt;h3 id="334fe161fc524028ca4d4f84ac68273d"&gt;简单的例子&lt;/h3&gt;
+&lt;p&gt;&lt;script src="https://gist.github.com/mawenbao/9223908.js"&gt;&lt;/script&gt;&lt;/p&gt;
+&lt;h3 id="1bbbb204023e59eba03319c7c5848fd1"&gt;注意事项&lt;/h3&gt;
+&lt;h4 id="469e0eee17a884bf97e500fdb0f02182"&gt;比较字符串&lt;/h4&gt;
+&lt;p&gt;比较C String用&lt;code&gt;ASSERT_STREQ&lt;/code&gt;或&lt;code&gt;EXPECT_STREQ&lt;/code&gt;，比较std::string用&lt;code&gt;ASSERT_EQ&lt;/code&gt;和&lt;code&gt;EXPECT_EQ&lt;/code&gt;，见&lt;a href="https://code.google.com/p/googletest/wiki/V1_7_Primer#String_Comparison"&gt;详细说明&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="32e0cdb9d8b86bdf1cd85f123dd8cb14"&gt;googlemock&lt;/h2&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/googletest/wiki/V1_7_Documentation"&gt;googletest 1.7 documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/googlemock/wiki/V1_7_Documentation"&gt;googlemock 1.7 documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Wed, 26 Feb 2014 11:08:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-02-26:note/gtest-gmock-summary.html</guid><category>google</category><category>c++</category><category>总结</category><category>单元测试</category><category>未完成</category></item><item><title>Vim技巧总结</title><link>http://www.zhuimengle.com/note/vim-tricks.html</link><description>&lt;p&gt;总结在使用vim过程中学到的技巧。&lt;/p&gt;
+&lt;h2 id="ef9ecc32e0fd6e57f6e15eedee5a0cba"&gt;删除但不拷贝&lt;/h2&gt;
+&lt;p&gt;vim的&lt;kbd&gt;d&lt;/kbd&gt;快捷键在删除文本的时候同时会将被删除的内容拷贝到默认寄存器(register &lt;code&gt;"&lt;/code&gt;)，如果只想删除一行而不拷贝到默认寄存器，可以键入&lt;kbd&gt;"_dd&lt;/kbd&gt;，意思就是删除当前行并将被删除的内容存入&lt;code&gt;_&lt;/code&gt;寄存器，而&lt;code&gt;_&lt;/code&gt;寄存器是一个类似&lt;code&gt;/dev/null&lt;/code&gt;的黑洞，存入其中的内容也都瞬间蒸发了。&lt;/p&gt;
+&lt;p&gt;更多关于vim寄存器的教程可参考&lt;code&gt;:help registers&lt;/code&gt;和文章&lt;a href="http://usevim.com/2012/04/13/registers/"&gt;Vim 101: Registers&lt;/a&gt;。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 20 Feb 2014 17:26:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-02-20:note/vim-tricks.html</guid><category>vim</category><category>trick</category><category>总结</category><category>未完成</category></item><item><title>关于MySQL的各种总结</title><link>http://www.zhuimengle.com/note/mysql-summary.html</link><description>&lt;p&gt;总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。&lt;/p&gt;
+&lt;p&gt;若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，&lt;code&gt;...&lt;/code&gt;表示省略内容，&lt;code&gt;#&lt;/code&gt;之后为代码注释。&lt;/p&gt;
+&lt;h2 id="224e2ccda861c2514faa683b3683c361"&gt;配置&lt;/h2&gt;
+&lt;h3 id="bba7d8237f138b38baa1d37d3f38ecce"&gt;使用utf8编码&lt;/h3&gt;
+&lt;p&gt;在MySQL的配置文件中做如下设置：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;[client]
+default-character-set = utf8
+
+[mysqld]
+character-set-server = utf8
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后重启MySQL服务，需要注意的是，已经创建的表不受影响。&lt;/p&gt;
+&lt;h3 id="11276605c9dc19accb45e0cc6db23599"&gt;启用查询日志&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;[mysqld]
+...
+general-log=1
+general-log-file = /var/log/mysql/general.log
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="1071ce94e8ea7f3769f5bc1d7d722eec"&gt;禁用Innodb引擎&lt;/h3&gt;
+&lt;p&gt;MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。&lt;/p&gt;
+&lt;p&gt;在my.cnf的mysqld区块内添加如下两行:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;[mysqld]
+...
+innodb=OFF
+default_storage_engine=MyISAM
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; SHOW VARIABLES LIKE &amp;#39;%storage_engine%&amp;#39;;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="952d012fcbf9d533dab2eae0ca3ca41f"&gt;技巧&lt;/h2&gt;
+&lt;h3 id="39e7fbdc0b0a1ab4bdf5fdd67990d06d"&gt;忘记root密码&lt;/h3&gt;
+&lt;p&gt;首先，修改mysql的配置文件/etc/mysql/my.cnf，在[mysqld]区域添加&lt;code&gt;skip-grant-tables&lt;/code&gt;，之后重启mysql服务&lt;code&gt;service mysql restart&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;然后不用密码登陆mysql的root用户&lt;code&gt;mysql -uroot&lt;/code&gt;，依次执行如下命令:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; use mysql;               # 切换到mysql数据库
+mysql&amp;gt; update user set password=password(&amp;#39;NEW_PASSWORD&amp;#39;) where user = &amp;#39;root&amp;#39;; # NEW_PASSWORD是你的新密码
+mysql&amp;gt; flush privileges;        # 刷新系统权限
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后，修改配置文件/etc/mysql/my.cnf，将[mysqld]里刚刚添加的&lt;code&gt;skip-grant-tables&lt;/code&gt;删除，重启mysql服务。&lt;/p&gt;
+&lt;h2 id="21d68b2de0e91dfb14942ca8aea316fc"&gt;思考&lt;/h2&gt;
+&lt;h3 id="4b666049e9fdd0deec376316fa6b0457"&gt;日期用什么类型存储&lt;/h3&gt;
+&lt;p&gt;在MySQL数据库中，日期可以使用多种类型进行存储，以下是我目前想到的各种类型的优缺点。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-types.html" title="MySQL Date and Time Types"&gt;MySQL Date and Time Types&lt;/a&gt;: MySQL内置的日期和时间类型，好处是MySQL有很多内置的&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html" title="MySQL Date and Time Functions"&gt;日期和时间函数&lt;/a&gt;可供使用，缺点是可移植性很差。&lt;/li&gt;
+&lt;li&gt;char或varchar: 暂时没想到什么优点。&lt;/li&gt;
+&lt;li&gt;int: 优点是可移植性好，可以做一些基本的比较操作，缺点是和MySQL的内置日期时间类型比，可用函数很少；另外，int类型无法存储时区信息。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="5dc99f6efe53adda80974655b26b8df8"&gt;问题&lt;/h2&gt;
+&lt;h3 id="b4938b175f10e2a34523ba7082a57657"&gt;Error 1175 Safe Updtes Mode&lt;/h3&gt;
+&lt;p&gt;错误提示如下:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;ERROR 1175: You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;错误的原因是启用了MySQL的Safe Updtes Mode，它的作用是如果执行Update和Delete操作的时候，没有带键限制的where语句或limit语句，sql操作不会执行。详细的介绍可参考&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/mysql-tips.html#safe-updates" title="MySQL tips: safe updates"&gt;MySQL Tips: safe-updates&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;可使用&lt;code&gt;SET sql_safe_updates=0;&lt;/code&gt;来暂时禁用Safe Updates Mode。&lt;/p&gt;
+&lt;h3 id="ac34677cdcd43f4484d304547be5c8a3"&gt;Stopping MySQL database server: mysqld failed&lt;/h3&gt;
+&lt;p&gt;环境&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;OS: debian6 squeeze&lt;/li&gt;
+&lt;li&gt;Mysql: 5.1.63&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;使用&lt;code&gt;service mysql restart&lt;/code&gt;命令时显示&lt;code&gt;Stopping MySQL database server: mysqld failed!&lt;/code&gt;，导致无法重启mysql服务。&lt;/p&gt;
+&lt;p&gt;解决方法&lt;/p&gt;
+&lt;p&gt;问题是由mysql数据库的user表中debian-sys-maint用户的密码和/etc/mysql/debian.cnf中的密码不一致所引发的，参考&lt;a href="http://www.happysysadm.com/2011/01/stopping-mysql-database-server-mysqld.html" title="Stopping MySQL database server : mysqld failed!"&gt;这篇文章&lt;/a&gt;，即可解决。具体步骤如下。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;查看/etc/mysql/debian.cnf中的password，&lt;code&gt;cat /etc/mysql/debian.cnf&lt;/code&gt;，有两个password，不过值是相同的。&lt;/li&gt;
+&lt;li&gt;连接到mysql，&lt;code&gt;mysql -uroot -p&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为&lt;code&gt;debian-sys-maint&lt;/code&gt;用户修改密码。&lt;/p&gt;
+&lt;p&gt;GRANT ALL PRIVILEGES ON &lt;em&gt;.&lt;/em&gt; TO 'debian-sys-maint'@'localhost' IDENTIFIED BY &lt;code&gt;&amp;lt;password&amp;gt;&lt;/code&gt; WITH GRANT OPTION;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;问题原因&lt;/p&gt;
+&lt;p&gt;之前使用&lt;a href="/code/host_backup.html"&gt;backup脚本&lt;/a&gt;迁移网站时，只迁移了/etc/mysql/debian.cnf，没有迁移mysql里的mysql数据库，导致mysql数据库中user表里的debian-sys-maint的密码和/etc/mysql/debian.cnf不一致。&lt;/p&gt;
+&lt;h2 id="b2accffe28bb4f4b596c9be64a28d281"&gt;Snippets&lt;/h2&gt;
+&lt;p&gt;以数据库db和表tb为例。&lt;/p&gt;
+&lt;h3 id="a76245b53a74930d575f9a172adae53b"&gt;管理相关&lt;/h3&gt;
+&lt;p&gt;显示所有的数据库&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; show databases;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;显示当前数据库的所有表&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; show tables;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;切换数据库&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; use db
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;显示表的结构&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; desc tb;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;显示数据库的创建信息&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; show create database db;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;显示表的创建语句&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; show create table tb;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="1d9d7a160accc3f38c8b7c610009fee5"&gt;表管理&lt;/h3&gt;
+&lt;p&gt;修改表的字符集&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; ALTER TABLE &amp;#39;db&amp;#39;.&amp;#39;tb&amp;#39; CHARACTER SET utf8;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改字段的字符集，参考&lt;a href="http://dev.mysql.com/doc/refman/5.1/en/charset-conversion.html"&gt;Column Character Set Conversion&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="48bedd0d3a1376ef3b9220d7443014d4"&gt;权限相关&lt;/h3&gt;
+&lt;p&gt;详细内容见&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/account-management-sql.html" title="MySQL Account Management SQL"&gt;MySQL Account Management SQL&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;显示权限&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; SHOW GRANTS FOR &amp;#39;user_name&amp;#39;@&amp;#39;host&amp;#39;;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;分配权限&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; GRANT ALL PRIVILEGES ON &amp;#39;database&amp;#39;.&amp;#39;table&amp;#39; TO &amp;#39;user_name&amp;#39;@&amp;#39;host&amp;#39; IDENTIFIED BY &amp;#39;password&amp;#39;;
+mysql&amp;gt; FLUSH PRIVILEGES;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解除权限&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql&amp;gt; REVOKE ALL PRIVILEGES ON &amp;#39;database&amp;#39;.&amp;#39;table&amp;#39; FROM &amp;#39;user_name&amp;#39;@&amp;#39;host&amp;#39;;
+mysql&amp;gt; FLUSH PRIVILEGES;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="1b82e08cb8add1986e2d89da17f01935"&gt;批量删除表&lt;/h3&gt;
+&lt;p&gt;批量删除有相同前缀的表，使用下面的sql语句会构造相应的drop语句，删除wordpress3数据库中前缀为&lt;code&gt;wp_&lt;/code&gt;的表。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;SELECT CONCAT( &amp;#39;DROP TABLE IF EXISTS wordpress3.&amp;#39;, TABLE_NAME, &amp;#39;;&amp;#39; )
+FROM information_schema.tables
+WHERE TABLE_SCHEMA = &amp;#39;wordpress3&amp;#39; AND TABLE_NAME LIKE &amp;#39;wp_%&amp;#39;;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;删除步骤如下，首先生成删除命令并保存到drop.sql文件中。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -uroot -ANspe &amp;quot;SELECT CONCAT( &amp;#39;DROP TABLE IF EXISTS wordpress3.&amp;#39;, TABLE_NAME, &amp;#39;;&amp;#39; )
+                       FROM information_schema.tables
+                       WHERE TABLE_SCHEMA = &amp;#39;wordpress3&amp;#39; AND TABLE_NAME LIKE &amp;#39;wp_%&amp;#39;;&amp;quot; &amp;gt; drop.sql
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后检查drop.sql文件中的语句是否正确，如果无误，最后执行如下命令即可。（&lt;strong&gt;执行删除命令前务必提前备份相关的数据&lt;/strong&gt;）&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -uroot -p -e &amp;quot;source drop.sql&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="6a50dc16f8113a88a87b955fd98d3364"&gt;资源列表&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.1/en/column-count-limit.html"&gt;Table Column-Count and Row-Size Limits&lt;/a&gt; for MySQL 5.1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/mysql-tips.html#safe-updates" title="MySQL tips: safe updates"&gt;MySQL Tips: safe-updates&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.happysysadm.com/2011/01/stopping-mysql-database-server-mysqld.html" title="Stopping MySQL database server : mysqld failed!"&gt;Stopping MySQL database server : mysqld failed!&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/account-management-sql.html" title="MySQL Account Management SQL"&gt;MySQL Account Management SQL&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-types.html" title="MySQL Date and Time Types"&gt;MySQL Date and Time Types&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html" title="MySQL Date and Time Functions"&gt;MySQL Date and Time Functions&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Mon, 17 Feb 2014 08:55:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-02-17:note/mysql-summary.html</guid><category>mysql</category><category>database</category><category>总结</category><category>未完成</category></item><item><title>Chrome扩展编写总结</title><link>http://www.zhuimengle.com/note/chrome-extension-programming-summary.html</link><description>&lt;p&gt;总结编写Chrome扩展时遇到的问题和相关注意事项，并收集与开发相关的资源，备忘。&lt;/p&gt;
+&lt;h2 id="4dab65f906365bbf6da5d3de393bde16"&gt;入门教程&lt;/h2&gt;
+&lt;p&gt;入门教程直接看官方的&lt;a href="http://developer.chrome.com/extensions/getstarted.html"&gt;Get Started&lt;/a&gt;和&lt;a href="http://developer.chrome.com/extensions/overview.html"&gt;Overview&lt;/a&gt;即可。&lt;/p&gt;
+&lt;h2 id="48906937a34adaa0fd50ea620890d7f2"&gt;Chrome接口&lt;/h2&gt;
+&lt;h3 id="a39cf1ca12a97140547dc54624e4bd6f"&gt;存储&lt;/h3&gt;
+&lt;p&gt;存储接口的文档见&lt;a href="http://developer.chrome.com/extensions/storage.html"&gt;chrome.storage&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;Chrome的存储分同步存储区域(sync storage are)和本地存储区域(local storage are)。同步存储区域里的数据可以通过Chrome sync同步到网络账户中，而本地存储就存在用户的终端设备上。二者的接口完全一致，都是&lt;code&gt;chrome.storage.STORAGE_AREA.XXOO()&lt;/code&gt;，使用时将STORAGE_AREA换为sync或local即可，具体的函数列表参考&lt;a href="http://developer.chrome.com/extensions/storage.html"&gt;接口文档&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;需要注意的是，Chrome存储有一定的配额。对同步存储区域而言，总存储量不能超过100K，单条存储不得超过4K，且最多存储512个条目(item)，详情见&lt;a href="http://developer.chrome.com/extensions/storage.html#sync-properties"&gt;sync-properties&lt;/a&gt;。本地存储的配额相对大一些，总量不超过5M即可，单条存储没有限制，详情见&lt;a href="http://developer.chrome.com/extensions/storage.html#local-properties"&gt;local-properties&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="bb81f9c28ed3e69c05e7675e6051c57d"&gt;国际化&lt;/h3&gt;
+&lt;p&gt;接口文档见&lt;a href="http://developer.chrome.com/extensions/i18n.html"&gt;chrome.i18n&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;相关的文件需要放在&lt;code&gt;_locales&lt;/code&gt;文件夹里，并且在&lt;code&gt;manifest.json&lt;/code&gt;里需要设置&lt;code&gt;default_locale&lt;/code&gt;，Chrome支持的locale列表见&lt;a href="https://developers.google.com/chrome/web-store/docs/i18n#localeTable"&gt;locale tables&lt;/a&gt;。 &lt;/p&gt;
+&lt;p&gt;在css文件里可以通过&lt;code&gt;__MSG__MessageName__&lt;/code&gt;来调用调用翻译，在js中可以通过&lt;code&gt;getMessage&lt;/code&gt;函数来调用翻译。目前还不支持在html文件中调用翻译。&lt;/p&gt;
+&lt;h2 id="1bbbb204023e59eba03319c7c5848fd1"&gt;注意事项&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;修改扩展的代码后，最好在&lt;code&gt;chrome://extensions/&lt;/code&gt;里重新加载(Reload)一下。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://developer.chrome.com/extensions/devguide.html"&gt;Chrome 开发指南&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Fri, 14 Feb 2014 14:59:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-02-14:note/chrome-extension-programming-summary.html</guid><category>Chrome</category><category>扩展</category><category>plugin</category><category>总结</category><category>未完成</category></item><item><title>Vanilla论坛安装和配置总结</title><link>http://www.zhuimengle.com/note/vanilla.html</link><description>&lt;p&gt;总结在Ubuntu服务器上搭建Vanilla论坛的过程和遇到的问题，以下内容均基于Vanilla 2.2.5。&lt;/p&gt;
+&lt;h2 id="e655a410ff21cd07e7a0150491e04371"&gt;安装&lt;/h2&gt;
+&lt;h3 id="5b593b50ecaf712024797da3925e3034"&gt;下载Vanilla&lt;/h3&gt;
+&lt;p&gt;我用的是Vanilla的最新代码，直接从github上clone即可。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;git clone https://github.com/vanillaforums/Garden
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;默认检出的是master分支，按照官方的说法，master分支始终包含最新的生产(release)代码。安装后得知，实际版本号是2.2.5。&lt;/p&gt;
+&lt;h3 id="44eb700291611eb4a52e639270150092"&gt;安装必要的软件&lt;/h3&gt;
+&lt;p&gt;php，网页服务器和数据库都是必要的软件，不再赘述。&lt;/p&gt;
+&lt;h3 id="6375fd70cff3e62c71bdedd6871ca6e7"&gt;创建数据库表&lt;/h3&gt;
+&lt;p&gt;创建一个名为vanilla的数据库，并为其创建一个名为'vanilla'的用户，密码也是vanilla。该用户仅能从本地访问vanilla数据库。&lt;/p&gt;
+&lt;p&gt;以mysql为例，执行如下命令。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -u root -p
+
+mysql&amp;gt; create database vanilla;
+mysql&amp;gt; grant all privileges on vanilla.* to &amp;#39;vanilla&amp;#39;@&amp;#39;localhost&amp;#39; identified by &amp;#39;vanilla&amp;#39;;
+mysql&amp;gt; flush privileges;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="3f289f470b2a51be9d16be04d8adc68b"&gt;配置网页服务器&lt;/h3&gt;
+&lt;p&gt;配置网页服务器，以nginx配合php5-fpm为例，&lt;code&gt;/etc/nginx/sites-enabled/vanilla.conf&lt;/code&gt;文件如下：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;talk.atime.me&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="s"&gt;/var/www/vanilla&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="s"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;try_files&lt;/span&gt; &lt;span class="nv"&gt;$uri&lt;/span&gt; &lt;span class="nv"&gt;$uri/&lt;/span&gt; &lt;span class="s"&gt;/index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt; &lt;span class="sr"&gt;\.php$&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_pass&lt;/span&gt;   &lt;span class="n"&gt;127.0.0.1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9000&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_index&lt;/span&gt;  &lt;span class="s"&gt;index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_param&lt;/span&gt;  &lt;span class="s"&gt;SCRIPT_FILENAME&lt;/span&gt; &lt;span class="nv"&gt;$document_root$fastcgi_script_name&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;include&lt;/span&gt;        &lt;span class="s"&gt;fastcgi_params&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后运行&lt;code&gt;sudo service nginx reload&lt;/code&gt;来重新加载配置文件。&lt;/p&gt;
+&lt;h3 id="dfd05b4c3406569cb012a9554438ab53"&gt;5分钟安装&lt;/h3&gt;
+&lt;p&gt;以上面的nginx配置文件为例，访问&lt;code&gt;talk.atime.me&lt;/code&gt;（vanilla论坛的域名）即可开始安装，安装过程非常简单。&lt;/p&gt;
+&lt;h2 id="5dc99f6efe53adda80974655b26b8df8"&gt;问题&lt;/h2&gt;
+&lt;h3 id="2d82e2ba24b5b89680c683c81a57651a"&gt;总是跳转到最新的回复&lt;/h3&gt;
+&lt;p&gt;用户登录之后，点击帖子的链接总是会跳转到最新的回复(#latest)，我的解决方法是直接修改代码。&lt;/p&gt;
+&lt;p&gt;将&lt;code&gt;applications/vanilla/views/discussions/table_functions.php&lt;/code&gt;文件里的相关代码注释掉，如下所示：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;/*&lt;/span&gt;
+&lt;span class="x"&gt;if ($Session-&amp;gt;UserID)&lt;/span&gt;
+&lt;span class="x"&gt;    $DiscussionUrl .= &amp;#39;#latest&amp;#39;;&lt;/span&gt;
+&lt;span class="x"&gt;*/&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://github.com/vanillaforums/Garden"&gt;Vanilla Github Repository&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://vanillaforums.org/docs/installation"&gt;Vanilla Installation&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Sat, 08 Feb 2014 17:35:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-02-08:note/vanilla.html</guid><category>vanilla</category><category>install</category><category>config</category><category>总结</category></item><item><title>Javascript和CSS资源收集</title><link>http://www.zhuimengle.com/note/js_css-resources.html</link><description>&lt;p&gt;收集一些关于Javascript和CSS的文章和资源。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;h3 id="383167b859bc2e6fb7524d2e78c3e982"&gt;A tale of two viewports&lt;/h3&gt;
+&lt;p&gt;The author explains how viewports and the widths of various important elements work, such as the &lt;html&gt; element, as well as the window and the screen in this series.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://www.quirksmode.org/mobile/viewports.html" title="A tale of two viewports — part one"&gt;part one&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.quirksmode.org/mobile/viewports2.html" title="A tale of two viewports — part two"&gt;part two&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Tue, 14 Jan 2014 13:35:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-01-14:note/js_css-resources.html</guid><category>javascript</category><category>css</category><category>resource</category><category>未完成</category></item><item><title>C++问题总结</title><link>http://www.zhuimengle.com/note/c++-summary.html</link><description>&lt;p&gt;总结日常编程中遇到的C++疑难问题，备忘。以下总结多基于C++03标准。&lt;/p&gt;
+&lt;h2 id="febcb5736325f78eba885852d76d8827"&gt;VLA&lt;/h2&gt;
+&lt;p&gt;c99标准支持VLA(variable length arrays)，而在c11标准里VLA是一个可选的特性，具体实现需看编译器。简单的VLA例子如下：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;int arrlen() { return 10; }
+char arr[arrlen()];
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在上面的例子里，arr就是一个VLA。&lt;/p&gt;
+&lt;p&gt;gcc从c90标准开始便提供VLA扩展，且将VLA数组被分配到栈上&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;。这样潜在的问题是，当目标数组过大时可能导致栈溢出(stack overflow)。因此建议是，除非必要且明确知道数组不会太大，不要使用VLA。&lt;/p&gt;
+&lt;h2 id="7c9d2c64290a49546e6e24ab1afda809"&gt;POD&lt;/h2&gt;
+&lt;p&gt;POD(plain old data)或PODS(plain old data structure)是指不包含构造函数(constructor)，析构函数(deconstructor)和虚函数(virtual function)等面向对象特性的数据类型。引用wikipedia上&lt;a href="http://en.wikipedia.org/wiki/Plain_Old_Data_Structures"&gt;Plain_Old_Data_Structures&lt;/a&gt;的话：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A PODS class has no user-defined copy assignment operator, no user-defined destructor, and no non-static data members that are not themselves PODS. Moreover, a PODS class must be an aggregate, meaning it has no user-declared constructors, no private nor protected non-static data, no base classes and no virtual functions.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;更详细的介绍可参考一篇stackoverflow上的问答&lt;a href="http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special"&gt;What are Aggregates and PODs and how/why are they special?&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="a5b8774300041a5e1267d37ad4ffad67"&gt;变量隐式初始化&lt;/h2&gt;
+&lt;p&gt;不要依赖这些特性，应当在任何时候对任何类型的变量都主动初始化。&lt;/p&gt;
+&lt;p&gt;当变量仅被声明而未做初始化时：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在静态存储区中，POD类型都会被隐式的初始化为0。&lt;/li&gt;
+&lt;li&gt;在栈上，变量（局部变量）的初始值通常是不确定的。&lt;/li&gt;
+&lt;li&gt;class的默认构造函数总是会被调用，未在构造函数初始化列表里的POD成员变量初始值通常是不确定的(non-POD类型会调用其默认构造函数)。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="dd057e54c6794c3d5834fc12d73f6865"&gt;new A和new A()&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Sometimes the memory returned by the new operator will be initialized, and sometimes it won't depending on whether the type you're newing up is a POD (plain old data), or if it's a class that contains POD members and is using a compiler-generated default constructor.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;上面这段话引用自stackoverflow上问题&lt;a href="http://stackoverflow.com/questions/620137/do-the-parentheses-after-the-type-name-make-a-difference-with-new"&gt;Do the parentheses after the type name make a difference with new?&lt;/a&gt;的一个回答，另外作者还仔细的对new A和new A()进行了总结。&lt;/p&gt;
+&lt;p&gt;我懒得去纠结这种问题，总之记得一件事情，不管是什么类型都用&lt;code&gt;new A()&lt;/code&gt;来初始化，另外：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;non-POD类型必须提供无参构造函数，且其初始化列表必须包含该类的所有成员变量。&lt;/li&gt;
+&lt;li&gt;POD类型在new之后应当用memset等方式重新赋值。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/Plain_Old_Data_Structures"&gt;wikipedia:Plain_Old_Data_Structures&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special"&gt;What are Aggregates and PODs and how/why are they special?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://stackoverflow.com/questions/620137/do-the-parentheses-after-the-type-name-make-a-difference-with-new"&gt;Do the parentheses after the type name make a difference with new?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;GNU gcc documentation &lt;a href="http://gcc.gnu.org/onlinedocs/gcc/Variable-Length.html"&gt;Arrays of Variable Length&lt;/a&gt;&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Tue, 07 Jan 2014 09:24:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-01-07:note/c++-summary.html</guid><category>c++</category><category>总结</category><category>未完成</category></item><item><title>CSS技巧和问题整理</title><link>http://www.zhuimengle.com/note/css-problems-tricks.html</link><description>&lt;p&gt;整理日常使用CSS时遇到的问题和技巧。&lt;/p&gt;
+&lt;h2 id="897a9454c34e6c84cb3eeb549ed67866"&gt;CSS技巧&lt;/h2&gt;
+&lt;h3 id="f2d615d9291869054193e7725ad8d01f"&gt;word-wprap研究。&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;word-wrap: break-word;
+word-break
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="03efdf39659110cfd4ece203834c3a35"&gt;CSS问题&lt;/h2&gt;
+&lt;h3 id="6bc5d8e5e737c4dd07872b2bcf3ae2dd"&gt;#1&lt;/h3&gt;
+&lt;p&gt;使用百分数定义width的div，其position变为static之后，宽度发生突变。具体问题见&lt;a href="http://stackoverflow.com/questions/1993277/css-table-layout-why-does-table-row-not-accept-a-margin" title="Position: fixed changes width of element when using percentages"&gt;这里&lt;/a&gt;。原因是position变为fixed后，div会从文档流中脱离出去，解决方法是给div定义具体的width，不要用inherit和百分比等相对值。&lt;/p&gt;
+&lt;h3 id="137028f06553292c2fbe34041601684b"&gt;#2&lt;/h3&gt;
+&lt;p&gt;具有&lt;code&gt;display: table-row&lt;/code&gt;的元素无法设置margin。具体问题见&lt;a href="http://stackoverflow.com/questions/1993277/css-table-layout-why-does-table-row-not-accept-a-margin" title="CSS table layout - why does table-row not accept a margin?"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;问题的原因在&lt;a href="http://www.w3.org/TR/CSS2/tables.html#height-layout"&gt;http://www.w3.org/TR/CSS2/tables.html#height-layout&lt;/a&gt;有介绍，简单的说（引用stackoverflow上的回答），就是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;When you use display:table-row, the height of the DIV is solely determined by the height of the table-cell elements in it. Thus, margin, padding, and height on those elements have no effect.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;解决办法是为table-cell设置height，参考了某个论坛上的一个&lt;a href="http://www.sitepoint.com/forums/showthread.php?752068-How-to-add-padding-amp-margin-to-LI-elements-with-display-table-row" title="How to add padding &amp;amp; margin to LI elements with display:table-row?"&gt;帖子&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://www.w3.org/TR/CSS2/tables.html#height-layout"&gt;css2: tables&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://stackoverflow.com/questions/1993277/css-table-layout-why-does-table-row-not-accept-a-margin" title="Position: fixed changes width of element when using percentages"&gt;Position: fixed changes width of element when using percentages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.sitepoint.com/forums/showthread.php?752068-How-to-add-padding-amp-margin-to-LI-elements-with-display-table-row" title="How to add padding &amp;amp; margin to LI elements with display:table-row?"&gt;How to add padding &amp;amp; margin to LI elements with display:table-row?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://stackoverflow.com/questions/1993277/css-table-layout-why-does-table-row-not-accept-a-margin" title="CSS table layout - why does table-row not accept a margin?"&gt;CSS table layout - why does table-row not accept a margin?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 02 Jan 2014 17:33:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2014-01-02:note/css-problems-tricks.html</guid><category>css</category><category>problem</category><category>trick</category><category>未完成</category></item><item><title>Javascript和jQuery使用总结</title><link>http://www.zhuimengle.com/note/javascript_and_jquery_summary.html</link><description>&lt;p&gt;总结近期学到的javascript和jquery知识点，备忘。&lt;/p&gt;
+&lt;h2 id="9e13b69d1d2da927102acaaaf7154a37"&gt;Javascript&lt;/h2&gt;
+&lt;h3 id="fcfffbf5d7dd5c491645e2e0947eddb8"&gt;全局变量&lt;/h3&gt;
+&lt;p&gt;在全局作用域里定义的变量是全局变量，在局部作用域里不用var定义的变量是全局变量，window对象的属性是全局变量&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;; 在局部作用域里使用var定义的变量是局部变量。&lt;/p&gt;
+&lt;h3 id="0f39cfaf47a0c158e0758279fbd15735"&gt;修改地址栏的url且不刷新页面&lt;/h3&gt;
+&lt;p&gt;参考&lt;a href="http://spoiledmilk.com/blog/html5-changing-the-browser-url-without-refreshing-page/"&gt;这篇文章&lt;/a&gt;，修改url的同时将其加入浏览器的历史里，代码如下。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;window.history.pushState(&amp;#39;anything&amp;#39;, &amp;#39;history title&amp;#39;, &amp;#39;url&amp;#39;);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;pushState函数的具体说明见&lt;a href="http://www.w3.org/TR/2011/WD-html5-author-20110705/history.html#dom-history-pushstate"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="3bb73bfe6f8dcd02e7185577e03ee9ab"&gt;获取DOM元素的坐标&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;getBoundingClientRect&lt;/code&gt;函数可获取html元素在浏览器可视区域内的坐标和长宽，函数文档见&lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="c98f2f1fa711e9b082d1d5b54bb7981b"&gt;ASCII string and integer&lt;/h3&gt;
+&lt;p&gt;使用&lt;code&gt;charCodeAt()&lt;/code&gt;和&lt;code&gt;String.fromCharCode()&lt;/code&gt;可在两者之间进行转换。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&amp;quot;a&amp;quot;.charCodeAt(0);
+// 97
+
+String.fromCharCode(97 + 1);
+// &amp;quot;b&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="f590b4fda2c30be28dd3c8c3caf5c77b"&gt;jQuery&lt;/h2&gt;
+&lt;h3 id="718928833edc2894b2cf33413de03476"&gt;selectors&lt;/h3&gt;
+&lt;p&gt;所有的selectors见&lt;a href="http://api.jquery.com/category/selectors/"&gt;jQuery Selectors&lt;/a&gt;，常用的有&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ID selector: #id, $('#elemId') 根据html元素的id属性获取一个对应的jQuery对象.&lt;/li&gt;
+&lt;li&gt;Class selector: .class, $('.elemClass') 根据html的class属性获取一个jQuery对象列表.&lt;/li&gt;
+&lt;li&gt;CSS selectors: $('#divId ul li') 根据css的selector获取一个jQuery对象列表.&lt;/li&gt;
+&lt;li&gt;Header selector: :header, $(':header') 获取所有的html headers: h1 ~ h6. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="451b2a405c02be8cb5049fb998338ef8"&gt;animate函数&lt;/h3&gt;
+&lt;p&gt;未完成&lt;/p&gt;
+&lt;h3 id="d6adb6afb714caabac3a143387d92c4d"&gt;坐标和元素大小&lt;/h3&gt;
+&lt;p&gt;坐标计算。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$('#elemId').scrollTop(): 获取已滚过的垂直距离。&lt;/li&gt;
+&lt;li&gt;$('#elemId').scrollLeft(): 获取已滚过的水平距离。&lt;/li&gt;
+&lt;li&gt;$('#elemId').offset(): 获取相对于document的坐标，不同于getBoundingClientRect。&lt;/li&gt;
+&lt;li&gt;$('#elemId').position(): 获取相对于父节点的坐标。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;元素大小计算。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$('#elemId').height(): 获取高度。&lt;/li&gt;
+&lt;li&gt;$('#elemId').width(): 获取宽度。&lt;/li&gt;
+&lt;li&gt;$(window).height(): 获取浏览器可视区域的高度。&lt;/li&gt;
+&lt;li&gt;$(window).width(): 获取浏览器可视区域的宽度。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;鼠标坐标&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;clientX, clientY: 鼠标在浏览器的viewport内的相对坐标。&lt;/li&gt;
+&lt;li&gt;screenX, screenY: 鼠标在用户屏幕内的相对坐标。&lt;/li&gt;
+&lt;li&gt;pageX, pageY: 鼠标相对于html document的坐标。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="330c6977cf254b827013eb78a4828ff2"&gt;滚动条的滚动长度计算&lt;/h3&gt;
+&lt;p&gt;滚动条内的元素的实际长度，等于该元素的实际显示长度和滚动条的滚动长度之和。&lt;/p&gt;
+&lt;p&gt;以整个html页面的垂直滚动条为例，滚动条的滚动长度（将滚动条拖至最低端的时候，&lt;code&gt;$(window).scrollTop()&lt;/code&gt;的值），使用&lt;code&gt;$(document).height() - $(window).height()&lt;/code&gt;计算即可，其中$(document).height()是页面的实际高度，而$(window).height()是页面的实际显示高度。&lt;/p&gt;
+&lt;p&gt;另外，使用jQuery的animate函数滚动某个带滚动条的元素时，注意animate每次都是从滚动条的最顶端开始滚动，因此如果要每次滚动一点点（比如20px），则需要加上滚动条已滚过的距离，如下。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;var target = $(&amp;#39;#some-element&amp;#39;);
+target.animate(
+    { scrollTop: target.scrollTop() + 20 },
+    400
+);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="a65954172468513b90729c99ada0cfe4"&gt;Performance tips&lt;/h2&gt;
+&lt;p&gt;jQuery性能优化相关的文章可参考&lt;a href="http://learn.jquery.com/performance/"&gt;Performance&lt;/a&gt;，&lt;a href="http://gregfranko.com/blog/jquery-best-practices/" title="jquery best practices"&gt;jQuery best practices&lt;/a&gt;，以下是部分总结。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;缓存jQuery selector获取的jQuery对象。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;var myElem = $(&amp;#39;#elemId&amp;#39;);
+
+for(var i = 0; i &amp;lt; 100; i++) {
+    myElem.attr(...);
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;需要改变20个以上元素的css样式时，不要用&lt;code&gt;.css&lt;/code&gt;函数。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;// Fine for up to 20 elements, slow after that:
+$(&amp;quot;a.swedberg&amp;quot;).css(&amp;quot;color&amp;quot;, &amp;quot;#0769ad&amp;quot;);
+
+// Much faster:
+$(&amp;quot;&amp;lt;style type=\&amp;quot;text/css\&amp;quot;&amp;gt;a.swedberg { color: #0769ad }&amp;lt;/style&amp;gt;&amp;quot;).appendTo(&amp;quot;head&amp;quot;);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;遍历数组时，不要每次都调用它的&lt;code&gt;length&lt;/code&gt;属性。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;var myLength = myArray.length;
+
+for(var i = 0; i &amp;lt; myLength; i++) {
+    // do stuff
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;添加多个html元素时，尽量一次添加多个，而不是每次添加一个。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;var myHtml = &amp;quot;&amp;quot;;
+
+$.each(myArray, function(i, item) {
+    myHtml += &amp;quot;&amp;lt;li&amp;gt;&amp;quot; + item + &amp;quot;&amp;lt;/li&amp;gt;&amp;quot;;
+});
+
+$(&amp;quot;#ballers&amp;quot;).html(myHtml);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;从DOM里分离html元素。DOM操作很慢且耗费资源，频繁的对DOM中的html元素进行修改会降低效率。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;var $table = $(&amp;quot;#myTable&amp;quot;);
+var $parent = $table.parent();
+
+$table.detach();
+
+// ... add lots and lots of rows to table
+for(var i = 0; i &amp;lt; 1000; i++) {
+    $table.append(&amp;quot;&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;hello world&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&amp;quot;);
+}
+
+$parent.append($table);
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://api.jquery.com/category/selectors/"&gt;jQuery selectors&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://spoiledmilk.com/blog/html5-changing-the-browser-url-without-refreshing-page/"&gt;HTML5: Changing the browser-URL without refreshing page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.w3.org/TR/2011/WD-html5-author-20110705/history.html#dom-history-pushstate"&gt;pushState函数&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect"&gt;getBoundingRect函数&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://gregfranko.com/blog/jquery-best-practices/" title="jquery best practices"&gt;jQuery best practices&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://learn.jquery.com/performance/"&gt;jQuery performance tips&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;多数浏览器里，全局变量都是window对象的属性。&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;详细介绍参考&lt;a href="http://www.jacklmoore.com/notes/mouse-position/"&gt;Cross-browser mouse positioning&lt;/a&gt;。&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Mon, 30 Dec 2013 15:16:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-30:note/javascript_and_jquery_summary.html</guid><category>javascript</category><category>jquery</category><category>总结</category><category>未完成</category></item><item><title>Golang学习杂记</title><link>http://www.zhuimengle.com/note/golang-summary.html</link><description>&lt;p&gt;记录Golang的一些关键语法和易错易混淆的知识点。以下内容均基于Linux x86-64平台下的Go1.2，其中可能有错漏之处，欢迎反馈。&lt;/p&gt;
+&lt;h2 id="85e90215e2220188b57f612e49a2bf44"&gt;开发环境和工具&lt;/h2&gt;
+&lt;p&gt;升级Go之前，必须先移除旧的版本。&lt;/p&gt;
+&lt;h3 id="3867e350ebb33a487c4ac5f7787e1c29"&gt;环境变量&lt;/h3&gt;
+&lt;p&gt;Go开发涉及的环境变量有两个:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GOROOT&lt;/code&gt;: go的安装目录，类似于Java的&lt;code&gt;JAVA_HOME&lt;/code&gt;变量。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GOPATH&lt;/code&gt;: go的工作目录，所有通过&lt;code&gt;go get&lt;/code&gt;下载的第三方库都会位于该目录下。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;然后设置&lt;code&gt;PATH&lt;/code&gt;变量:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="456f94c1a28382c25e09ff39504347c1"&gt;编译器版本&lt;/h3&gt;
+&lt;p&gt;golang的编译器有如下几个版本：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://golang.org/cmd/6g/"&gt;6g&lt;/a&gt;: x86-64架构(64位操作系统)上使用的编译器&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://golang.org/cmd/8g/"&gt;8g&lt;/a&gt;: x86架构(32位操作系统)上使用的编译器&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://golang.org/doc/install/gccgo"&gt;gccgo&lt;/a&gt;: GCC的前端，有些时候用gccgo编译出的可执行程序比6g和8g编译出的要快几倍。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="8998c0f7f7aefaebad989aef6dfdab25"&gt;辅助工具&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;go tool pprof&lt;/code&gt;: profiling工具，参考文章&lt;a href="http://blog.golang.org/profiling-go-programs"&gt;Profiling Go Programs&lt;/a&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;gofmt&lt;/code&gt;: 格式化go源码。&lt;div class="codehilite"&gt;&lt;pre&gt;find . -name &amp;quot;*.go&amp;quot; | xargs gofmt -w
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="c6e79d0b821860da1d6187fac8338d5a"&gt;语法总结&lt;/h2&gt;
+&lt;h3 id="488415410b3845655feeefc5207b5c06"&gt;0值&lt;/h3&gt;
+&lt;p&gt;Zero value&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;boolean: &lt;code&gt;false&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;integer: &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;float: &lt;code&gt;0.0&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;string: &lt;code&gt;""&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;pointer, function, interface, slice, channel, map: &lt;code&gt;nil&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="91414d4d32a791d88b9bec749632987a"&gt;值传递&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Everything&lt;/strong&gt; in Go is passed by value&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;h3 id="7df6e743c28cabad3cac4deba9b16ef5"&gt;引用类型&lt;/h3&gt;
+&lt;p&gt;pointer, slice, channel和map均可看作引用类型，发生值拷贝时，被拷贝的仅仅是指向实际数据的指针&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;h3 id="ef1465c397cb0afb57238359060065fb"&gt;range表达式&lt;/h3&gt;
+&lt;p&gt;range表达式仅在循环开始前执行一次&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;，每次循环的迭代都会对左边的迭代变量赋一次值&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;，因此在循环中对迭代变量的修改不会影响到其他的迭代。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;a := []int{ 1, 2, 3 }
+for i, v := range a {
+    println(i)
+    i -= 1
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;输出&lt;code&gt;1 2 3&lt;/code&gt;(省略了换行符)。&lt;/p&gt;
+&lt;h3 id="00684cc251d8c2e4a870aa00128dc1ff"&gt;数组和slice&lt;/h3&gt;
+&lt;h4 id="f45a735ab3f170d38481359f09ac511e"&gt;数组类型&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;数组的长度也是其类型的一部分，&lt;code&gt;[3]int&lt;/code&gt;和&lt;code&gt;[4]int&lt;/code&gt;类型不同。&lt;/li&gt;
+&lt;li&gt;和slice不同，发生值拷贝时，数组的所有数据都会被拷贝。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id="b004d7060310612fc2a5e970bbbbe32d"&gt;slice和数组的定义&lt;/h4&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sl := []int{1, 2, 3}
+ar := [3]int{1, 2, 3}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面的代码中，sl是长度和容量均为3的slice，ar是长度为3的数组。&lt;/p&gt;
+&lt;h4 id="b5d9f3bbb944447754f85a27d68a9ed1"&gt;slice和append&lt;/h4&gt;
+&lt;p&gt;使用append时，如果slice对应的array的长度不够，go会创建一个新的array以容纳新添加的数据，所有旧的array数据都会被拷贝到新的array里。需要频繁使用append时，需要考虑到其效率问题。&lt;/p&gt;
+&lt;p&gt;对于数据量已知且每次append一条数据的情况，推荐如下使用方式。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;// 初始化一个长度为10的数组
+sourceArray := [5]int{ 1, 2, 3, 4, 5}
+// 初始化一个长度和容量均为10的slice
+targetSlice := make([]int, len(sourceArray))
+// 使用range遍历数组，注意不使用第二个返回值以避免额外的拷贝开销
+for i := range sourceArray {
+    // 依次在目标slice的i位置插入数组的对应元素
+    targetSlice = append(targetSlice[:i], sourceArray[i])
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4 id="3b21f3d5af918439f866b01a858c5f00"&gt;slice和数组访问越界&lt;/h4&gt;
+&lt;p&gt;以下是常见的使用场景和常见的错误：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;ar := [3]int{1, 2, 3} // len(ar) == 3
+sa := ar[:]           // len(sa) == 3
+sb := ar[:2]          // len(sb) == 2
+
+ar[3:] // []
+sa[3:] // []
+sb[2:] // panic
+
+ar[4:] // compiler error
+sa[4:] // panic 访问越界
+sb[3:] // panic 访问越界
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;超过slice长度的元素，即使slice指向的数组里存在该元素，使用slice访问依然会越界。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;ar[3]  // == 3
+sb[3]  // panic error
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="6b46a1cba807f97ed4a145f731fd9cec"&gt;string类型&lt;/h3&gt;
+&lt;p&gt;string使用UTF-8编码。&lt;/p&gt;
+&lt;h3 id="1d78dc8ed51214e518b5114fe24490ae"&gt;map&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;value, found := MapABC[key]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面的代码中，value依然是map中key对应的值的拷贝。如果不使用第二个参数found，如下&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;value := MapABC[key]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;则当key不存在时，value被初始化为对应的0值。&lt;/p&gt;
+&lt;h3 id="2cb472ff9cad0c89a033c53996b52053"&gt;初始化&lt;/h3&gt;
+&lt;p&gt;常见的初始化方法。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;new初始化变量为0值，返回指针。&lt;/li&gt;
+&lt;li&gt;构造函数，使用&lt;code&gt;&amp;amp;&lt;/code&gt;可返回指针，成员的默认值为0值。&lt;/li&gt;
+&lt;li&gt;make仅用于初始化slice, map和channel三种类型，返回实际变量。&lt;/li&gt;
+&lt;li&gt;源文件中的init函数，所有的init函数按引用顺序在程序运行后依次执行，参考&lt;a href="http://golang.org/ref/spec#Program_execution"&gt;这里&lt;/a&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="441add7be9dc2782ccd5f8594f9d0f3c"&gt;赋值操作符&lt;/h3&gt;
+&lt;p&gt;使用&lt;code&gt;:=&lt;/code&gt;需要注意的地方。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;左边的成员至少要有一个是未声明的变量。&lt;/li&gt;
+&lt;li&gt;已声明的变量，在同一作用域内，变量值被改写。&lt;/li&gt;
+&lt;li&gt;如果已声明的变量作用域在外层，则定义一个新的同名变量，会屏蔽外层的变量。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="57e5fba4ce5b4cb9ffd595beb63e7389"&gt;iota&lt;/h3&gt;
+&lt;p&gt;每个const关键字都会将iota的值重置为0，每个const表达式让iota增加1。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;const m = iota // m = 0
+const n = iota // n = 0
+
+const (
+    a = iota   // a = 0
+    b = iota   // b = 1
+    c          // c = 2
+)
+
+const (
+    d = 1 &amp;lt;&amp;lt; iota // iota重置为0，d = 1
+    e             // e = 1 &amp;lt;&amp;lt; 1 = 2
+    f             // f = 1 &amp;lt;&amp;lt; 2 = 4
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在同一个const表达式中多次使用iota，其值不变。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;const (
+    a, b = iota, 1 &amp;lt;&amp;lt; iota // a = 0, b = 1
+    c, d                   // c = 1, d = 2
+    e, f                   // e = 2, f = 4
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="d3c0b3ea82a4a103b38d5e32d4fb4be2"&gt;函数参数和命名的返回变量&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;函数参数和命名的返回变量的作用域就是函数体。&lt;/li&gt;
+&lt;li&gt;命名的返回变量默认值为0值，一个单独的&lt;code&gt;return&lt;/code&gt;会返回命名的返回值的当前值。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="870a51ba2a9edfadc62ce99af52cabd1"&gt;函数&lt;/h3&gt;
+&lt;p&gt;函数可以作为值附给变量，代码见&lt;a href="http://play.golang.org/p/DABfLTIDIm"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+func test(a int) int {
+    return a
+}
+
+func main() {
+    var fun func(int)int = test
+    println(fun(100))
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="68a6605ba63cdd2bd0ef3e5c15dee2ab"&gt;vector容器&lt;/h3&gt;
+&lt;p&gt;Go1删除了vector容器&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;，所有的vector操作均可通过slice配合一定的技巧实现，具体请参考&lt;a href="https://code.google.com/p/go-wiki/wiki/SliceTricks" title="golang slice tricks"&gt;Slice技巧&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="0db23960de47f2f31acde25853062bdf"&gt;返回临时变量的指针&lt;/h3&gt;
+&lt;p&gt;在Golang里，返回临时变量的指针是完全合法的，比如下面的函数。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;func test() *int {
+    a := 5
+    return &amp;amp;a
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;原因在于，对于使用&lt;code&gt;&amp;amp;&lt;/code&gt;符号取址的变量，go编译器将其分配到heap上。进一步阅读可参考&lt;a href="http://golang.org/doc/faq#stack_or_heap"&gt;faq: stack or heap&lt;/a&gt;和&lt;a href="http://www.scvalex.net/posts/29/" title="Escape Analysis in Go"&gt;Escape Analysis in Go&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="dd970a1f2394462211025da6a66ca504"&gt;标准库&lt;/h2&gt;
+&lt;h3 id="ac5c74b64b4b8352ef2f181affb5ac2a"&gt;sql&lt;/h3&gt;
+&lt;p&gt;Open()返回的&lt;code&gt;type DB&lt;/code&gt;是一个数据库的句柄，而不是一个数据库连接，另外Open函数也不一定立即建立和数据库的连接（见Open函数的说明）。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;type DB&lt;/code&gt;维护着一个数据库连接池，在多个goroutine之间并发使用是安全的。由于连接池的存在，每次执行Query()和Exec()等函数的并不一定是同一个数据库连接，因此如果有需要，可以使用Begin()函数创建一个数据库事务，在Begin()和Commit()/Rollback()之间的数据库操作将被保证在同一个数据库连接上执行。&lt;/p&gt;
+&lt;p&gt;基于以上的事实，每次数据库请求都调用Open()和Close()是不明智甚至是不正确的。&lt;/p&gt;
+&lt;h3 id="4fe3e66b2026c6f3d9514fd8f6cf6668"&gt;gob&lt;/h3&gt;
+&lt;p&gt;gob.Encode(a interface{})，如果a保存的是指针类型，实际编码的是a所指向的数据。&lt;/p&gt;
+&lt;p&gt;引用一，&lt;a href="http://blog.golang.org/gobs-of-data"&gt;http://blog.golang.org/gobs-of-data&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This flexibility also applies to pointers. Before transmission, all pointers are flattened. Values of type int8, &lt;em&gt;int8, &lt;strong&gt;int8,&lt;strong&gt;&lt;em&gt;&lt;em&gt;int8, etc. are all transmitted as an integer value, which may then be stored in int of any size, or &lt;/em&gt;int, or &lt;/em&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/em&gt;int, etc. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;引用二，&lt;a href="http://golang.org/pkg/encoding/gob/"&gt;http://golang.org/pkg/encoding/gob/&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Pointers are not transmitted, but the things they point to are transmitted; that is, the values are flattened. Recursive types work fine, but recursive values (data with cycles) are problematic. &lt;strong&gt;This may change&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="07cc694b9b3fc636710fa08b6922c42b"&gt;time&lt;/h3&gt;
+&lt;p&gt;涉及到时区的常用函数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;LoadLocation: 根据时区的名称获取对应的Location，时区名称可参考&lt;a href="http://en.wikipedia.org/wiki/List_of_tz_database_time_zones"&gt;List of tz database time zones&lt;/a&gt;，文档见&lt;a href="http://golang.org/pkg/time/#LoadLocation"&gt;此&lt;/a&gt;。&lt;/li&gt;
+&lt;li&gt;In(Location): 将time转换为Location所在的时区，返回转换后的time，文档见&lt;a href="http://golang.org/pkg/time/#Time.In"&gt;此&lt;/a&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="10ae9fc7d453b0dd525d0edf2ede7961"&gt;list&lt;/h3&gt;
+&lt;p&gt;golang的list实现了一个双向链表&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;，不适合随机存取(按索引取值)，不是goroutine安全的。相比slice，list适合用在需要频繁在首尾插入元素或删除某个元素的情况。&lt;/p&gt;
+&lt;h2 id="80cf5376b8c199b39a1778688720470e"&gt;疑难问题&lt;/h2&gt;
+&lt;h3 id="f733ee949a16cd4add143a9c0d13302c"&gt;在循环中删除slice的元素&lt;/h3&gt;
+&lt;p&gt;&lt;span class="alert-danger"&gt;
+不要这么做，考虑用&lt;a href="#10ae9fc7d453b0dd525d0edf2ede7961"&gt;list&lt;/a&gt;替换slice。
+&lt;/span&gt;&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;a := []int { 1, 2, 4, 5 }
+println(len(a)) // 4
+println(a[4:])  // []
+println(a[5:])  // panic
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上是一些关于slice的基础知识，下面举个循环中删除slice元素的例子。假设我们有如下一个需求：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;给定一个slice []int{1, 2, 4, 5}，我们希望通过一个for循环删除其中的偶数元素，期望的输出是1, 5。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;以下的代码会直接panic，原因是在第4次迭代的时候，发生了slice访问越界(此时slice长度为3, i为3)，完整代码见&lt;a href="http://play.golang.org/p/85hbFJgWGz"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;a := []int{1, 2, 4, 5}
+for i, _ := range a {
+    if a[i]%2 == 0 {
+        // delete a[i]
+        a = append(a[:i], a[i+1:]...)
+    }
+}
+fmt.Println(a)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以下的代码不会panic，但结果不是我们期望的。完整代码见&lt;a href="http://play.golang.org/p/o8-OrdSVfH"&gt;这里&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;s := []int{1, 2, 4, 5}
+for i := 0; i &amp;lt; len(s); i++ {
+    if s[i]%2 == 0 {
+        // delete s[i]
+        s = append(s[:i], s[i+1:]...)
+    }
+}
+fmt.Println(s)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;输出&lt;code&gt;[1 4 5]&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;原因在于删除第二个元素&lt;code&gt;2&lt;/code&gt;之后，目标slice变为了&lt;code&gt;[]int{1, 4, 5}&lt;/code&gt;，而此时i为1，下一次迭代i自增后直接略过了&lt;code&gt;4&lt;/code&gt;。解决方案是在删除过后，将i减1。如下，完整代码见&lt;a href="http://play.golang.org/p/3sxuJfcCVa"&gt;这里&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;s := []int{1, 2, 4, 5}
+for i := 0; i &amp;lt; len(s); i++ {
+    if s[i]%2 == 0 {
+        // delete s[i]
+        s = append(s[:i], s[i+1:]...)
+        i -= 1
+    }
+}
+fmt.Println(s)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="c9df09b4610bb43e290507a37c658ae8"&gt;defer&lt;/h3&gt;
+&lt;p&gt;以下参考了文章&lt;a href="http://bbs.mygolang.com/thread-406-1-1.html" title="你真的懂defer了吗"&gt;《你真的懂defer了吗》&lt;/a&gt;中的代码。&lt;/p&gt;
+&lt;p&gt;例子1，见&lt;a href="http://play.golang.org/p/wY8p-jY0ex"&gt;这里&lt;/a&gt;，输出1。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+func fun() (m int) {
+    defer func() {
+        m++
+    }()
+    return 0
+}
+
+func main() {
+    println(fun())
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;defer在return之前执行，但return并非原子操作。具体的说return分两步，首先为返回变量赋值&lt;code&gt;m = 0&lt;/code&gt;，然后空返回&lt;code&gt;return&lt;/code&gt;。 而实际上defer在这两步之间被执行，即先给返回变量赋值，然后执行defer语句，最后一个空的return语句，因此上面的函数可改写为：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;func fun() (m int) {
+    m = 0 // 返回变量赋值
+    m++ // defer
+    return
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;另外一个例子，见&lt;a href="http://play.golang.org/p/8mBfLOYMPk"&gt;这里&lt;/a&gt;，输出5。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+func fun() (r int) {
+    t := 5
+    defer func() {
+        t = t + 5
+    }()
+    return t
+}
+
+func main() {
+    println(fun())
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面的fun函数可改写为：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;func fun() (r int) {
+    t := 5
+    r = t
+    t = t + 5
+    return
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="22a13315ec051c29264322c186236635"&gt;无法获取map元素的地址&lt;/h3&gt;
+&lt;p&gt;代码见&lt;a href="http://play.golang.org/p/J4eOCvSKn-"&gt;这里&lt;/a&gt;&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+type A struct {
+    Value int
+}
+func (a A) getVal() int {
+    return a.Value
+}
+func (a *A) getVal2() int {
+    return a.Value
+}
+
+func main() {
+    a := map[int]A{ 1: A{10} }
+
+    //println(&amp;amp;a[1])          // wrong, cannot take the address of a[1]
+
+    println(a[1].Value)       // ok
+    //a[1].Value = 20         // wrong, cannot assign to a[1].Value
+
+    println(a[1].getVal())    // ok
+    //println(a[1].getVal2()) // wrong, cannot call pointer method on a[1]; cannot take the address of a[1]
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;分别取消注释的代码并运行可看到相应的编译错误，总之就是map的index操作获得的变量无法取其指针。&lt;/p&gt;
+&lt;p&gt;另一段代码，见&lt;a href="http://play.golang.org/p/QAShQtVyO1"&gt;这里&lt;/a&gt;&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+type A struct {
+    Value int
+}
+
+func main() {
+    a := map[int]A{ 1: A{10} }
+    b := map[int]int{ 1: 10 }
+
+    //a[1].Value += 10 // error, cannot assign to a[1].Value
+    b[1] += 10
+
+    println(a[1].Value)
+    println(b[1])
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;取消注释的行并运行可看到注释后的编译错误，原因我暂时也不清楚。&lt;/p&gt;
+&lt;p&gt;解决的方法主要有两个，在map的值使用指针类型(*A)，代码见&lt;a href="http://play.golang.org/p/omlBnBZYfT"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+type A struct {
+    Value int
+}
+
+func main() {
+    a := map[int]*A{ 1: &amp;amp;A{10} }
+
+    a[1].Value += 10
+
+    println(a[1].Value)
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;或者使用一个临时变量，代码见&lt;a href="http://play.golang.org/p/-gBUhLGIXN"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+type A struct {
+    Value int
+}
+
+func main() {
+    a := map[int]A{ 1: A{10} }
+
+    tmp := a[1]
+    tmp.Value += 10
+    a[1] = tmp
+
+    println(a[1].Value)
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;关于此问题的讨论链接:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://groups.google.com/forum/#!topic/golang-nuts/V_5kwzwKJAY"&gt;golang-nutes&amp;gt;Address of map entries&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://groups.google.com/forum/?fromgroups=#!topic/golang-nuts/4_pabWnsMp0"&gt;golang-nuts&amp;gt;Why can't I assign to struct in map?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/go/issues/detail?id=3117"&gt;go issue: spec: cannot assign to a field of a map element directly: m["foo"].f = x&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="5fc0efe228c120dd03db2c361dd0865b"&gt;for循环变量重复使用问题&lt;/h3&gt;
+&lt;p&gt;示例代码如下，见&lt;a href="http://play.golang.org/p/F-Y1Jgt9t8"&gt;这里&lt;/a&gt;，输出&lt;code&gt;3 3 3&lt;/code&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;package main
+
+import &amp;quot;time&amp;quot;
+
+func main() {
+    for _, a := range []int{1, 2, 3} {
+        go func() {
+            println(a)
+        }()
+    }
+    time.Sleep(2)   
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;原因是Golang的for循环会在各个迭代中重复使用循环变量，通常不会有问题，但是结合goroutine使用会有错，详细内容可参考&lt;a href="http://golang.org/doc/effective_go.html#channels"&gt;Effective Go#Channels&lt;/a&gt;中的相关解释。&lt;/p&gt;
+&lt;p&gt;要想输出&lt;code&gt;1 2 3&lt;/code&gt;而不是&lt;code&gt;3 3 3&lt;/code&gt;，解决方法是在每次迭代中使用循环变量的拷贝值。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;for _, a := range []int{1, 2, 3} {
+    go func(val int) {
+        println(val)
+    }(a)
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;或者&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;for _, a := range []int{1, 2, 3} {
+    a := a
+    go func() {
+        println(a)
+    }()
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="3ba34fc6491df1c7ab2d294d7a12417d"&gt;书籍推荐&lt;/h2&gt;
+&lt;h3 id="ec1633e5db8e388725ff9d9be144e42c"&gt;Go学习笔记 By雨痕&lt;/h3&gt;
+&lt;p&gt;这其实是人家的学习笔记，内容详细且全面，非常适合通读。&lt;/p&gt;
+&lt;h2 id="2053d42c819811d6f43bd3305fe60447"&gt;其他资源&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://play.golang.org/"&gt;Go Playground&lt;/a&gt; 方便共享golang的代码，向别人请教问题时尤其有用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="bf52b411fae5afe9115f14123f776321"&gt;其他问题&lt;/h2&gt;
+&lt;h3 id="e7040dd1bcab98d06aa49c5062f122ca"&gt;动态链接&lt;/h3&gt;
+&lt;p&gt;众所周知，除了用&lt;a href="http://golang.org/cmd/cgo/"&gt;cgo&lt;/a&gt;链接的c动态库之外，golang库都是被静态链接到可执行文件的。对于没有动态链接这个特性，官方貌似一直没有给出具体解释，目前看来估计以后也不会实现。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://golang.org/doc/effective_go.html"&gt;Effective Go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://golang.org/ref/spec"&gt;The Go Programming Language Specification&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://golang.org/doc/faq"&gt;Golang Frequently Asked Questions (FAQ)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.scvalex.net/posts/29/" title="Escape Analysis in Go"&gt;Escape Analysis in Go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://bbs.mygolang.com/thread-406-1-1.html" title="你真的懂defer了吗"&gt;你真的懂defer了吗&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.golang.org/gobs-of-data"&gt;Gobs of data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.golang.org/profiling-go-programs"&gt;Profiling Go Programs&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;Golang Frequently Asked Questions (FAQ), &lt;a href="http://golang.org/doc/faq#pass_by_value"&gt;When are function parameters passed by value&lt;/a&gt;, 引用于2014.01.17.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;The Go Programming Language Specification, &lt;a href="http://golang.org/ref/spec#RangeClause"&gt;range clause&lt;/a&gt;, version of Nov 13, 2013.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:3"&gt;
+&lt;p&gt;Go 1 Release Notes, &lt;a href="http://golang.org/doc/go1#deleted"&gt;deleted packages&lt;/a&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:4"&gt;
+&lt;p&gt;Golang Package Documentation, &lt;a href="http://golang.org/pkg/container/list/#pkg-overview"&gt;list package overview&lt;/a&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Wed, 25 Dec 2013 18:01:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-25:note/golang-summary.html</guid><category>golang</category><category>总结</category></item><item><title>Redis相关</title><link>http://www.zhuimengle.com/note/redis.html</link><description>&lt;p&gt;Redis是一个键值对存储系统，相比memcached，redis支持多种数据结构（如list, sorted set等）和数据持久化。&lt;/p&gt;
+&lt;h2 id="e655a410ff21cd07e7a0150491e04371"&gt;安装&lt;/h2&gt;
+&lt;p&gt;在&lt;a href="http://redis.io/download"&gt;这里&lt;/a&gt;下载最新稳定版redis，下面以2.8.3版本为例。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;wget http://download.redis.io/releases/redis-2.8.3.tar.gz
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解压并编译安装&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;tar -xvf redis-2.8.3.tar.gz
+cd redis-2.8.3
+make
+sudo make install
+cd utils
+sudo ./install_server.sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;默认情况下，redis服务器使用6379端口，配置文件位于&lt;code&gt;/etc/redis/6379.conf&lt;/code&gt;，日志位于&lt;code&gt;/var/log/redis_6379.log&lt;/code&gt;，init脚本位于&lt;code&gt;/etc/init.d/redis_6379&lt;/code&gt;，数据目录在&lt;code&gt;/var/lib/redis/6379/&lt;/code&gt;。以上参数均可在运行install_server.sh脚本的时候设置。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 19 Dec 2013 13:36:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-19:note/redis.html</guid><category>redis</category><category>cache</category></item><item><title>SMTP协议相关知识总结</title><link>http://www.zhuimengle.com/note/smtp-summary.html</link><description>&lt;p&gt;SMTP(Simple Mail Transfer Protocol), 是邮件的传输协议，用于从邮件客户端向邮件服务器发送电子邮件，协议的具体定义可参考&lt;a href="http://tools.ietf.org/html/rfc5321" title="RFC5321"&gt;rfc5321&lt;/a&gt;。Linux上常用的邮件服务器有postfix和exim4等，默认端口是25。&lt;/p&gt;
+&lt;h2 id="e8ac8f5ab65b28ff38047229183bbec6"&gt;SMTP命令&lt;/h2&gt;
+&lt;h3 id="0dfbe902b83113107983280ac8836a10"&gt;常用命令&lt;/h3&gt;
+&lt;p&gt;常用的主要有5个，按实际使用顺序，分别为HELO, MAIL, RCPT, DATA和QUIT。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;HELO relay.example.org
+MAIL FROM:&amp;lt;bob@example.org&amp;gt;
+RCPT TO:&amp;lt;alice@example.com&amp;gt;
+RCPT TO:&amp;lt;theboss@example.com&amp;gt;
+DATA
+mail header
+
+mail body
+QUIT
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;HELO向邮件服务器初始化一次会话，MAIL设置发信人地址，RCP设置收信人地址，可以有多个，DATA表示之后为邮件内容（包括邮件头和邮件正文），最后QUIT结束该会话。&lt;/p&gt;
+&lt;p&gt;详细的命令介绍可参考&lt;a href="http://the-welters.com/professional/smtp.html" title="SMTP Commands"&gt;SMTP Commands&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="ef3c89510281666257280defa33f916a"&gt;HELO vs EHLO&lt;/h3&gt;
+&lt;p&gt;HELO和EHLO命令都可用于向邮件服务器初始化一个会话，不同的是EHLO对HELO进行了扩展以支持&lt;a href="http://en.wikipedia.org/wiki/Extended_SMTP"&gt;Extended SMTP&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="963e2704d95cf98187302859b254c332"&gt;易混淆点&lt;/h2&gt;
+&lt;h3 id="507dae5094b55ed7521deb82e8bb23fa"&gt;行分隔符&lt;/h3&gt;
+&lt;p&gt;邮件头每一行末尾使用CRLF(&lt;code&gt;\r\n&lt;/code&gt;)结束，邮件头和邮件正文使用一个空行分割。例如&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;From: mawenbao@hotmail.com\r\nTo: hello@world.com\r\nSubject: Hello world\r\n\r\nThis is the email body.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="ccbf9b4ae8664a2808dce5020f5f01fc"&gt;Base64编码正文&lt;/h3&gt;
+&lt;p&gt;如果用Base64对邮件正文进行编码，邮件头中应设置&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;Content-Transfer-Encoding: base64
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="05db88dd22df33633e8a273015028f6a"&gt;其他相关知识&lt;/h2&gt;
+&lt;h3 id="1903a3443a397660de69904323b54533"&gt;MIME&lt;/h3&gt;
+&lt;p&gt;MIME(Multipurpose Internet Mail Extensions)对电子邮件格式进行扩展，以支持非ASCII字符集，非文本文件附件和multipart的邮件正文等。详细信息可参考&lt;a href="http://en.wikipedia.org/wiki/MIME"&gt;Wikipedia:MIME&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;常用MIME头有MIME-Version, Content-Type和Content-Transfer-Encoding，MIME-Version标识MIME版本，Content-Type说明邮件正文的编码和格式。比如&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;From: mawenbao@hotmail.com
+To: hello@world.com
+Subject: hello world
+MIME-Version: 1.0
+Content-Type: text/html; charset=&amp;quot;UTF-8&amp;quot;
+
+&amp;lt;html&amp;gt;&amp;lt;head&amp;gt;&amp;lt;/head&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h1&amp;gt;Hello world&amp;lt;/h1&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;为方便阅读，在上面的例子中，所有的\r\n换行符均使用回车替换。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://tools.ietf.org/html/rfc5321" title="RFC5321"&gt;RFC5321&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol"&gt;Wikipedia:Simple Mail Transfer Protocol&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/Extended_SMTP"&gt;Wikipedia:Extended SMTP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/MIME"&gt;Wikipedia:MIME&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://the-welters.com/professional/smtp.html" title="SMTP Commands"&gt;SMTP Commands&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Wed, 18 Dec 2013 10:58:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-18:note/smtp-summary.html</guid><category>总结</category><category>email</category><category>smtp</category></item><item><title>Python资源收集</title><link>http://www.zhuimengle.com/note/python-resources.html</link><description>&lt;p&gt;收集有用的python资源。&lt;/p&gt;
+&lt;h2 id="90f6badc8a904646f5b2446ee94e9654"&gt;库&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/grangier/python-goose"&gt;python-goose&lt;/a&gt; Goose的python实现，从html里提取有用的文字图片等信息。&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/misja/python-boilerpipe"&gt;python-boilerpipe&lt;/a&gt; Boilerpipe的python接口，从html里提取文字信息。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="c75625dccf148721245b46b1e3e6c79f"&gt;文章&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://pymotw.com/2/"&gt;Python module of the week&lt;/a&gt; 一系列Python2标准库的使用教程，非常翔实。&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 05 Dec 2013 10:14:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-05:note/python-resources.html</guid><category>python</category><category>resource</category><category>package</category></item><item><title>使用dante-server和stunnel搭建socks代理服务器</title><link>http://www.zhuimengle.com/note/ubuntu-socks-proxy-setup-with-stunnel.html</link><description>&lt;p&gt;总结在Ubuntu上使用Dante和Stunnel搭建socks代理服务器的过程，以供日后查询。&lt;/p&gt;
+&lt;p&gt;dante-server是一个免费的socks代理服务器，stunnel可以对tcp连接进行ssl加密，相关程序的版本为&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Ubuntu: 12.04 x86_64&lt;/li&gt;
+&lt;li&gt;dante-server: v1.1.19&lt;/li&gt;
+&lt;li&gt;stunnel: 4.42&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="7d12605a98cf2d9746e79f9abda1f4f9"&gt;安装和配置dante-server&lt;/h2&gt;
+&lt;h3 id="56ad2f29762cff498a288883a200ebba"&gt;安装dante-server&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;apt-get install dante-server
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="48cdd0965b3b8fa7c9b04c851cb2a3d6"&gt;配置dante-server&lt;/h3&gt;
+&lt;p&gt;dante-server的默认配置文件为&lt;code&gt;/etc/danted.conf&lt;/code&gt;，配置说明&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;仅在本地(localhost)监听1999端口，端口可任意选（注意使用netstat -nap | grep 1999查看端口是否被占用)。&lt;/li&gt;
+&lt;li&gt;不写日志文件(dante-server会写超多日志）。&lt;/li&gt;
+&lt;li&gt;method设置为none表示没有登录验证。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;完整的配置文件如下&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;#logoutput: /var/log/danted.log
+logoutput: stderr
+# listen locally
+internal: 127.0.0.1 port = 1999
+#internal: eth0 port = 1999
+external: eth0
+
+method: none
+
+user.privileged: proxy
+user.notprivileged: nobody
+user.libwrap: nobody
+
+connecttimeout: 30
+iotimeout: 86400
+
+client pass {
+    from: 192.168.0.0/0 port 1-65535 to: 0.0.0.0/0
+}
+
+client pass {
+    from: 127.0.0.0/8 port 1-65535 to: 0.0.0.0/0
+}
+
+client block {
+    from: 0.0.0.0/0 to: 0.0.0.0/0
+    log: connect error
+}
+
+block {
+    from: 0.0.0.0/0 to: 127.0.0.0/8
+    log: connect error
+}
+
+pass {
+    from: 192.168.0.0/0 to: 0.0.0.0/0
+    protocol: tcp udp
+}
+
+pass {
+    from: 127.0.0.0/8 to: 0.0.0.0/0
+    protocol: tcp udp
+}
+
+block {
+    from: 0.0.0.0/0 to: 0.0.0.0/0
+    log: connect error
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;配置完毕后重启dante-server&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;service danted restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="b4ca197b25a2bae008ce9d269cae28b7"&gt;使用freeradius进行登录验证&lt;/h3&gt;
+&lt;p&gt;未完成&lt;/p&gt;
+&lt;h3 id="861c87d40177ef00d5f66566d1d619a6"&gt;dante-server查错&lt;/h3&gt;
+&lt;p&gt;关闭dante-server服务&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;service danted stop
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;非daemon模式运行，并打开debug输出&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;danted -d -f /etc/danted.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="61f16abb3b7781a1a1f4d6f8ec5196cb"&gt;安装和配置stunnel&lt;/h2&gt;
+&lt;h3 id="4a02a37873d0daaf5f64a846b52bd1b7"&gt;安装stunnel&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;apt-get install stunnel
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="3df421c173b16780c9ec39c2547988ec"&gt;配置stunnel服务器&lt;/h3&gt;
+&lt;p&gt;stunnel4的配置文件默认位于&lt;code&gt;/etc/stunnel&lt;/code&gt;目录内，配置文件的例子在&lt;code&gt;/usr/share/doc/stunnel4/examples&lt;/code&gt;目录。&lt;/p&gt;
+&lt;p&gt;首先，将&lt;code&gt;/etc/default/stunnel4&lt;/code&gt;的ENABLED改为1，以启用stunnel服务。&lt;/p&gt;
+&lt;p&gt;然后创建stunnel的服务器证书&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /etc/stunnel
+mkdir certs &amp;amp;&amp;amp; cd certs
+openssl req -new -x509 -days 3650 -nodes -config /usr/share/doc/stunnel4/examples/stunnel.cnf -out stunnel.pem -keyout stunnel.pem
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接下来创建stunnel配置文件&lt;code&gt;/etc/stunnel/stunnel.conf&lt;/code&gt;，配置说明&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;日志位于/var/lib/stunnel4/stunnel4.log，默认日志级别为debug(7)，下面的配置里修改为warning(4)。&lt;/li&gt;
+&lt;li&gt;证书和key都为上面创建的stunnel.pem。&lt;/li&gt;
+&lt;li&gt;最后的danted服务配置，stunnel将在1998端口监听dante-server的连接请求，并转发到dante-server的监听端口1999。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;完整的配置文件如下&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="na"&gt;chroot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/var/lib/stunnel4/&lt;/span&gt;
+&lt;span class="c1"&gt;; Chroot jail can be escaped if setuid option is not used&lt;/span&gt;
+&lt;span class="na"&gt;setuid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;stunnel4&lt;/span&gt;
+&lt;span class="na"&gt;setgid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;stunnel4&lt;/span&gt;
+
+&lt;span class="c1"&gt;; PID is created inside the chroot jail&lt;/span&gt;
+&lt;span class="na"&gt;pid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/stunnel4.pid&lt;/span&gt;
+
+&lt;span class="c1"&gt;; Debugging stuff (may useful for troubleshooting)&lt;/span&gt;
+&lt;span class="c1"&gt;; log level is waring(4), debug log level is 7&lt;/span&gt;
+&lt;span class="na"&gt;debug&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;4 &lt;/span&gt;
+&lt;span class="na"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/stunnel.log&lt;/span&gt;
+
+&lt;span class="na"&gt;CAfile&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/etc/stunnel/certs/stunnel.pem&lt;/span&gt;
+&lt;span class="na"&gt;cert&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/etc/stunnel/certs/stunnel.pem&lt;/span&gt;
+&lt;span class="na"&gt;verify&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;2&lt;/span&gt;
+
+&lt;span class="c1"&gt;; Disable support for insecure SSLv2 protocol&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;NO_SSLv2&lt;/span&gt;
+
+&lt;span class="c1"&gt;; The following options provide additional security at some performance penalty&lt;/span&gt;
+&lt;span class="c1"&gt;; Default ECDH/DH parameters are strong/conservative, so it is quite safe to&lt;/span&gt;
+&lt;span class="c1"&gt;; comment out these lines in order to get a performance boost&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;SINGLE_ECDH_USE&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;SINGLE_DH_USE&lt;/span&gt;
+
+&lt;span class="na"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;no&lt;/span&gt;
+
+&lt;span class="k"&gt;[danted]&lt;/span&gt;
+&lt;span class="na"&gt;accept&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;1998&lt;/span&gt;
+&lt;span class="na"&gt;connect&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;127.0.0.1:1999&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后，重启stunnel服务&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;service stunnel4 restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="c42cd9bb4375901406bcc5e89deb6e8c"&gt;配置stunnel客户端&lt;/h3&gt;
+&lt;p&gt;在你的客户端机器上安装stunnel，并将&lt;code&gt;/etc/default/stunnel4&lt;/code&gt;的ENABLED改为1。&lt;/p&gt;
+&lt;p&gt;然后将服务器端生成的stunnel.pem拷贝到客户端系统，假设放在&lt;code&gt;/etc/stunnel/stunnel.pem&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;接下来创建配置文件&lt;code&gt;/etc/stunnel/stunnel.conf&lt;/code&gt;，配置说明&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;客户端配置文件与服务端基本类似(日志配置等)，注意将client设置为yes。&lt;/li&gt;
+&lt;li&gt;最后的danted服务配置，stunnel将在本地的1997端口监听dante-server的socks连接请求，并发送到服务端stunnel监听的1998端口（见服务端配置）。注意将配置中的YOUR_SERVER改为你的服务器域名或IP。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;完整的配置文件如下&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="na"&gt;chroot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/var/lib/stunnel4/&lt;/span&gt;
+&lt;span class="na"&gt;setuid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;stunnel4&lt;/span&gt;
+&lt;span class="na"&gt;setgid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;stunnel4&lt;/span&gt;
+
+&lt;span class="c1"&gt;; actually /var/lib/stunnel4/stunnel4.pid&lt;/span&gt;
+&lt;span class="na"&gt;pid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/stunnel4.pid&lt;/span&gt;
+
+&lt;span class="na"&gt;verify&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;2&lt;/span&gt;
+
+&lt;span class="c1"&gt;; Debugging stuff (may useful for troubleshooting)&lt;/span&gt;
+&lt;span class="c1"&gt;; warning level 4, debug is level 7&lt;/span&gt;
+&lt;span class="na"&gt;debug&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;4 &lt;/span&gt;
+&lt;span class="na"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/stunnel.log&lt;/span&gt;
+
+&lt;span class="c1"&gt;; Disable support for insecure SSLv2 protocol&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;NO_SSLv2&lt;/span&gt;
+
+&lt;span class="c1"&gt;; The following options provide additional security at some performance penalty&lt;/span&gt;
+&lt;span class="c1"&gt;; Default ECDH/DH parameters are strong/conservative, so it is quite safe to&lt;/span&gt;
+&lt;span class="c1"&gt;; comment out these lines in order to get a performance boost&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;SINGLE_ECDH_USE&lt;/span&gt;
+&lt;span class="na"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;SINGLE_DH_USE&lt;/span&gt;
+
+&lt;span class="na"&gt;cert&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/etc/stunnel/stunnel.pem&lt;/span&gt;
+&lt;span class="na"&gt;CAfile&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/etc/stunnel/stunnel.pem&lt;/span&gt;
+&lt;span class="na"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;yes&lt;/span&gt;
+
+&lt;span class="k"&gt;[danted]&lt;/span&gt;
+&lt;span class="na"&gt;accept&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;127.0.0.1:1997&lt;/span&gt;
+&lt;span class="na"&gt;connect&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;YOUR_SERVER:1998&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后重启客户端stunnel服务&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;service stunnel4 restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="8f83ca1010b39a01c6a0db6076c95154"&gt;使用socks5代理&lt;/h2&gt;
+&lt;p&gt;按照上文的相关配置，将浏览器的socks5代理项设置为localhost:1997即可使用。&lt;/p&gt;
+&lt;h2 id="89d768a46a018e147672311bd3ec52d9"&gt;查错&lt;/h2&gt;
+&lt;p&gt;遇到问题先检查程序日志，如有需要可修改配置文件的日志输出级别。 根据日志的相关错误输出，先在程序官网的faq页面检索。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://www.inet.no/dante/doc/faq.html" title="http://www.inet.no/dante/doc/faq.html"&gt;dante-server faq&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.stunnel.org/faq.html" title="http://www.stunnel.org/faq.html"&gt;stunnel faq&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如果不能找到解决方案，再查看相关文档和google即可。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://wido.me/sunteya/setup-a-socks-proxy-server-pass-by-secure-firewall/" title="https://wido.me/sunteya/setup-a-socks-proxy-server-pass-by-secure-firewall/"&gt;通过 stunnel 搭建安全高性能的 sockts 代理服务器&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.digitalocean.com/community/articles/how-to-set-up-an-ssl-tunnel-using-stunnel-on-ubuntu" title="https://www.digitalocean.com/community/articles/how-to-set-up-an-ssl-tunnel-using-stunnel-on-ubuntu"&gt;How To Set Up an SSL Tunnel Using Stunnel on Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Wed, 04 Dec 2013 13:30:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-12-04:note/ubuntu-socks-proxy-setup-with-stunnel.html</guid><category>note</category><category>proxy</category><category>socks5</category><category>ubuntu</category></item><item><title>GO非官方Packages收集</title><link>http://www.zhuimengle.com/note/golang-non-official-packages.html</link><description>&lt;p&gt;收集一些优秀的非官方GO Pacakges，官方标准库列表见&lt;a href="https://code.google.com/p/go/source/browse?repo=net"&gt;golang packages&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="0591583a77103f81ff8b2b2919e50bb4"&gt;尚在开发中的标准库&lt;/h2&gt;
+&lt;p&gt;GO在google code的仓库里有很多尚未整合入标准库的Packages，多数可能有bug，需谨慎使用。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/go/source/browse?repo=net"&gt;net&lt;/a&gt; 包括html parser, ipv4, ipv6和proxy等&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/go/source/browse?repo=image"&gt;image&lt;/a&gt; 图像处理相关的库&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/go/source/browse?repo=crypto"&gt;cryto&lt;/a&gt; 包含众多加密算法的实现&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://code.google.com/p/go/source/browse?repo=text"&gt;text&lt;/a&gt; 文本处理相关的库，包括转码等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="bfb948674f0abac493f32fb6d39a73b9"&gt;网络相关&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/gorilla" title="gorilla"&gt;Gorilla Web Toolkit&lt;/a&gt; 包含一些有用的网络开发工具&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/gorilla/feeds" title="gorilla/feeds"&gt;feeds&lt;/a&gt; Feed生成&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;由&lt;a href="https://github.com/PuerkitoBio"&gt;PuerkitoBio&lt;/a&gt;实现的网络库&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/PuerkitoBio/purell"&gt;purell&lt;/a&gt; purify url&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/PuerkitoBio/gocrawl"&gt;gocraw&lt;/a&gt; 爬虫&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 21 Nov 2013 15:02:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-11-21:note/golang-non-official-packages.html</guid><category>golang</category><category>package</category><category>resource</category></item><item><title>CMake使用总结</title><link>http://www.zhuimengle.com/note/cmake.html</link><description>&lt;p&gt;总结CMake的常用命令，并介绍有用的CMake资源。&lt;/p&gt;
+&lt;p&gt;CMake意为cross-platform make，可用于管理c/c++工程。CMake解析配置文件CMakeLists.txt生成Makefile，相比直接用Makefile管理工程，CMake更灵活和简单。&lt;/p&gt;
+&lt;h2 id="334fe161fc524028ca4d4f84ac68273d"&gt;简单的例子&lt;/h2&gt;
+&lt;p&gt;一个完整的Demo可参考&lt;a href="https://github.com/mawenbao/protobuf-demo"&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;假设当前目录的结构为&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;./a.cpp
+./b.cpp
+
+./include/common.h
+./include/defines.h
+
+./other/c.cpp
+./other/d.cpp
+
+./lib/libB.a
+./lib/libBd.a
+./lib/libA.so
+./lib/libAd.so
+./lib/libB.so
+./lib/libBd.so
+./lib/libC.so
+./lib/libCd.so
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使用下面的CMakeLists.txt文件，目标是编译当前目录和./other目录下的所有源文件，并链接./lib目录下的相应库文件到最终的可执行文件./bin/hello(或./bin/hellod)。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cmake_minimum_required&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;VERSION&lt;/span&gt; &lt;span class="s"&gt;2.8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;project&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;helloworld&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_VERBOSE_MAKEFILE&lt;/span&gt; &lt;span class="s"&gt;on&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_COMPILER&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;g++&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_FLAGS&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_FLAGS_DEBUG&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;-g3 -Wall&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_FLAGS_RELEASE&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;-O2 -Wall&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;EXECUTABLE_OUTPUT_PATH&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_SOURCE_DIR&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/bin&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;aux_source_directory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;./&lt;/span&gt; &lt;span class="s"&gt;SRC_LIST&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;aux_source_directory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;./other&lt;/span&gt; &lt;span class="s"&gt;OTHER_SRC_LIST&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;APPEND&lt;/span&gt; &lt;span class="s"&gt;SRC_LIST&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;OTHER_SRC_LIST&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;include_directories&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_SOURCE_DIR&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/include&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;link_directories&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_SOURCE_DIR&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/lib&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;MY_BUILD_TYPE&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="s"&gt;MATCHES&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;add_executable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;hellod&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SRC_LIST&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;target_link_libraries&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;hellod&lt;/span&gt; &lt;span class="s"&gt;Ad&lt;/span&gt; &lt;span class="s"&gt;Bd.a&lt;/span&gt; &lt;span class="s"&gt;Cd.so&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;else&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="nb"&gt;add_executable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;hello&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SRC_LIST&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;target_link_libraries&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;hello&lt;/span&gt; &lt;span class="s"&gt;A&lt;/span&gt; &lt;span class="s"&gt;B.a&lt;/span&gt; &lt;span class="s"&gt;C.so&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;endif&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;执行命令&lt;code&gt;cmake -DMY_BUILD_TYPE=debug .&lt;/code&gt;生成Makefile，make之后生成./bin/hellod（调试版本），或执行&lt;code&gt;cmake .&lt;/code&gt;最后生成./bin/hello。&lt;/p&gt;
+&lt;h2 id="2bf77c9a355642febc61d1aa89a67219"&gt;常用的CMake变量&lt;/h2&gt;
+&lt;p&gt;详细内容请参考&lt;a href="http://www.cmake.org/Wiki/CMake_Useful_Variables"&gt;CMake Useful Variables&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PROJECT_SOURCE_DIR 工程的源文件目录，通常是包含CMakeLists.txt（有Project命令的）的目录。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;可在命令行下向CMake传递自定义变量&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cmake -DMY_BUILD_TYPE=debug .
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="0dfbe902b83113107983280ac8836a10"&gt;常用命令&lt;/h2&gt;
+&lt;p&gt;详情可参考对应版本的&lt;a href="http://www.cmake.org/cmake/help/documentation.html"&gt;CMake文档&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id="d9528adaf3b2b55391b3575187b94ef0"&gt;检查CMake版本&lt;/h3&gt;
+&lt;p&gt;cmake版本至少为2.8&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cmake_minimum_required(VERSION 2.8)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="e3313406171ad2c58d986439bfb5a3eb"&gt;定义工程名称&lt;/h3&gt;
+&lt;p&gt;工程名为helloworld&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;project(helloworld)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="01e485e341287aca8c046357d5ffe0c3"&gt;查找源文件&lt;/h3&gt;
+&lt;p&gt;查找当前目录下所有的源文件并保存到SRC_LIST变量里&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;aux_source_directory(. SRC_LIST)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;查找src目录下所有以cmake开头的文件并保存到CMAKE_FILES变量里&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;file(GLOB CMAKE_FILES &amp;quot;src/cmake*&amp;quot;)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;file&lt;/code&gt;命令同时支持目录递归查找&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;file(GLOB_RECURSE CMAKE_FILES &amp;quot;src/cmake*&amp;quot;)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;按照官方文档的说法，&lt;strong&gt;不建议&lt;/strong&gt;使用file的GLOB指令来收集工程的源文件，原文解释如下&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;We do not recommend using GLOB to collect a list of source files from your source tree. If no CMakeLists.txt file changes when a source is added or removed then the generated build system cannot know when to ask CMake to regenerate.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;大意就是，GLOB收集的源文件增加或删除，而CMakeLists.txt没有发生修改时，CMake不能识别这些文件。其实，当CMakeLists.txt使用aux_source_directory和file glob查找工程源文件时，如果添加或删除源文件，都需要重新运行CMake。&lt;/p&gt;
+&lt;h3 id="629e28f022f094fd4e30fed398bfd396"&gt;set命令&lt;/h3&gt;
+&lt;p&gt;经常配合set命令使用的CMake变量，使用&lt;code&gt;set(variable value)&lt;/code&gt;进行设置。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_VERBOSE_MAKEFILE&lt;/code&gt; on 输出详细的编译和链接信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_CXX_COMPILER&lt;/code&gt; "g++" c++编译器&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_CXX_FLAGS&lt;/code&gt; "-Wall" c++编译器参数&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_CXX_FLAGS_DEBUG&lt;/code&gt; debug版本对应的编译器参数&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_CXX_FLAGS_RELEASE&lt;/code&gt; release版本对应的编译器参数&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;EXECUTABLE_OUTPUT_PATH&lt;/code&gt; ${PROJECT_SOURCE_DIR}/bin 可执行文件的输出目录&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LIBRARY_OUTPUT_PATH&lt;/code&gt; ${PROJECT_SOURCE_DIR}/lib 链接库的输出目录&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;set命令还可以设置自定义变量，比如&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;set(MY_GREETINGS &amp;quot;hello world&amp;quot;)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="c149908671585ed2f2408e4d4819a33d"&gt;包含目录和链接目录&lt;/h3&gt;
+&lt;p&gt;将&lt;code&gt;./include&lt;/code&gt;和&lt;code&gt;./abc&lt;/code&gt;加入包含目录列表&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;include_directories(
+    ./include
+    ./abc
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;将&lt;code&gt;./lib&lt;/code&gt;加入编译器链接阶段的搜索目录列表&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;link_directories(
+    ./lib
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="ccf0bd7c3ddbbaae77ed770a43acbf40"&gt;添加生成目标&lt;/h3&gt;
+&lt;p&gt;使用SRC_LIST源文件列表里的文件生成一个可执行文件hello&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;add_executable(hello ${SRC_LIST})
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使用SRC_LIST源文件列表里的文件生成一个静态链接库libhello.a&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;add_library(hello STATIC ${SRC_LIST})
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使用SRC_LIST源文件列表里的文件生成一个动态链接库libhello.so&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;add_library(hello SHARED ${SRC_LIST})
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;将若干库文件链接到生成的目标hello(libhello.a或libhello.so)&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;target_link_libraries(hello A B.a C.so)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;需要注意的是，target_link_libraries里库文件的顺序符合gcc链接顺序的规则，即被依赖的库放在依赖它的库的后面，比如上面的命令里，libA.so可能依赖于libB.a和libC.so，如果顺序有错，链接时会报错。还有一点，B.a会告诉CMake优先使用静态链接库libB.a，C.so会告诉CMake优先使用动态链接库libC.so，也可直接使用库文件的相对路径或绝对路径。&lt;/p&gt;
+&lt;h3 id="4e4eb99bd664e19286c34e970a9a527e"&gt;自定义Makefile目标&lt;/h3&gt;
+&lt;p&gt;运行下面的whatever目标&lt;code&gt;make whatever&lt;/code&gt;，会先创建一个目录&lt;code&gt;./hello&lt;/code&gt;，然后将当前目录的&lt;code&gt;a.txt&lt;/code&gt;拷贝到新建的&lt;code&gt;./hello&lt;/code&gt;目录里。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;add_custom_command(
+    OUTPUT ./hello/a.txt
+    COMMAND mkdir -p ./hello 
+            cp a.txt ./hello
+    DEPENDS a.txt
+)
+add_custom_target(whatever DEPENDS ./hello/a.txt)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;自定义目标还可以使用&lt;code&gt;add_dependencies&lt;/code&gt;命令加入到其他目标的依赖列表里，当执行&lt;code&gt;make demo&lt;/code&gt;时，whatever目标会被自动调用。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;add_executable(demo ${SRC_LIST})
+add_dependencies(demo whatever)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="6aac11bbc51a96e8835d36b260c1f362"&gt;其他常用命令&lt;/h3&gt;
+&lt;p&gt;包含其他目录的CMakeLists.txt&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;include(/path/to/another/CMakeLists.txt)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;if命令&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;if(${MY_BUILD_TYPE} MATCHES &amp;quot;debug&amp;quot;)
+    ...
+else()
+    ...
+endif()
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;list命令&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;list(APPEND SRC_LIST 
+    a.cpp
+    b.cpp
+)
+
+list(REMOVE_ITEM SRC_LIST
+    a.cpp
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="79f225bdf90df618424af58baa02dd39"&gt;更多的例子&lt;/h2&gt;
+&lt;h3 id="a86338d3de22456595731ade7d26e266"&gt;自定义Makefile目标的完整例子&lt;/h3&gt;
+&lt;p&gt;下面的CMakeLists.txt添加一个自定义目标proto，该目标在编译工程前，会先调用protobuf程序编译先生成Google Protocol Buffers的消息解析器。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cmake_minimum_required&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;VERSION&lt;/span&gt; &lt;span class="s"&gt;2.6&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;project&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;protobuf-demo&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c"&gt;# compile proto files&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;PROTO_IN&lt;/span&gt;  &lt;span class="s"&gt;news.proto&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;PROTO_SRC&lt;/span&gt; &lt;span class="s"&gt;news.pb.cc&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;PROTO_OUT&lt;/span&gt; &lt;span class="s"&gt;news.pb.h&lt;/span&gt; &lt;span class="s"&gt;news.pb.cc&lt;/span&gt; &lt;span class="s"&gt;proto/&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;add_custom_command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s"&gt;OUTPUT&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROTO_OUT&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="s"&gt;COMMAND&lt;/span&gt; &lt;span class="s"&gt;protoc&lt;/span&gt; &lt;span class="s"&gt;--cpp_out&lt;/span&gt; &lt;span class="s"&gt;.&lt;/span&gt; &lt;span class="s"&gt;--java_out&lt;/span&gt; &lt;span class="s"&gt;.&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROTO_IN&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="s"&gt;DEPENDS&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROTO_IN&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;add_custom_target&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;proto&lt;/span&gt; &lt;span class="s"&gt;DEPENDS&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROTO_OUT&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;aux_source_directory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;.&lt;/span&gt; &lt;span class="s"&gt;SRC_LIST&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;APPEND&lt;/span&gt; &lt;span class="s"&gt;SRC_LIST&lt;/span&gt;
+    &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROTO_SRC&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_COMPILER&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;g++&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_CXX_FLAGS&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;-Wall&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;CMAKE_VERBOSE_MAKEFILE&lt;/span&gt; &lt;span class="s"&gt;on&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;add_executable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;demo&lt;/span&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SRC_LIST&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;add_dependencies&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;demo&lt;/span&gt; &lt;span class="s"&gt;proto&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;target_link_libraries&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;demo&lt;/span&gt; &lt;span class="s"&gt;protobuf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://www.cmake.org/cmake/help/documentation.html"&gt;CMake文档列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.cmake.org/Wiki/CMake_Useful_Variables"&gt;CMake常用变量列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.cmake.org/cmake/help/cmake_tutorial.html"&gt;CMake入门教程&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Tue, 12 Nov 2013 17:45:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-11-12:note/cmake.html</guid><category>c++</category><category>cmake</category><category>note</category><category>总结</category></item><item><title>Ubuntu上安装和配置FreeRadius和DaloRadius</title><link>http://www.zhuimengle.com/note/freeradius_daloradius_install_config_on_ubuntu.html</link><description>&lt;p&gt;总结我在Ubuntu上安装FreeRadius和DaloRadius的步骤及遇到的问题，以供日后查询，系统为Ubuntu 12.04.3 X86_64，本文的FreeRadius配置使用MySQL作为后端存储相关数据。&lt;/p&gt;
+&lt;p&gt;FreeRadius可以为pptp和l2tp提供验证和统计等功能，DaloRadius为FreeRadius提供一个网页界面。阅读本文前确保已经正确安装了pptpd或xl2tpd服务器。相关安装配置教程可参考&lt;a href="/note/pptpd.html" title="blog.atime.me/note/pptpd.html"&gt;使用pptpd搭建VPN&lt;/a&gt;和&lt;a href="/note/l2tp_ipsec_installation_on_ubuntu.html" title="blog.atime.me/note/l2tp_ipsec_installation_on_ubuntu.html"&gt;在Ubuntu12.04上安装l2tp/ipsec VPN服务器&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;开始安装前建议先通读一下&lt;a href="http://en.wikipedia.org/wiki/RADIUS" title="http://en.wikipedia.org/wiki/RADIUS"&gt;wikipedia:RADIUS&lt;/a&gt;和&lt;a href="http://blog.csdn.net/liang13664759/article/details/1574367" title="http://blog.csdn.net/liang13664759/article/details/1574367"&gt;radius介绍&lt;/a&gt;，了解一些radius的概念。&lt;/p&gt;
+&lt;h2 id="44eb700291611eb4a52e639270150092"&gt;安装必要的软件&lt;/h2&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo apt-get install freeradius freeradius-mysql radiusclient1 php5 php5-mysql php5-gd php5-cgi php5-fpm php-pear php-db mysql-server-5.5
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="eb471ba5d12c57fca888e6aa110bdcc2"&gt;配置FreeRadius&lt;/h2&gt;
+&lt;p&gt;FreeRadius的配置文件位于&lt;code&gt;/etc/freeradius&lt;/code&gt;目录。&lt;/p&gt;
+&lt;h3 id="8fa2585857c5677442ed9b23e727fb04"&gt;添加client&lt;/h3&gt;
+&lt;p&gt;修改&lt;code&gt;/etc/freeradius/clients.conf&lt;/code&gt;，添加如下内容，注意将&lt;code&gt;IP_ADDRESS&lt;/code&gt;和&lt;code&gt;SHARED_SECRET&lt;/code&gt;换为你的服务器IP和你的共享密钥。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;client IP_ADDRESS {
+    ipaddr = IP_ADDRESS
+    secret = SHARED_SECRET
+    require_message_authenticator = no
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="23c7575ebf0457b6f719a02e6b8de7a0"&gt;启用MySQL支持&lt;/h3&gt;
+&lt;h4 id="603b512c0b75923a91b1d5ec45f6142b"&gt;/etc/freeradius/radiusd.conf&lt;/h4&gt;
+&lt;p&gt;取消如下一行的注释来包含FreeRadius的sql配置文件&lt;code&gt;/etc/freeradius/sql.conf&lt;/code&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;$INCLUDE sql.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4 id="416748a04f1d76def4ab972f271c6ea2"&gt;/etc/freeradius/sql.conf&lt;/h4&gt;
+&lt;p&gt;修改&lt;code&gt;/etc/freeradius/sql.conf&lt;/code&gt;，设置MySQL数据库的端口，radius数据库的用户名密码等内容。取消如下一行的注释，使FreeRadius从数据库读取客户端信息。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;readclients = yes
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;/etc/freeradius/sql/mysql&lt;/code&gt;文件夹下的众多sql脚本文件用于构建FreeRadius的数据库，首先在admin.sql里修改数据库名称，用户名和密码等内容，这些内容必须和&lt;code&gt;/etc/freeradius/sql.conf&lt;/code&gt;的设置相同。&lt;/p&gt;
+&lt;h4 id="0f57003da9f6808dc6d71ab32e303f69"&gt;/etc/freeradius/sql/mysql/dialup.conf&lt;/h4&gt;
+&lt;p&gt;修改&lt;code&gt;/etc/freeradius/sql/mysql/dialup.conf&lt;/code&gt;，取消如下几行的注释来提供在线人数统计功能。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;simul_verify_query  = &amp;quot;SELECT radacctid, acctsessionid, username, \
+                       nasipaddress, nasportid, framedipaddress, \
+                       callingstationid, framedprotocol \
+                       FROM ${acct_table1} \
+                       WHERE username = &amp;#39;%{SQL-User-Name}&amp;#39; \
+                       AND acctstoptime IS NULL&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4 id="8d18b3b1bb252f78c83218ab3d130d98"&gt;创建FreeRadius数据库radius&lt;/h4&gt;
+&lt;p&gt;登录mysql&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /etc/freeradius/sql/mysql
+mysql -u root -p
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;输入以下命令&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;create database radius;
+
+source admin.sql;
+source cui.sql;
+source ippool.sql;
+source nas.sql;
+source schema.sql;
+source wimax.sql;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4 id="2073685d4c7fe3c34d7dfdf97531e251"&gt;/etc/freeradius/sites-enabled&lt;/h4&gt;
+&lt;p&gt;对&lt;code&gt;/etc/freeradius/sites-enabled/default&lt;/code&gt;做如下修改&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;找到authorize {}模块，注释掉files，去掉sql前的#号&lt;/p&gt;
+&lt;p&gt;找到accounting {}模块，注释掉radutmp,注释掉去掉sql前面的#号。&lt;/p&gt;
+&lt;p&gt;找到session {}模块，注释掉radutmp，去掉sql前面的#号。&lt;/p&gt;
+&lt;p&gt;找到post-auth {}模块，去掉sql前的#号，去掉sql前的#号（Post-Auth-Type REJECT内）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;对&lt;code&gt;/etc/freeradius/sites-enabled/inner-tunnel&lt;/code&gt;做如下修改&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;找到authorize {}模块，注释掉files，去掉sql前的#号。&lt;/p&gt;
+&lt;p&gt;找到session {}模块，注释掉radutmp，去掉sql前面的#号。&lt;/p&gt;
+&lt;p&gt;找到post-auth {}模块，去掉sql前的#号，去掉sql前的#号（Post-Auth-Type REJECT内）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id="0c7c13172e75d9cb7414cba2238fe9c0"&gt;配置RadiusClient&lt;/h2&gt;
+&lt;p&gt;RadiusClient用于将pptpd和xl2tpd的radius插件的验证请求发送给FreeRadius服务器，充当nas的角色，其配置文件位于&lt;code&gt;/etc/radiusclient&lt;/code&gt;内。&lt;/p&gt;
+&lt;h3 id="91c87df1029e894b6d61e54387313c10"&gt;添加字典&lt;/h3&gt;
+&lt;p&gt;RadiusClient的字典主要负责参数的映射，默认配置没有包含dictionary.microsoft，因此无法处理使用mschapv2加密的请求头。下载dictionary.microsoft并包含到主dictonary文件中。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /etc/radiusclient
+sudo wget http://blog.atime.me/static/resource/dictionary.microsoft
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在&lt;code&gt;/etc/radiusclient/dictionary&lt;/code&gt;文件的最后添加如下一行以包含dictionary.microsoft&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;INCLUDE /etc/radiusclient/dictionary.microsoft
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;为解决FreeRadius的&lt;code&gt;radacct&lt;/code&gt;表不更新的问题，需要在&lt;code&gt;/etc/radiusclient/dictionary&lt;/code&gt;中加入如下一行，以保证RadiusClient能够识别Acct-Interim-Interval。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;ATTRIBUTE Acct-Interim-Interval 85 integer
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;另外，记得在daloRadius里为用户添加&lt;code&gt;Acct-Interim-Interval&lt;/code&gt; reply attribute（对应MySQL的radgroupreply表）。&lt;/p&gt;
+&lt;h3 id="0f7d48ec37743528627819920224cf7d"&gt;设置共享密钥&lt;/h3&gt;
+&lt;p&gt;修改'/etc/radiusclient/servers'文件，添加如下一行，注意SHARED_SECRET必须和你在&lt;code&gt;/etc/freeradius/clients.conf&lt;/code&gt;里设置的&lt;a href="#8fa2585857c5677442ed9b23e727fb04" title="添加client"&gt;共享密钥&lt;/a&gt;相同。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;localhost   SHARED_SECRET
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="3badedc723b6a61450595e75741f9de2"&gt;配置VPN服务器&lt;/h2&gt;
+&lt;p&gt;为pptpd和xl2tpd启用radius插件，首先查找插件的位置。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo updatedb
+locate radius.so
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;插件通常位于&lt;code&gt;/usr/lib/pppd/2.4.5/radius.so&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id="c1568605c39111d82d3c5a398672270a"&gt;配置pptpd&lt;/h3&gt;
+&lt;p&gt;查看&lt;code&gt;/etc/pptpd.conf&lt;/code&gt;，获取pptpd的ppp配置文件位置&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;option /etc/ppp/pptpd-options
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改&lt;code&gt;/etc/ppp/pptpd-options&lt;/code&gt;文件，在最后添加如下两行，注意修改插件的具体位置。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;plugin /usr/lib/pppd/2.4.5/radius.so
+radius-config-file /etc/radiusclient/radiusclient.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;重启pptpd&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo service pptpd restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="e1ef2cbd6a4872b973ab290e3f1d3cba"&gt;配置xl2tpd&lt;/h3&gt;
+&lt;p&gt;查看&lt;code&gt;/etc/xl2tpd/xl2tpd.conf&lt;/code&gt;，获取xl2tpd的ppp配置文件位置&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;pppoptfile = /etc/ppp/xl2tpd-options
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改&lt;code&gt;/etc/ppp/xl2tpd-options&lt;/code&gt;，在最后添加如下两行，注意修改插件的具体位置。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;plugin  /usr/lib/pppd/2.4.5/radius.so
+radius-config-file /etc/radiusclient/radiusclient.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;重启xl2tpd&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo service xl2tpd restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="b61ca12bba2c39e441516b8c5a0393d3"&gt;配置DaloRadius&lt;/h2&gt;
+&lt;h3 id="69a9a8cfee4c4d21e9b487f59dbe1dd9"&gt;下载并配置daloRadius&lt;/h3&gt;
+&lt;p&gt;daloRadius的项目托管在&lt;a href="http://sourceforge.net/projects/daloradius/" title="http://sourceforge.net/projects/daloradius/"&gt;sourceforge&lt;/a&gt;上，下载并解压。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;# 下载并解压&lt;/span&gt;
+&lt;span class="nb"&gt;cd&lt;/span&gt; /tmp
+sudo wget http://sourceforge.net/projects/daloradius/files/daloradius/daloradius0.9-9/daloradius-0.9-9.tar.gz
+&lt;span class="nb"&gt;cd&lt;/span&gt; /var/www
+sudo tar -xvf /tmp/daloradius-0.9-9.tar.gz
+sudo mv daloradius-0.0.9 daloradius
+
+&lt;span class="c"&gt;# 修改权限&lt;/span&gt;
+sudo chown -R www-data:www-data daloradius
+sudo chmod 644 daloradius/library/daloradius.conf.php
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改&lt;code&gt;/var/www/daloradius/library/daloradius.conf.php&lt;/code&gt;，设置关于FreeRadius数据库的各个变量，注意和&lt;code&gt;/etc/freeradius/sql.conf&lt;/code&gt;的配置相同。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;$configValues[&amp;#39;FREERADIUS_VERSION&amp;#39;] = &amp;#39;2&amp;#39;;
+$configValues[&amp;#39;CONFIG_DB_ENGINE&amp;#39;] = &amp;#39;mysql&amp;#39;;
+$configValues[&amp;#39;CONFIG_DB_HOST&amp;#39;] = &amp;#39;localhost&amp;#39;;
+$configValues[&amp;#39;CONFIG_DB_PORT&amp;#39;] = &amp;#39;3306&amp;#39;;
+$configValues[&amp;#39;CONFIG_DB_USER&amp;#39;] = &amp;#39;radius&amp;#39;;
+$configValues[&amp;#39;CONFIG_DB_PASS&amp;#39;] = &amp;#39;raduser&amp;#39;;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;其他需要修改的变量，其中&lt;code&gt;SHARED_SECRET&lt;/code&gt;要和&lt;code&gt;/etc/freeradius/clients.conf&lt;/code&gt;设置的&lt;a href="#8fa2585857c5677442ed9b23e727fb04" title="添加client"&gt;共享密钥&lt;/a&gt;相同。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;$configValues[&amp;#39;CONFIG_PATH_DALO_VARIABLE_DATA&amp;#39;] = &amp;#39;/var/www/daloradius/var&amp;#39;;
+$configValues[&amp;#39;CONFIG_MAINT_TEST_USER_RADIUSSECRET&amp;#39;] = &amp;#39;SHARED_SECRET&amp;#39;;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="7486e5b921d5e29491f984c0ba68dcbf"&gt;为daloRadius创建MySQL数据表&lt;/h3&gt;
+&lt;p&gt;由于之前已经为FreeRadius创建了相应的表结构，这里只需要为daloRadius创建表即可&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /var/www/daloradius/contrib/db/
+mysql -u root -p radius &amp;lt; mysql-daloradius.sql
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;由于daloRadius向FreeRadius的数据库&lt;code&gt;radius&lt;/code&gt;添加了若干新表，我们需要为FreeRadius的数据库用户添加这几张表的访问权限。 FreeRadius的数据库名称和用户可查看&lt;code&gt;/etc/freeradius/sql.conf&lt;/code&gt;，这里使用默认数据库radius和默认用户radius。&lt;/p&gt;
+&lt;p&gt;登录MySQL数据库&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -u root -p
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;输入如下命令&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;revoke all privileges on *.* from &amp;#39;radius&amp;#39;@&amp;#39;localhost&amp;#39;;
+grant all privileges on radius.* to &amp;#39;radius&amp;#39;@&amp;#39;localhost&amp;#39;;
+flush privileges;
+exit
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="5f33f1772a14198fdf64e8343832ca16"&gt;配置nginx&lt;/h3&gt;
+&lt;p&gt;首先在dns服务商添加一条新的A记录&lt;code&gt;daloradius&lt;/code&gt;，然后添加新的nginx配置文件&lt;code&gt;/etc/nginx/sites-available/daloradius.conf&lt;/code&gt;，确定已正确安装并启动了php5-fpm。&lt;/p&gt;
+&lt;p&gt;注意将server_name中的&lt;code&gt;your.domain&lt;/code&gt;改为你自己的域名。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server_name&lt;/span&gt;  &lt;span class="s"&gt;daloradius.your.domain&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="s"&gt;/home/wilbur/www/daloradius&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;access_log&lt;/span&gt;  &lt;span class="s"&gt;/var/log/nginx/daloradius.access.log&lt;/span&gt; &lt;span class="s"&gt;main&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;error_log&lt;/span&gt;   &lt;span class="s"&gt;/var/log/nginx/daloradius.error.log&lt;/span&gt; &lt;span class="s"&gt;warn&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="s"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;try_files&lt;/span&gt; &lt;span class="nv"&gt;$uri&lt;/span&gt; &lt;span class="nv"&gt;$uri/&lt;/span&gt; &lt;span class="s"&gt;/index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt; &lt;span class="sr"&gt;\.php$&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_pass&lt;/span&gt;   &lt;span class="n"&gt;127.0.0.1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9000&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_index&lt;/span&gt;  &lt;span class="s"&gt;index.php&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_param&lt;/span&gt;  &lt;span class="s"&gt;SCRIPT_FILENAME&lt;/span&gt; &lt;span class="nv"&gt;$document_root$fastcgi_script_name&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;include&lt;/span&gt;        &lt;span class="s"&gt;fastcgi_params&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt; &lt;span class="sr"&gt;/\.ht&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;deny&lt;/span&gt; &lt;span class="s"&gt;all&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;链接到&lt;code&gt;/etc/nginx/sites-enabled/&lt;/code&gt;目录后重启相关服务程序。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /etc/nginx/sites-enabled/
+sudo ln -s ../sites-available/daloradius.conf .
+
+#sudo service php5-fpm restart
+sudo service nginx restart
+sudo service freeradius restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;dns更改生效后，访问http://daloradius.your.domain即可配置FreeRadius，默认的用户名是administrator，密码是radius。&lt;/p&gt;
+&lt;h3 id="a73a19ab5b9a8abf63aac3ee967fd2e5"&gt;daloRadius界面指南&lt;/h3&gt;
+&lt;p&gt;daloRadius的管理账户存储在MySQL的&lt;code&gt;radius.operators&lt;/code&gt;表中，密码使用明文存储。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;Management =&amp;gt; Users 管理VPN用户，注意添加新用户时，应选择Cleartext-Password（默认）密码类型
+
+Config =&amp;gt; Operators 管理daloRadius的登录账户，包括修改密码和权限设置等
+Config =&amp;gt; Interface Settings =&amp;gt; Enable Password Hiding 设为yes可以将界面上的明文密码改为点号隐藏
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="a52f4a295d804e3338e36aeab0343bc6"&gt;排查错误&lt;/h2&gt;
+&lt;h3 id="a556b31d6a7d3cd91ac8dfda9824354a"&gt;使用调试模式启动FreeRadius&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;freeradius -X
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="39d1892b3c8be9276316e76e363f6ede"&gt;使用radtest&lt;/h3&gt;
+&lt;p&gt;radtest可以向freeradius服务器发送请求，不过目前不支持mschapv2加密模式，详情见&lt;code&gt;man radtest&lt;/code&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;radtest user password localhost 0 shared_secret
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="f1c0905c480f2e13953916f86d3b6659"&gt;异常掉线的用户在daloRadius显示为在线用户&lt;/h3&gt;
+&lt;p&gt;异常掉线的client无法在退出时更新&lt;code&gt;radius.radacct&lt;/code&gt;表的&lt;code&gt;acctstoptime&lt;/code&gt;，这些client在daloRadius里会被显示为在线用户。使用如下的命令可修复该问题，最好使用cron定期执行该任务。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;mysql -uroot -p -e &amp;quot;UPDATE radius.radacct SET acctstoptime = acctstarttime + acctsessiontime WHERE ((UNIX_TIMESTAMP(acctstarttime) + acctsessiontime + 240 - UNIX_TIMESTAMP())&amp;lt;0) AND acctstoptime IS NULL;&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://wangyan.org/blog/freeradius-pptp-l2tp-html.html"&gt;PPTP/L2TP + FreeRADIUS + MySQL 安装与配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.dayanjia.com/2011/03/configure-freeradius-and-daloradius-on-pptp-vpn-server/"&gt;在PPTP VPN服务器上配置FreeRADIUS+daloRADIUS实现用户跟踪管理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://poptop.sourceforge.net/dox/skwok/poptop_ads_howto_a5.htm" title="http://poptop.sourceforge.net/dox/skwok/poptop_ads_howto_a5.htm"&gt;RadiusClient配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://help.ubuntu.com/community/CategoryNetworking/daloRADIUS" title="https://help.ubuntu.com/community/CategoryNetworking/daloRADIUS"&gt;daloRADIUS Ubuntu help&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Thu, 07 Nov 2013 17:50:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-11-07:note/freeradius_daloradius_install_config_on_ubuntu.html</guid><category>radius</category><category>vpn</category><category>ubuntu</category><category>教程</category><category>note</category></item><item><title>在Ubuntu12.04上安装l2tp/ipsec VPN服务器</title><link>http://www.zhuimengle.com/note/l2tp_ipsec_installation_on_ubuntu.html</link><description>&lt;p&gt;记录我在Ubuntu服务器上安装l2tp/ipsec VPN的过程，以供日后查询。ipsec用于验证和加密数据包，由openswan提供；l2tp即第二层隧道协议，由xl2tpd提供。&lt;/p&gt;
+&lt;h2 id="1e5e3771e8ce525e4b17a541b185d5f0"&gt;安装相关软件&lt;/h2&gt;
+&lt;p&gt;默认配置即可，后面另有详细介绍。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo apt-get install openswan xl2tpd ppp
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="ccd8c213e5190c9c0ce64368ae0df7d1"&gt;配置ipsec&lt;/h2&gt;
+&lt;p&gt;注意三件事&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将&lt;code&gt;YOUR_SERVER_IP_ADDRESS&lt;/code&gt;改为你的服务器的ip地址。&lt;/li&gt;
+&lt;li&gt;将&lt;code&gt;YOUR_IPSEC_SHARED_KEY&lt;/code&gt;改为你的ipsec共享密钥。&lt;/li&gt;
+&lt;li&gt;注意配置文件的缩进。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="866578c8c61d922470bbd3d91ff5b6f2"&gt;/etc/ipsec.conf&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo cat &amp;gt;/etc/ipsec.conf&amp;lt;&amp;lt;EOF
+version 2.0
+
+config setup
+    nat_traversal=yes
+    virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12
+    oe=off
+    protostack=netkey
+
+conn L2TP-PSK-NAT
+    rightsubnet=vhost:%priv
+    also=L2TP-PSK-noNAT
+
+conn L2TP-PSK-noNAT
+    authby=secret
+    pfs=no
+    auto=add
+    keyingtries=3
+    rekey=no
+    ikelifetime=8h
+    keylife=1h
+    type=transport
+    left=YOUR_SERVER_IP_ADDRESS
+    leftprotoport=17/1701
+    right=%any
+    rightprotoport=17/%any
+EOF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="e10efc63d1b5c7a5684de1a6fa380ca2"&gt;/etc/ipsec.secrets&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo cat &amp;gt;/etc/ipsec.secrets&amp;lt;&amp;lt;EOF
+YOUR_SERVER_IP_ADDRESS %any: PSK &amp;quot;YOUR_IPSEC_SHARED_KEY&amp;quot;
+EOF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="9ec80ff731045ec483981f221cbdaef6"&gt;重启并检查ipsec配置&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo service ipsec restart
+sudo ipsec verify
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;输出没有FAILED项即可，WARNING可以不管。&lt;/p&gt;
+&lt;h2 id="e1ef2cbd6a4872b973ab290e3f1d3cba"&gt;配置xl2tpd&lt;/h2&gt;
+&lt;h3 id="214a3dc3b63ab9fa9653a567a62eeb01"&gt;/etc/xl2tpd/xl2tpd.conf&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo cat &amp;gt;/etc/xl2tpd/xl2tpd.conf&amp;lt;&amp;lt;EOF
+[global]
+ipsec saref = yes
+
+[lns default]
+local ip = 10.10.11.1
+ip range = 10.10.11.2-10.10.11.245
+refuse chap = yes
+refuse pap = yes
+require authentication = yes
+pppoptfile = /etc/ppp/xl2tpd-options
+length bit = yes
+EOF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="4c3678cbd8ef41251be15a7ef8eba0cb"&gt;/etc/ppp/xl2tpd-options&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo cat &amp;gt;/etc/ppp/xl2tpd-options&amp;lt;&amp;lt;EOF
+require-mschap-v2
+ms-dns 8.8.8.8
+ms-dns 8.8.4.4
+asyncmap 0
+auth
+crtscts
+lock
+hide-password
+modem
+name l2tpd
+proxyarp
+lcp-echo-interval 30
+lcp-echo-failure 4
+EOF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="fe16f80350acffe7bb9a41b4b35f6fc6"&gt;添加ppp用户和密码&lt;/h2&gt;
+&lt;p&gt;将USER和PASSWORD改为你的用户名和密码即可。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo cat &amp;gt;&amp;gt;/etc/ppp/chap-secrets&amp;lt;&amp;lt;EOF
+USER * PASSWORD *
+EOF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="4ee3477ee980611d42b025f49938547f"&gt;配置数据包转发&lt;/h2&gt;
+&lt;h3 id="f0a5e3e67acde226ea189f7a69c1c62a"&gt;调整系统配置&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;for each in /proc/sys/net/ipv4/conf/*
+do
+    echo 0 &amp;gt; $each/accept_redirects
+    echo 0 &amp;gt; $each/send_redirects
+done
+
+sed -i &amp;#39;s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g&amp;#39; /etc/sysctl.conf
+sysctl -p
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="82f922ed89386e78602a4dca5596136c"&gt;配置iptables规则&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="dff776b081bb214657ae53976825ee4a"&gt;重启xl2tpd服务器&lt;/h2&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;service xl2tpd restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="01660dc77b9b81e622ddaf0a46eadaa0"&gt;修改/etc/rc.local&lt;/h2&gt;
+&lt;p&gt;如果&lt;code&gt;/etc/rc.loal&lt;/code&gt;无法正常自动执行，尝试将shebang换成&lt;code&gt;#!/bin/bash&lt;/code&gt;。
+    :::bash&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="c"&gt;# for xl2tpd&lt;/span&gt;
+&lt;span class="k"&gt;for &lt;/span&gt;each in /proc/sys/net/ipv4/conf/*
+&lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo &lt;/span&gt;0 &amp;gt; &lt;span class="nv"&gt;$each&lt;/span&gt;/accept_redirects
+    &lt;span class="nb"&gt;echo &lt;/span&gt;0 &amp;gt; &lt;span class="nv"&gt;$each&lt;/span&gt;/send_redirects
+&lt;span class="k"&gt;done&lt;/span&gt;
+iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356
+
+&lt;span class="nb"&gt;exit &lt;/span&gt;0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="dda36edbd4626e7fc868c14f9aa1556a"&gt;其他设置&lt;/h2&gt;
+&lt;h3 id="9aa61458b44b239f60228ecb84569d39"&gt;不将日志输出到/var/log/syslog&lt;/h3&gt;
+&lt;p&gt;在&lt;code&gt;/etc/rsyslog.d/&lt;/code&gt;中添加如下配置&lt;code&gt;/etc/rsyslog.d/20-xl2tpd.conf&lt;/code&gt;，xl2tpd的日志不再输出到&lt;code&gt;/var/log/syslog&lt;/code&gt;而是&lt;code&gt;/var/log/xl2tpd.log&lt;/code&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;if $programname == &amp;#39;xl2tpd&amp;#39; then /var/log/xl2tpd.log
+&amp;amp;~
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后重启rsyslogd&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo service rsyslog restart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="5514b7eaec57e9144bb4fca4bf72fa30"&gt;Ubuntu客户端安装和配置&lt;/h2&gt;
+&lt;p&gt;Ubuntu的NetworkManager默认没有l2tp vpn的插件，需要从ppa的源里安装。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo apt-add-repository ppa:seriy-pr/network-manager-l2tp
+sudo apt-get update
+sudo apt-get install network-manager-l2tp
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后停止并禁用xl2tpd服务&lt;/p&gt;
+&lt;p&gt;sudo service xl2tpd stop
+   sudo update-rc.d xl2tpd disable&lt;/p&gt;
+&lt;p&gt;如果安装失败，可以直接从&lt;a href="https://launchpad.net/~seriy-pr/+archive/network-manager-l2tp/+packages"&gt;这里&lt;/a&gt;下载合适的deb包手动安装。最后重启系统即可在NetworkManager里添加l2tp的vpn。&lt;/p&gt;
+&lt;h2 id="91f45c0e89fd34ce3abe6e151114c727"&gt;错误排查&lt;/h2&gt;
+&lt;h3 id="0ea78e42790049d9f9397826c8c07718"&gt;查看日志&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ipsec的认证日志默认输出到&lt;code&gt;/var/log/auth.log&lt;/code&gt;，如果建立vpn连接后看到&lt;code&gt;IPsec SA established transport mode&lt;/code&gt;即表示认证成功。&lt;/li&gt;
+&lt;li&gt;xl2tpd的日志默认输出到&lt;code&gt;/var/log/syslog&lt;/code&gt;，可以在&lt;code&gt;/etc/ppp/xl2tpd-options&lt;/code&gt;配置里添加&lt;code&gt;debug&lt;/code&gt;（重启xl2tpd)来查看更详细的日志。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="fd2dca887b73772d6fdbc8c59e9c81ed"&gt;xl2tpd非daemon模式运行&lt;/h3&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;xl2tpd -D
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="9d1d621f68a894fe6fc6f4702dc1eb40"&gt;可以登录但无法访问网站或无法访问部分网站&lt;/h3&gt;
+&lt;p&gt;通常是mtu设置的问题，执行如下命令&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -I FORWARD -p tcp --syn -i ppp+ -j TCPMSS --set-mss 1356
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="a06cabd5c50a2263e097596b0d4a5ddb"&gt;probable authentication failure&lt;/h3&gt;
+&lt;p&gt;查看&lt;code&gt;/var/log/auth.log&lt;/code&gt;，发现ipsec报如下错误:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;probable authentication failure (mismatch of preshared secrets?): malformed payload in packet
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;问题是由&lt;code&gt;/etc/ipsec.secrets&lt;/code&gt;里的ipsec公钥和客户端里设置的不一致造成的。&lt;/p&gt;
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://wangyan.org/blog/debian-l2tp-ipsec-vpn.html" title="http://wangyan.org/blog/debian-l2tp-ipsec-vpn.html"&gt;Debian/Ubuntu L2TP/IPSec VPN 安装笔记&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Wed, 06 Nov 2013 13:46:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-11-06:note/l2tp_ipsec_installation_on_ubuntu.html</guid><category>vpn</category><category>l2tp</category><category>ipsec</category><category>ubuntu</category><category>note</category><category>教程</category></item><item><title>awstats+nginx配置笔记</title><link>http://www.zhuimengle.com/note/awstats.html</link><description>&lt;p&gt;awstats可以分析服务器日志，并提供图形化的分析结果，demo可参考本博客的&lt;a href="http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me"&gt;awstats页面&lt;/a&gt;。以下是一篇简单的awstats教程，记录我在ubuntu系统上安装和配置awstats7.2 + nginx的过程。&lt;/p&gt;
+&lt;h2 id="71c03b4b4de3f934f490fddbba89ab5f"&gt;awstats7.2下载和配置&lt;/h2&gt;
+&lt;p&gt;下载awstats&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /tmp
+wget http://prdownloads.sourceforge.net/awstats/awstats-7.2.zip
+&lt;span class="nb"&gt;cd&lt;/span&gt; /usr/local 
+sudo unzip /tmp/awstats-7.2.zip
+sudo mv awstats-7.2 awstats
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以&lt;code&gt;blog.atime.me&lt;/code&gt;为例，创建新的配置文件&lt;code&gt;/etc/awstats/awstats.blog.atime.me.conf&lt;/code&gt;&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /usr/local/awstats
+perl tools/awstats_configure.pl
+&lt;span class="c"&gt;# 根据提示依次输入&lt;/span&gt;
+&lt;span class="c"&gt;# web server config file path: none&lt;/span&gt;
+&lt;span class="c"&gt;# build a new AWStats config/profile: y&lt;/span&gt;
+&lt;span class="c"&gt;# awstats config file name: blog.atime.me(改成自己的网站名即可)&lt;/span&gt;
+&lt;span class="c"&gt;# awstats config file path: (不填，使用默认值/etc/awstats)&lt;/span&gt;
+
+&lt;span class="c"&gt;# 编辑配置文件&lt;/span&gt;
+sudo vi /etc/awstats/awstats.blog.atime.me.conf
+&lt;span class="c"&gt;# 将LogFile改为nginx的access日志的位置&lt;/span&gt;
+&lt;span class="c"&gt;# LogFile=&amp;quot;/var/log/nginx/access.log&amp;quot;&lt;/span&gt;
+
+sudo chown -R www-data:www-data /usr/local/awstats/wwwroot
+
+&lt;span class="c"&gt;# 修改awstats的输出目录为/usr/local/awstats/wwwroot/output&lt;/span&gt;
+&lt;span class="c"&gt;# DirData=&amp;quot;/usr/local/awstats/wwwroot/output&amp;quot;&lt;/span&gt;
+sudo -u www-data mkdir /usr/local/awstats/wwwroot/output
+
+&lt;span class="c"&gt;# 测试新生成的配置文件是否有效&lt;/span&gt;
+sudo ./wwwroot/cgi-bin/awstats.pl -config&lt;span class="o"&gt;=&lt;/span&gt;blog.atime.me
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上的过程如果顺利完成，则表示awstats已配置成功。&lt;/p&gt;
+&lt;h2 id="04537ebf8674a61ac34c014f147203d2"&gt;nginx配置&lt;/h2&gt;
+&lt;p&gt;准备工作&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;# 安装spawn-fcgi
+sudo apt-get install spawn-fcgi libfcgi0ldbl fcgiwrap
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;配置nginx，添加一个新的子域&lt;code&gt;awstats.atime.me&lt;/code&gt;，先在dns服务商那里添加相应的A记录。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd /etc/nginx/sites-available
+sudo vi awstats.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;写入如下内容&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="s"&gt;/usr/local/awstats/wwwroot&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;awstats.atime.me&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt; &lt;span class="sr"&gt;\.pl$&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;gzip&lt;/span&gt; &lt;span class="no"&gt;off&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;include&lt;/span&gt; &lt;span class="s"&gt;/etc/nginx/fastcgi_params&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_pass&lt;/span&gt; &lt;span class="s"&gt;unix:/var/run/fcgiwrap.socket&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;fastcgi_index&lt;/span&gt; &lt;span class="s"&gt;index.pl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cd ../sites-enabled
+sudo ln -s ../sites-available/awstats.conf .
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改nginx的access日志的输出格式&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo vi /etc/nginx/nginx.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;找到&lt;code&gt;Logging Settings&lt;/code&gt;部分，将access_log改为&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;log_format main &amp;#39;$remote_addr - $remote_user [$time_local] &amp;quot;$request&amp;quot; &amp;#39; &amp;#39;$status $body_bytes_sent &amp;quot;$http_referer&amp;quot; &amp;#39; &amp;#39;&amp;quot;$http_user_agent&amp;quot;   &amp;quot;$http_x_forwarded_for&amp;quot;&amp;#39;;
+access_log /var/log/nginx/access.log main;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后，重新载入nginx配置文件&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;sudo service nginx reload
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;载入配置无误，则可以通过如下网址访问awstats的分析结果&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me"&gt;http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="9ffa8933f7f73ab6e162f410091cfd63"&gt;其他功能&lt;/h2&gt;
+&lt;h3 id="70d16221bce978f928a4ea8f442c7f0d"&gt;使用GeoIP插件分析访问者IP所在国家&lt;/h3&gt;
+&lt;p&gt;详情可参考&lt;a href="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html" title="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html"&gt;AWStats 国家地区扩展 GeoIP 安装配置&lt;/a&gt;。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;# 下载IP数据&lt;/span&gt;
+&lt;span class="nb"&gt;cd&lt;/span&gt; /usr/local/awstats/wwwroot
+sudo wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+sudo gzip -d GeoIP.dat.gz
+
+&lt;span class="c"&gt;# 安装GeoIP C API&lt;/span&gt;
+&lt;span class="nb"&gt;cd&lt;/span&gt; /tmp
+wget http://geolite.maxmind.com/download/geoip/api/c/GeoIP-1.4.8.tar.gz
+tar -zxf GeoIP-1.4.8.tar.gz
+&lt;span class="nb"&gt;cd &lt;/span&gt;GeoIP-1.4.8/
+./configure
+make &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; make install
+
+&lt;span class="c"&gt;# 安装GeoIP插件&lt;/span&gt;
+&lt;span class="nb"&gt;cd&lt;/span&gt; /tmp
+wget http://geolite.maxmind.com/download/geoip/api/perl/Geo-IP-1.39.tar.gz
+tar -zxf Geo-IP-1.39.tar.gz
+&lt;span class="nb"&gt;cd &lt;/span&gt;Geo-IP-1.39
+perl Makefile.PL &lt;span class="nv"&gt;LIBS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;-L/usr/local/lib&amp;#39;&lt;/span&gt;
+make &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; make install
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后，修改awstats的配置文件，将如下一行取消注释并修改为&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;LoadPlugin=&amp;quot;geoip GEOIP_STANDARD /usr/local/awstats/wwwroot/GeoIP.dat&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="370cf6767f7c1c85ad45503e44073a43"&gt;通过网页界面更新awstats&lt;/h3&gt;
+&lt;p&gt;确保www-data用户对awstats的输出目录拥有写权限，然后在awstats的配置文件里做如下修改&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;AllowToUpdateStatsFromBrowser=1
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id="868176a0e035d89328aad3fa981b39d7"&gt;读取多个日志文件&lt;/h3&gt;
+&lt;p&gt;按照官方的&lt;a href="http://awstats.sourceforge.net/docs/awstats_faq.html#MULTILOG" title="FAQ-COM360 : HOW CAN I PROCESS SEVERAL LOG FILES IN ONE RUN?"&gt;建议&lt;/a&gt;，可以使用awstats自带的一个脚本&lt;code&gt;logresolvemerge.pl&lt;/code&gt;来解析多个日志文件。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;logresolvemerge.pl&lt;/code&gt;脚本还支持直接读取gz和bz2等压缩文件，默认位于awstats安装目录的tools文件夹里。使用该脚本的话需要将配置文件里的&lt;code&gt;LogFile&lt;/code&gt;改为类似下面的样子（注意修改logresolvemerge.pl的位置）：&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;LogFile=&amp;quot;/usr/local/awstats/tools/logresolvemerge.pl /var/log/nginx/access.log* |&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;需要注意的是，为使&lt;code&gt;logresolvemerge.pl&lt;/code&gt;脚本能访问相应的日志文件，需要为分配合理的权限。&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;chmod +x logresolvemerge.pl
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="5dc99f6efe53adda80974655b26b8df8"&gt;问题&lt;/h2&gt;
+&lt;h3 id="6fd757292cbf672063d52c44c0d295a6"&gt;关键词乱码&lt;/h3&gt;
+&lt;p&gt;修改配置文件，取消&lt;code&gt;LoadPlugin="decodeutfkeys"&lt;/code&gt;一行的注释即可，然后重新生成报告。&lt;/p&gt;
+&lt;p&gt;如果出现&lt;code&gt;Cannot locate URI/Escape.pm&lt;/code&gt;这样的错误，则运行如下命令安装URI::Escape模块&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;cpan -i URI::Escape
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="81f5d554d30e82d475ed29a45a7c4277"&gt;阅读资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://hi.baidu.com/icokeeer/item/2588471c9403c9e05f53b1e2" title="http://hi.baidu.com/icokeeer/item/2588471c9403c9e05f53b1e2"&gt;Ubuntu Nginx Awstats Fastcgi&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html" title="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html"&gt;AWStats 国家地区扩展 GeoIP 安装配置&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">vk</dc:creator><pubDate>Mon, 04 Nov 2013 16:33:00 +0800</pubDate><guid>tag:www.zhuimengle.com,2013-11-04:note/awstats.html</guid><category>awstats</category><category>perl</category><category>nginx</category><category>ubuntu</category><category>note</category><category>教程</category></item></channel></rss>

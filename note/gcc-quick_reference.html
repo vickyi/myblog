@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCC/G++快速使用指南 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/gcc-quick_reference.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">GCC/G++快速使用指南</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>使用一个例子介绍GCC/G++的编译选项。</p>
+<h2 id="88210852e6553d4dd59f3c922ba608d0">准备工作</h2>
+<p>以debian6为例，安装必要的软件包。</p>
+<div class="codehilite"><pre>apt-get install build-essential
+</pre></div>
+
+
+<p>另外，在下面的例子中为了展示gcc的-L和-l选项，使用了mysql库，因此需要安装mysql-dev软件包</p>
+<div class="codehilite"><pre>apt-get install mysql-dev
+</pre></div>
+
+
+<h2 id="8cb94eb1990adbea3766315549a066d8">例子</h2>
+<p>工程涉及4个文件，如下所示，源代码放在<a href="https://github.com/wilbur-ma/gcc-quick-start.git">这里</a>。</p>
+<div class="codehilite"><pre>common.h  # 定义类型和宏等
+util.h    # include common.h
+util.cpp  # include util.h `&lt;mysql/mysql.h&gt;`
+main.cpp  # include common.h util.h
+</pre></div>
+
+
+<h2 id="b67911656ef5d18c4ae36cb6741b7965">Makefile</h2>
+<p>上面工程的Makefile定义如下。</p>
+<div class="codehilite"><pre>GCC = /usr/bin/g++
+GCC_FLAGS = -c -Wall
+LD_FLAGS = -L /usr/lib/mysql -l mysqlclient
+TARGET = gcc-quick-start
+OBJECTS = util.o main.o
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+    $(GCC) $(LD_FLAGS) -o $(TARGET) $(OBJECTS)
+
+%.o: %.c
+    $(GCC) $(GCC_FLAGS) $&lt;
+
+.PHONY: clean
+clean:
+    rm -f $(OBJECTS) $(TARGET)
+</pre></div>
+
+
+<h2 id="543c1cc4ea88d964476a5ddfda862c78">编译为动态/静态链接库</h2>
+<p>介绍将二进制文件打包为动态和静态链接库的方法。</p>
+<h3 id="9ece6604df6867531b4a22f1d5cf3dc2">动态链接库 shared library</h3>
+<div class="codehilite"><pre>g++ -shared -o libctest.so -fPIC a.cpp b.cpp
+</pre></div>
+
+
+<h3 id="11e43f8fe499f4bd42c285b32b11a6e1">静态链接库 static library</h3>
+<div class="codehilite"><pre>g++ -c a.cpp b.cpp
+ar -rvs libtest.a a.o b.o
+</pre></div>
+
+
+<h2 id="1bbbb204023e59eba03319c7c5848fd1">注意事项</h2>
+<h3 id="3f5f6f1788a328bc300f516d223b1ea6">链接顺序</h3>
+<p>被依赖的库应当放在依赖它的库的后面，如A依赖于B，则B应置于A后。</p>
+<div class="codehilite"><pre>g++ ... A B
+</pre></div>
+
+
+<h3 id="a0e967d990266b77a4c630aef8cb567b">强制使用静态/动态库</h3>
+<p>使用-Wl选项可以设置使用静态或动态库，可参考<a href="http://stackoverflow.com/questions/3698321/g-linker-force-static-linking-if-static-library-exists">这篇文章</a>。</p>
+<div class="codehilite"><pre>g++ -Wl,-Bstatic -lz -lfoo -Wl,-Bdynamic -lbar -Wl,--as-needed
+</pre></div>
+
+
+<p>上面的命令将zlib和libfoo链接为静态库，将libbar链接为动态库。 -Wl选项将后面的用逗号隔开的参数列表传给链接器ld。</p>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Option-Summary.html#Option-Summary">GCC Option Summary</a> from gcc manual</li>
+<li><a href="http://www.51testing.com/html/24/1817.html">GCC 命令行详解</a></li>
+<li><a href="http://man.lupaworld.com/content/develop/GCC_zh.htm">GCC 中文手册</a></li>
+<li><a href="http://www.cprogramming.com/tutorial/shared-libraries-linux-gcc.html">Shared libraries with GCC on Linux</a></li>
+<li><a href="http://www.yolinux.com/TUTORIALS/LibraryArchives-StaticAndDynamic.html">Static, Shared Dynamic and Loadable Linux Libraries</a></li>
+<li><a href="http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html">Shared Libraries</a> from <a href="http://tldp.org/HOWTO/Program-Library-HOWTO/">"Program Library HOWTO"</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-01-28 09:17</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/gcc.html">gcc</a><sup>4</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/jiao-cheng.html">教程</a><sup>13</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/wei-wan-cheng.html">未完成</a><sup>11</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">GCC/G++快速使用指南</a></li>
+            <li><a href='#88210852e6553d4dd59f3c922ba608d0'>准备工作</a></li><li><a href='#8cb94eb1990adbea3766315549a066d8'>例子</a></li><li><a href='#b67911656ef5d18c4ae36cb6741b7965'>Makefile</a></li><li><a href='#543c1cc4ea88d964476a5ddfda862c78'>编译为动态/静态链接库</a><ol><li><a href='#9ece6604df6867531b4a22f1d5cf3dc2'>动态链接库 shared library</a></li><li><a href='#11e43f8fe499f4bd42c285b32b11a6e1'>静态链接库 static library</a></li></ol></li><li><a href='#1bbbb204023e59eba03319c7c5848fd1'>注意事项</a><ol><li><a href='#3f5f6f1788a328bc300f516d223b1ea6'>链接顺序</a></li><li><a href='#a0e967d990266b77a4c630aef8cb567b'>强制使用静态/动态库</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

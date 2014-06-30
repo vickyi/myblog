@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIMRC收集 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/vim-vimrc.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">VIMRC收集</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>记录vim的配置方法，收集好的vim配置文件。</p>
+<h2 id="0ac086890774bb70a697f1487fe462d5">vim配置文件。</h2>
+<p>在linux系统上，vim的配置文件入口是<code>~/.vimrc</code>，下面是一些优秀的vim配置文件。</p>
+<ul>
+<li><a href="https://github.com/amix/vimrc" title="https://github.com/amix/vimrc">The Ultimate vimrc</a></li>
+<li><a href="https://raw.github.com/lucasoman/Conf/master/.vimrc">简洁带注释的vimrc</a></li>
+</ul>
+<h2 id="8ad2bd59d24a31dc4d3daac27e671f55">vim配置</h2>
+<h3 id="f6d293b9be90ef72fab0c5780255c8b5">设置状态行status line</h3>
+<p>总是开启状态行</p>
+<div class="codehilite"><pre>set laststatus=2
+</pre></div>
+
+
+<p>关闭状态行</p>
+<div class="codehilite"><pre>:set laststatus=0
+</pre></div>
+
+
+<p>具体的配置可参考<a href="http://yyq123.blogspot.com/2009/10/vim-statusline.html" title="http://yyq123.blogspot.com/2009/10/vim-statusline.html">VIM学习笔记 状态行(statusline)</a>这篇文章，我的配置是:</p>
+<div class="codehilite"><pre>set laststatus=2 &quot;总是开启状态行
+set statusline=\ %F%m%r%h\ %w\ \ \ \ %{&amp;ff}:%{&amp;fenc!=&#39;&#39;?&amp;fenc:&amp;enc}\ \ \ \ %l,%c:%p%%
+</pre></div>
+
+
+<p>状态行依次显示 文件路径[是否只读][是否修改过] 文件格式(unix或dos):文件编码 行号,列号:当前阅读百分比</p>
+<h3 id="59f49e5261a6b094785495c5cfbc870c">tab和space等空白字符设置</h3>
+<p>设置tab</p>
+<div class="codehilite"><pre>set tabstop=4 &quot;tab宽度设为4个空格
+set shiftwidth=4 &quot;自动缩进为4个空格
+set expandtab  &quot;使用space代替tab
+</pre></div>
+
+
+<p>高亮多余的空白字符，参考<a href="http://vim.wikia.com/wiki/Highlight_unwanted_spaces" title="http://vim.wikia.com/wiki/Highlight_unwanted_spaces">Highlight unwanted spaces</a>。</p>
+<div class="codehilite"><pre>highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@&lt;!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+</pre></div>
+
+
+<p>保存文档时删除行尾多余的空白字符(trailing whitespaces)，参考<a href="http://vim.wikia.com/wiki/Remove_unwanted_spaces" title="http://vim.wikia.com/wiki/Remove_unwanted_spaces">Remove unwanted spaces</a>。</p>
+<div class="codehilite"><pre>autocmd BufWritePre * :%s/\s\+$//e
+</pre></div>
+
+
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://yyq123.blogspot.com/2009/10/vim-statusline.html" title="http://yyq123.blogspot.com/2009/10/vim-statusline.html">VIM学习笔记 状态行(statusline)</a></li>
+<li><a href="http://superuser.com/questions/322865/how-to-make-vim-always-show-the-encoding-of-current-opened-file">How to make vim always show the encoding of current opened file?</a></li>
+<li><a href="http://vim.wikia.com/wiki/Highlight_unwanted_spaces" title="http://vim.wikia.com/wiki/Highlight_unwanted_spaces">Highlight unwanted spaces</a></li>
+<li><a href="http://vim.wikia.com/wiki/Remove_unwanted_spaces" title="http://vim.wikia.com/wiki/Remove_unwanted_spaces">Remove unwanted spaces</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2013-11-13 10:31</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/vim.html">vim</a><sup>6</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/config.html">config</a><sup>9</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">VIMRC收集</a></li>
+            <li><a href='#0ac086890774bb70a697f1487fe462d5'>vim配置文件。</a></li><li><a href='#8ad2bd59d24a31dc4d3daac27e671f55'>vim配置</a><ol><li><a href='#f6d293b9be90ef72fab0c5780255c8b5'>设置状态行status line</a></li><li><a href='#59f49e5261a6b094785495c5cfbc870c'>tab和space等空白字符设置</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

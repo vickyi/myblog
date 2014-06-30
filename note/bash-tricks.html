@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bash小技巧合集 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/bash-tricks.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Bash小技巧合集</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>收集一些bash下的技巧。</p>
+<h2 id="9eb729ffbb977c1565821742c4d6a16f">符号</h2>
+<p>bash里一些特殊的符号的作用。</p>
+<h3 id="ad4d8095bd3404be69fb836aba7e15b6">两个连字符</h3>
+<p>'--': 仅有两个横杠(即连字符<code>-</code>)(two hyphens)，即后面没有任何长选项名的时候，表示重置命令的位置参数，'--'后的参数均从第一个参数开始算起。</p>
+<h2 id="ddc7d28b7b108cdca9ee7832f7314422">变量</h2>
+<p>包括自定义变量和特殊变量。</p>
+<h3 id="b273953ba8105aa0c58c72483765ea2f">自定义变量</h3>
+<p>自定义变量赋值时，变量名和等号以及等号和值之间都不要有空白字符(空格、制表符等)，如:
+    a=100</p>
+<h3 id="c6410a0e571e6c1766dba332af492112">特殊变量</h3>
+<p>特殊变量是指bash保留的变量名。完整的特殊变量列表可参考<a href="http://tldp.org/LDP/abs/html/refcards.html">这里</a>的table b-1。</p>
+<ul>
+<li>$0 命令或脚本名</li>
+<li>$1 第一个参数</li>
+<li>${10} 第十个参数</li>
+<li>$# 参数个数</li>
+<li>$? 上一个命令的返回值</li>
+<li>$$ 脚本的pid</li>
+<li>$_ 上一个命令的最后一个参数</li>
+</ul>
+<h2 id="f96de32b7620a7a00b5e2a329ae6c792">内置命令</h2>
+<p>介绍bash的常用内置命令。</p>
+<h3 id="cdaeeeba9b4a4c5ebf042c0215a7bb0e">set</h3>
+<p>设置bash选项和位置参数，常用的选项有:</p>
+<div class="codehilite"><pre><span class="nb">set</span> -o         <span class="c"># 查看当前所有选项的状态</span>
+<span class="nb">set</span> -o <span class="nb">history</span> <span class="c"># 开启bash历史记录</span>
+<span class="nb">set</span> +o <span class="nb">history</span> <span class="c"># 关闭bash历史记录</span>
+<span class="nb">set</span> -e         <span class="c"># 当脚本中有命令返回不为0时，立即退出脚本</span>
+</pre></div>
+
+
+<h3 id="f063918a79ce70e9c95ed170c43a6912">shopt</h3>
+<p>修改额外的bash选项，常用的选项有:</p>
+<div class="codehilite"><pre>shopt             # 查看所有选项的状态
+shopt -s extglob  # 启用扩展的glob匹配
+shopt -u extglob  # 禁用扩展的glob匹配
+</pre></div>
+
+
+<h2 id="68942c77954fb7ca38ec6cdca620680c">模式匹配</h2>
+<p>详细文档参考<a href="http://www.gnu.org/software/bash/manual/bash.html#Pattern-Matching">pattern maching</a>。使用<a href="#shopt">shopt</a>开启extglob后，除了<code>? * []</code>等常用的匹配符，bash还能支持以下模式，其中pattern-list是一个或多个用<code>|</code>符号分隔的模式。</p>
+<div class="codehilite"><pre>?(pattern-list)  Matches zero or one occurrence of the given patterns.
+*(pattern-list)  Matches zero or more occurrences of the given patterns.
++(pattern-list)  Matches one or more occurrences of the given patterns.
+@(pattern-list)  Matches one of the given patterns.
+!(pattern-list)  Matches anything except one of the given patterns.
+</pre></div>
+
+
+<p>例如，目录test包含如下三个文件:</p>
+<div class="codehilite"><pre>test\
+    aaa.txt
+    aaa.log
+    bbb.txt
+</pre></div>
+
+
+<p>使用命令<code>ls !(a*).txt</code>将输出:
+    bbb.txt</p>
+<h2 id="f7d2996639d97b4a03fc0e40e2eb853a">快捷键</h2>
+<p>bash的很多快捷键和emacs相似，可以多尝试一下。</p>
+<div class="codehilite"><pre>ctrl + a 行首
+ctrl + e 行尾
+ctrl + b 倒退一个字母
+ctrl + f 前进一个字母
+alt  + f 前进一个单词（可能被占用）
+alt  + b 倒退一个单词（可能被占用）
+
+ctrl + r 逆向搜索历史命令
+alt  + c 光标处字母大写或右边单词首字母大写
+alt  + u 光标至单词结尾转为大写
+alt  + l 光标单词结尾转为小写
+ctrl + t 交换左右字母
+alt  + t 交换左右单词
+ctrl + h 删除左边的字母
+ctrl + d 删除右边的字母
+
+# 剪切和粘贴的内容并不位于系统的剪贴板
+ctrl + y 粘贴
+ctrl + w 剪切左边的单词
+alt  + d 剪切光标至单词结尾的内容
+ctrl + k 剪切光标至行尾的内容
+ctrl + u 剪切光标至行首的内容
+</pre></div>
+
+
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://tldp.org/LDP/abs/html/refcards.html">Reference Cards</a> from <a href="http://tldp.org/LDP/abs/html/">"advanced bash scripting guide"</a></li>
+<li><a href="http://www.gnu.org/software/bash/manual/bash.html#The-Set-Builtin">The Set Builtin</a> from gnu bash documentation</li>
+<li><a href="http://www.gnu.org/software/bash/manual/bash.html#The-Shopt-Builtin">The Shopt Builtin</a> from gnu bash documentation</li>
+<li><a href="http://www.gnu.org/software/bash/manual/bash.html#Bourne-Shell-Variables">Bourne Shell Variables</a> from gnu bash documentation</li>
+<li><a href="http://www.gnu.org/software/bash/manual/bash.html#Pattern-Matching">Pattern Maching</a> from gnu bash documentation</li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2013-11-14 14:12</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/bash.html">bash</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/trick.html">trick</a><sup>6</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Bash小技巧合集</a></li>
+            <li><a href='#9eb729ffbb977c1565821742c4d6a16f'>符号</a><ol><li><a href='#ad4d8095bd3404be69fb836aba7e15b6'>两个连字符</a></li></ol></li><li><a href='#ddc7d28b7b108cdca9ee7832f7314422'>变量</a><ol><li><a href='#b273953ba8105aa0c58c72483765ea2f'>自定义变量</a></li><li><a href='#c6410a0e571e6c1766dba332af492112'>特殊变量</a></li></ol></li><li><a href='#f96de32b7620a7a00b5e2a329ae6c792'>内置命令</a><ol><li><a href='#cdaeeeba9b4a4c5ebf042c0215a7bb0e'>set</a></li><li><a href='#f063918a79ce70e9c95ed170c43a6912'>shopt</a></li></ol></li><li><a href='#68942c77954fb7ca38ec6cdca620680c'>模式匹配</a></li><li><a href='#f7d2996639d97b4a03fc0e40e2eb853a'>快捷键</a></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

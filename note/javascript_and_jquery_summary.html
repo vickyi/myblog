@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript和jQuery使用总结 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/javascript_and_jquery_summary.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Javascript和jQuery使用总结</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>总结近期学到的javascript和jquery知识点，备忘。</p>
+<h2 id="9e13b69d1d2da927102acaaaf7154a37">Javascript</h2>
+<h3 id="fcfffbf5d7dd5c491645e2e0947eddb8">全局变量</h3>
+<p>在全局作用域里定义的变量是全局变量，在局部作用域里不用var定义的变量是全局变量，window对象的属性是全局变量<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>; 在局部作用域里使用var定义的变量是局部变量。</p>
+<h3 id="0f39cfaf47a0c158e0758279fbd15735">修改地址栏的url且不刷新页面</h3>
+<p>参考<a href="http://spoiledmilk.com/blog/html5-changing-the-browser-url-without-refreshing-page/">这篇文章</a>，修改url的同时将其加入浏览器的历史里，代码如下。</p>
+<div class="codehilite"><pre>window.history.pushState(&#39;anything&#39;, &#39;history title&#39;, &#39;url&#39;);
+</pre></div>
+
+
+<p>pushState函数的具体说明见<a href="http://www.w3.org/TR/2011/WD-html5-author-20110705/history.html#dom-history-pushstate">这里</a>。</p>
+<h3 id="3bb73bfe6f8dcd02e7185577e03ee9ab">获取DOM元素的坐标</h3>
+<p><code>getBoundingClientRect</code>函数可获取html元素在浏览器可视区域内的坐标和长宽，函数文档见<a href="https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect">这里</a>。</p>
+<h3 id="c98f2f1fa711e9b082d1d5b54bb7981b">ASCII string and integer</h3>
+<p>使用<code>charCodeAt()</code>和<code>String.fromCharCode()</code>可在两者之间进行转换。</p>
+<div class="codehilite"><pre>&quot;a&quot;.charCodeAt(0);
+// 97
+
+String.fromCharCode(97 + 1);
+// &quot;b&quot;
+</pre></div>
+
+
+<h2 id="f590b4fda2c30be28dd3c8c3caf5c77b">jQuery</h2>
+<h3 id="718928833edc2894b2cf33413de03476">selectors</h3>
+<p>所有的selectors见<a href="http://api.jquery.com/category/selectors/">jQuery Selectors</a>，常用的有</p>
+<ul>
+<li>ID selector: #id, $('#elemId') 根据html元素的id属性获取一个对应的jQuery对象.</li>
+<li>Class selector: .class, $('.elemClass') 根据html的class属性获取一个jQuery对象列表.</li>
+<li>CSS selectors: $('#divId ul li') 根据css的selector获取一个jQuery对象列表.</li>
+<li>Header selector: :header, $(':header') 获取所有的html headers: h1 ~ h6. </li>
+</ul>
+<h3 id="451b2a405c02be8cb5049fb998338ef8">animate函数</h3>
+<p>未完成</p>
+<h3 id="d6adb6afb714caabac3a143387d92c4d">坐标和元素大小</h3>
+<p>坐标计算。</p>
+<ul>
+<li>$('#elemId').scrollTop(): 获取已滚过的垂直距离。</li>
+<li>$('#elemId').scrollLeft(): 获取已滚过的水平距离。</li>
+<li>$('#elemId').offset(): 获取相对于document的坐标，不同于getBoundingClientRect。</li>
+<li>$('#elemId').position(): 获取相对于父节点的坐标。</li>
+</ul>
+<p>元素大小计算。</p>
+<ul>
+<li>$('#elemId').height(): 获取高度。</li>
+<li>$('#elemId').width(): 获取宽度。</li>
+<li>$(window).height(): 获取浏览器可视区域的高度。</li>
+<li>$(window).width(): 获取浏览器可视区域的宽度。</li>
+</ul>
+<p>鼠标坐标<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup></p>
+<ul>
+<li>clientX, clientY: 鼠标在浏览器的viewport内的相对坐标。</li>
+<li>screenX, screenY: 鼠标在用户屏幕内的相对坐标。</li>
+<li>pageX, pageY: 鼠标相对于html document的坐标。</li>
+</ul>
+<h3 id="330c6977cf254b827013eb78a4828ff2">滚动条的滚动长度计算</h3>
+<p>滚动条内的元素的实际长度，等于该元素的实际显示长度和滚动条的滚动长度之和。</p>
+<p>以整个html页面的垂直滚动条为例，滚动条的滚动长度（将滚动条拖至最低端的时候，<code>$(window).scrollTop()</code>的值），使用<code>$(document).height() - $(window).height()</code>计算即可，其中$(document).height()是页面的实际高度，而$(window).height()是页面的实际显示高度。</p>
+<p>另外，使用jQuery的animate函数滚动某个带滚动条的元素时，注意animate每次都是从滚动条的最顶端开始滚动，因此如果要每次滚动一点点（比如20px），则需要加上滚动条已滚过的距离，如下。</p>
+<div class="codehilite"><pre>var target = $(&#39;#some-element&#39;);
+target.animate(
+    { scrollTop: target.scrollTop() + 20 },
+    400
+);
+</pre></div>
+
+
+<h2 id="a65954172468513b90729c99ada0cfe4">Performance tips</h2>
+<p>jQuery性能优化相关的文章可参考<a href="http://learn.jquery.com/performance/">Performance</a>，<a href="http://gregfranko.com/blog/jquery-best-practices/" title="jquery best practices">jQuery best practices</a>，以下是部分总结。</p>
+<ol>
+<li>
+<p>缓存jQuery selector获取的jQuery对象。</p>
+<div class="codehilite"><pre>var myElem = $(&#39;#elemId&#39;);
+
+for(var i = 0; i &lt; 100; i++) {
+    myElem.attr(...);
+}
+</pre></div>
+
+
+</li>
+<li>
+<p>需要改变20个以上元素的css样式时，不要用<code>.css</code>函数。</p>
+<div class="codehilite"><pre>// Fine for up to 20 elements, slow after that:
+$(&quot;a.swedberg&quot;).css(&quot;color&quot;, &quot;#0769ad&quot;);
+
+// Much faster:
+$(&quot;&lt;style type=\&quot;text/css\&quot;&gt;a.swedberg { color: #0769ad }&lt;/style&gt;&quot;).appendTo(&quot;head&quot;);
+</pre></div>
+
+
+</li>
+<li>
+<p>遍历数组时，不要每次都调用它的<code>length</code>属性。</p>
+<div class="codehilite"><pre>var myLength = myArray.length;
+
+for(var i = 0; i &lt; myLength; i++) {
+    // do stuff
+}
+</pre></div>
+
+
+</li>
+<li>
+<p>添加多个html元素时，尽量一次添加多个，而不是每次添加一个。</p>
+<div class="codehilite"><pre>var myHtml = &quot;&quot;;
+
+$.each(myArray, function(i, item) {
+    myHtml += &quot;&lt;li&gt;&quot; + item + &quot;&lt;/li&gt;&quot;;
+});
+
+$(&quot;#ballers&quot;).html(myHtml);
+</pre></div>
+
+
+</li>
+<li>
+<p>从DOM里分离html元素。DOM操作很慢且耗费资源，频繁的对DOM中的html元素进行修改会降低效率。</p>
+<div class="codehilite"><pre>var $table = $(&quot;#myTable&quot;);
+var $parent = $table.parent();
+
+$table.detach();
+
+// ... add lots and lots of rows to table
+for(var i = 0; i &lt; 1000; i++) {
+    $table.append(&quot;&lt;tr&gt;&lt;td&gt;hello world&lt;/td&gt;&lt;/tr&gt;&quot;);
+}
+
+$parent.append($table);
+</pre></div>
+
+
+</li>
+</ol>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ol>
+<li><a href="http://api.jquery.com/category/selectors/">jQuery selectors</a></li>
+<li><a href="http://spoiledmilk.com/blog/html5-changing-the-browser-url-without-refreshing-page/">HTML5: Changing the browser-URL without refreshing page</a></li>
+<li><a href="http://www.w3.org/TR/2011/WD-html5-author-20110705/history.html#dom-history-pushstate">pushState函数</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect">getBoundingRect函数</a></li>
+<li><a href="http://gregfranko.com/blog/jquery-best-practices/" title="jquery best practices">jQuery best practices</a></li>
+<li><a href="http://learn.jquery.com/performance/">jQuery performance tips</a></li>
+</ol>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>多数浏览器里，全局变量都是window对象的属性。&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>详细介绍参考<a href="http://www.jacklmoore.com/notes/mouse-position/">Cross-browser mouse positioning</a>。&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-12-30 15:16</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-01-24 11:03</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/javascript.html">javascript</a><sup>3</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/jquery.html">jquery</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/zong-jie.html">总结</a><sup>13</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/wei-wan-cheng.html">未完成</a><sup>11</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Javascript和jQuery使用总结</a></li>
+            <li><a href='#9e13b69d1d2da927102acaaaf7154a37'>Javascript</a><ol><li><a href='#fcfffbf5d7dd5c491645e2e0947eddb8'>全局变量</a></li><li><a href='#0f39cfaf47a0c158e0758279fbd15735'>修改地址栏的url且不刷新页面</a></li><li><a href='#3bb73bfe6f8dcd02e7185577e03ee9ab'>获取DOM元素的坐标</a></li><li><a href='#c98f2f1fa711e9b082d1d5b54bb7981b'>ASCII string and integer</a></li></ol></li><li><a href='#f590b4fda2c30be28dd3c8c3caf5c77b'>jQuery</a><ol><li><a href='#718928833edc2894b2cf33413de03476'>selectors</a></li><li><a href='#451b2a405c02be8cb5049fb998338ef8'>animate函数</a></li><li><a href='#d6adb6afb714caabac3a143387d92c4d'>坐标和元素大小</a></li><li><a href='#330c6977cf254b827013eb78a4828ff2'>滚动条的滚动长度计算</a></li></ol></li><li><a href='#a65954172468513b90729c99ada0cfe4'>Performance tips</a></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>
