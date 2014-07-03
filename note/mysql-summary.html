@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于MySQL的各种总结 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/mysql-summary.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">关于MySQL的各种总结</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>总结使用MySQL过程中遇到的各种问题和一些有用的资源，配置等等。将之前的若干篇零散的文章汇总到一起，备忘。</p>
+<p>若无特别说明，文中的内容均基于Ubuntu 12.04和MySQL5.5。对于本文中出现的代码，<code>...</code>表示省略内容，<code>#</code>之后为代码注释。</p>
+<h2 id="224e2ccda861c2514faa683b3683c361">配置</h2>
+<h3 id="bba7d8237f138b38baa1d37d3f38ecce">使用utf8编码</h3>
+<p>在MySQL的配置文件中做如下设置：</p>
+<div class="codehilite"><pre>[client]
+default-character-set = utf8
+
+[mysqld]
+character-set-server = utf8
+</pre></div>
+
+
+<p>然后重启MySQL服务，需要注意的是，已经创建的表不受影响。</p>
+<h3 id="11276605c9dc19accb45e0cc6db23599">启用查询日志</h3>
+<div class="codehilite"><pre>[mysqld]
+...
+general-log=1
+general-log-file = /var/log/mysql/general.log
+...
+</pre></div>
+
+
+<h3 id="1071ce94e8ea7f3769f5bc1d7d722eec">禁用Innodb引擎</h3>
+<p>MySQL5.5之后使用Innodb作为默认引擎，如果嫌其太耗内存，可以使用如下配置禁用Innodb并使用MyISAM作为默认引擎。</p>
+<p>在my.cnf的mysqld区块内添加如下两行:</p>
+<div class="codehilite"><pre>[mysqld]
+...
+innodb=OFF
+default_storage_engine=MyISAM
+...
+</pre></div>
+
+
+<p>然后重启mysql服务并登陆到mysql后使用如下命令查看引擎状况:</p>
+<div class="codehilite"><pre>mysql&gt; SHOW VARIABLES LIKE &#39;%storage_engine%&#39;;
+</pre></div>
+
+
+<h2 id="952d012fcbf9d533dab2eae0ca3ca41f">技巧</h2>
+<h3 id="39e7fbdc0b0a1ab4bdf5fdd67990d06d">忘记root密码</h3>
+<p>首先，修改mysql的配置文件/etc/mysql/my.cnf，在[mysqld]区域添加<code>skip-grant-tables</code>，之后重启mysql服务<code>service mysql restart</code>。</p>
+<p>然后不用密码登陆mysql的root用户<code>mysql -uroot</code>，依次执行如下命令:</p>
+<div class="codehilite"><pre>mysql&gt; use mysql;               # 切换到mysql数据库
+mysql&gt; update user set password=password(&#39;NEW_PASSWORD&#39;) where user = &#39;root&#39;; # NEW_PASSWORD是你的新密码
+mysql&gt; flush privileges;        # 刷新系统权限
+</pre></div>
+
+
+<p>最后，修改配置文件/etc/mysql/my.cnf，将[mysqld]里刚刚添加的<code>skip-grant-tables</code>删除，重启mysql服务。</p>
+<h2 id="21d68b2de0e91dfb14942ca8aea316fc">思考</h2>
+<h3 id="4b666049e9fdd0deec376316fa6b0457">日期用什么类型存储</h3>
+<p>在MySQL数据库中，日期可以使用多种类型进行存储，以下是我目前想到的各种类型的优缺点。</p>
+<ul>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-types.html" title="MySQL Date and Time Types">MySQL Date and Time Types</a>: MySQL内置的日期和时间类型，好处是MySQL有很多内置的<a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html" title="MySQL Date and Time Functions">日期和时间函数</a>可供使用，缺点是可移植性很差。</li>
+<li>char或varchar: 暂时没想到什么优点。</li>
+<li>int: 优点是可移植性好，可以做一些基本的比较操作，缺点是和MySQL的内置日期时间类型比，可用函数很少；另外，int类型无法存储时区信息。</li>
+</ul>
+<h2 id="5dc99f6efe53adda80974655b26b8df8">问题</h2>
+<h3 id="b4938b175f10e2a34523ba7082a57657">Error 1175 Safe Updtes Mode</h3>
+<p>错误提示如下:</p>
+<blockquote>
+<p>ERROR 1175: You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.</p>
+</blockquote>
+<p>错误的原因是启用了MySQL的Safe Updtes Mode，它的作用是如果执行Update和Delete操作的时候，没有带键限制的where语句或limit语句，sql操作不会执行。详细的介绍可参考<a href="http://dev.mysql.com/doc/refman/5.5/en/mysql-tips.html#safe-updates" title="MySQL tips: safe updates">MySQL Tips: safe-updates</a>。</p>
+<p>可使用<code>SET sql_safe_updates=0;</code>来暂时禁用Safe Updates Mode。</p>
+<h3 id="ac34677cdcd43f4484d304547be5c8a3">Stopping MySQL database server: mysqld failed</h3>
+<p>环境</p>
+<ul>
+<li>OS: debian6 squeeze</li>
+<li>Mysql: 5.1.63</li>
+</ul>
+<p>使用<code>service mysql restart</code>命令时显示<code>Stopping MySQL database server: mysqld failed!</code>，导致无法重启mysql服务。</p>
+<p>解决方法</p>
+<p>问题是由mysql数据库的user表中debian-sys-maint用户的密码和/etc/mysql/debian.cnf中的密码不一致所引发的，参考<a href="http://www.happysysadm.com/2011/01/stopping-mysql-database-server-mysqld.html" title="Stopping MySQL database server : mysqld failed!">这篇文章</a>，即可解决。具体步骤如下。</p>
+<ol>
+<li>查看/etc/mysql/debian.cnf中的password，<code>cat /etc/mysql/debian.cnf</code>，有两个password，不过值是相同的。</li>
+<li>连接到mysql，<code>mysql -uroot -p</code></li>
+<li>
+<p>为<code>debian-sys-maint</code>用户修改密码。</p>
+<p>GRANT ALL PRIVILEGES ON <em>.</em> TO 'debian-sys-maint'@'localhost' IDENTIFIED BY <code>&lt;password&gt;</code> WITH GRANT OPTION;</p>
+</li>
+</ol>
+<p>问题原因</p>
+<p>之前使用<a href="/code/host_backup.html">backup脚本</a>迁移网站时，只迁移了/etc/mysql/debian.cnf，没有迁移mysql里的mysql数据库，导致mysql数据库中user表里的debian-sys-maint的密码和/etc/mysql/debian.cnf不一致。</p>
+<h2 id="b2accffe28bb4f4b596c9be64a28d281">Snippets</h2>
+<p>以数据库db和表tb为例。</p>
+<h3 id="a76245b53a74930d575f9a172adae53b">管理相关</h3>
+<p>显示所有的数据库</p>
+<div class="codehilite"><pre>mysql&gt; show databases;
+</pre></div>
+
+
+<p>显示当前数据库的所有表</p>
+<div class="codehilite"><pre>mysql&gt; show tables;
+</pre></div>
+
+
+<p>切换数据库</p>
+<div class="codehilite"><pre>mysql&gt; use db
+</pre></div>
+
+
+<p>显示表的结构</p>
+<div class="codehilite"><pre>mysql&gt; desc tb;
+</pre></div>
+
+
+<p>显示数据库的创建信息</p>
+<div class="codehilite"><pre>mysql&gt; show create database db;
+</pre></div>
+
+
+<p>显示表的创建语句</p>
+<div class="codehilite"><pre>mysql&gt; show create table tb;
+</pre></div>
+
+
+<h3 id="1d9d7a160accc3f38c8b7c610009fee5">表管理</h3>
+<p>修改表的字符集</p>
+<div class="codehilite"><pre>mysql&gt; ALTER TABLE &#39;db&#39;.&#39;tb&#39; CHARACTER SET utf8;
+</pre></div>
+
+
+<p>修改字段的字符集，参考<a href="http://dev.mysql.com/doc/refman/5.1/en/charset-conversion.html">Column Character Set Conversion</a>。</p>
+<h3 id="48bedd0d3a1376ef3b9220d7443014d4">权限相关</h3>
+<p>详细内容见<a href="http://dev.mysql.com/doc/refman/5.5/en/account-management-sql.html" title="MySQL Account Management SQL">MySQL Account Management SQL</a>。</p>
+<p>显示权限</p>
+<div class="codehilite"><pre>mysql&gt; SHOW GRANTS FOR &#39;user_name&#39;@&#39;host&#39;;
+</pre></div>
+
+
+<p>分配权限</p>
+<div class="codehilite"><pre>mysql&gt; GRANT ALL PRIVILEGES ON &#39;database&#39;.&#39;table&#39; TO &#39;user_name&#39;@&#39;host&#39; IDENTIFIED BY &#39;password&#39;;
+mysql&gt; FLUSH PRIVILEGES;
+</pre></div>
+
+
+<p>解除权限</p>
+<div class="codehilite"><pre>mysql&gt; REVOKE ALL PRIVILEGES ON &#39;database&#39;.&#39;table&#39; FROM &#39;user_name&#39;@&#39;host&#39;;
+mysql&gt; FLUSH PRIVILEGES;
+</pre></div>
+
+
+<h3 id="1b82e08cb8add1986e2d89da17f01935">批量删除表</h3>
+<p>批量删除有相同前缀的表，使用下面的sql语句会构造相应的drop语句，删除wordpress3数据库中前缀为<code>wp_</code>的表。</p>
+<div class="codehilite"><pre>SELECT CONCAT( &#39;DROP TABLE IF EXISTS wordpress3.&#39;, TABLE_NAME, &#39;;&#39; )
+FROM information_schema.tables
+WHERE TABLE_SCHEMA = &#39;wordpress3&#39; AND TABLE_NAME LIKE &#39;wp_%&#39;;
+</pre></div>
+
+
+<p>删除步骤如下，首先生成删除命令并保存到drop.sql文件中。</p>
+<div class="codehilite"><pre>mysql -uroot -ANspe &quot;SELECT CONCAT( &#39;DROP TABLE IF EXISTS wordpress3.&#39;, TABLE_NAME, &#39;;&#39; )
+                       FROM information_schema.tables
+                       WHERE TABLE_SCHEMA = &#39;wordpress3&#39; AND TABLE_NAME LIKE &#39;wp_%&#39;;&quot; &gt; drop.sql
+</pre></div>
+
+
+<p>然后检查drop.sql文件中的语句是否正确，如果无误，最后执行如下命令即可。（<strong>执行删除命令前务必提前备份相关的数据</strong>）</p>
+<div class="codehilite"><pre>mysql -uroot -p -e &quot;source drop.sql&quot;
+</pre></div>
+
+
+<h2 id="6a50dc16f8113a88a87b955fd98d3364">资源列表</h2>
+<ul>
+<li><a href="http://dev.mysql.com/doc/refman/5.1/en/column-count-limit.html">Table Column-Count and Row-Size Limits</a> for MySQL 5.1</li>
+</ul>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ol>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/mysql-tips.html#safe-updates" title="MySQL tips: safe updates">MySQL Tips: safe-updates</a></li>
+<li><a href="http://www.happysysadm.com/2011/01/stopping-mysql-database-server-mysqld.html" title="Stopping MySQL database server : mysqld failed!">Stopping MySQL database server : mysqld failed!</a></li>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/account-management-sql.html" title="MySQL Account Management SQL">MySQL Account Management SQL</a></li>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-types.html" title="MySQL Date and Time Types">MySQL Date and Time Types</a></li>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html" title="MySQL Date and Time Functions">MySQL Date and Time Functions</a></li>
+</ol>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2014-02-17 08:55</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-03-11 16:50</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/mysql.html">mysql</a><sup>2</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/database.html">database</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/zong-jie.html">总结</a><sup>13</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/wei-wan-cheng.html">未完成</a><sup>11</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">关于MySQL的各种总结</a></li>
+            <li><a href='#224e2ccda861c2514faa683b3683c361'>配置</a><ol><li><a href='#bba7d8237f138b38baa1d37d3f38ecce'>使用utf8编码</a></li><li><a href='#11276605c9dc19accb45e0cc6db23599'>启用查询日志</a></li><li><a href='#1071ce94e8ea7f3769f5bc1d7d722eec'>禁用Innodb引擎</a></li></ol></li><li><a href='#952d012fcbf9d533dab2eae0ca3ca41f'>技巧</a><ol><li><a href='#39e7fbdc0b0a1ab4bdf5fdd67990d06d'>忘记root密码</a></li></ol></li><li><a href='#21d68b2de0e91dfb14942ca8aea316fc'>思考</a><ol><li><a href='#4b666049e9fdd0deec376316fa6b0457'>日期用什么类型存储</a></li></ol></li><li><a href='#5dc99f6efe53adda80974655b26b8df8'>问题</a><ol><li><a href='#b4938b175f10e2a34523ba7082a57657'>Error 1175 Safe Updtes Mode</a></li><li><a href='#ac34677cdcd43f4484d304547be5c8a3'>Stopping MySQL database server: mysqld failed</a></li></ol></li><li><a href='#b2accffe28bb4f4b596c9be64a28d281'>Snippets</a><ol><li><a href='#a76245b53a74930d575f9a172adae53b'>管理相关</a></li><li><a href='#1d9d7a160accc3f38c8b7c610009fee5'>表管理</a></li><li><a href='#48bedd0d3a1376ef3b9220d7443014d4'>权限相关</a></li><li><a href='#1b82e08cb8add1986e2d89da17f01935'>批量删除表</a></li></ol></li><li><a href='#6a50dc16f8113a88a87b955fd98d3364'>资源列表</a></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

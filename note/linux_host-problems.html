@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux服务器常见错误 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/linux_host-problems.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Linux服务器常见错误</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>记录Linux服务器上常见的错误和解决方案，安装和配置参考<a href="/tips/build_linux_host">这里</a>。</p>
+<h2 id="031a4fbbb6dafefbe8f00241d863fec3">系统管理相关</h2>
+<h3 id="eae32b94bad66a339e600bd2bf7ed520">exim4只监听本地(localhost)25端口</h3>
+<p>在执行<code>dpkg-reconfigure exim4-config</code>时，设置监听ip列表时，留空即可监听全部ip。</p>
+<h3 id="c00e1c2f7445db87413f1310b3d8a527">mutt发送邮件到qq(foxmail)邮箱被屏蔽</h3>
+<p>退回的邮件里包含如下错误信息：</p>
+<div class="codehilite"><pre>A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+SMTP error from remote mail server after end of data:
+host mx3.qq.com [103.7.28.233]: 550 Mail content denied. http://service.mail.qq.com/cgi-bin/help?subtype=1&amp;&amp;id=20022&amp;&amp;no=1000726
+</pre></div>
+
+
+<p>设置白名单也没用，后来删除了qq邮箱里相应的域名邮箱后不会再被屏蔽。</p>
+<h3 id="13852e3895940dff235d5b983ab54164">grep: line too long</h3>
+<p>使用grep的时候遇到下面的错误:</p>
+<div class="codehilite"><pre>grep: line too long
+</pre></div>
+
+
+<p>参考<a href="http://stackoverflow.com/questions/3657236/grep-line-too-long-error-message">stackoverflow</a>上的方法解决，即使用find命令查找出的文件作为grep的输入，比如查找<code>/etc</code>下</p>
+<div class="codehilite"><pre>find /etc -type f -print0 | xargs -r0 grep -E &#39;&lt;([0-9]{1,3}\.){3}[0-9]{1,3}\&gt;&#39;
+</pre></div>
+
+
+<p>如果以上方法无效，给grep添加<code>-I</code>选项(忽略二进制文件)后再尝试一下。</p>
+<h3 id="081c3a7640fdabeabe46e443245a4c6b">exim4 25端口被占用</h3>
+<p>在exim4的错误日志/var/log/exim4/paniclog中发现如下信息:</p>
+<div class="codehilite"><pre>socket bind() to port 25 for address 127.0.0.1 failed
+...
+</pre></div>
+
+
+<p>表示25端口已被占用，先使用<code>service exim4 stop</code>停止exim4服务，再使用<code>nmap 127.0.0.1</code>查看端口占用情况，输出如下所示:</p>
+<div class="codehilite"><pre>Starting Nmap 5.00 ( http://nmap.org ) at 2012-11-28 09:32 CST
+Interesting ports on localhost (127.0.0.1):
+Not shown: 992 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+25/tcp   open  smtp
+80/tcp   open  http
+111/tcp  open  rpcbind
+443/tcp  open  https
+587/tcp  open  submission
+3306/tcp open  mysql
+9000/tcp open  cslistener
+
+Nmap done: 1 IP address (1 host up) scanned in 0.23 seconds
+</pre></div>
+
+
+<p>发现25端口被smtp服务占用，估计是之前的sendmail卸载出了问题。使用<code>netstat -apn | grep 25</code>命令查看占用25端口的进程情况，
+输出如下所示:</p>
+<div class="codehilite"><pre>tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      29229/sendmail: MTA
+tcp        0     52 173.230.150.224:22      116.236.230.250:3505    ESTABLISHED 19238/0         
+tcp        0      0 173.230.150.224:22      116.236.230.250:15840   ESTABLISHED 15727/sshd: bgfw [p
+unix  11     [ ]         DGRAM                    2543     1747/rsyslogd       /dev/log
+unix  2      [ ]         DGRAM                    111257   29229/sendmail: MTA 
+unix  3      [ ]         STREAM     CONNECTED     170425   19564/nginx.conf
+</pre></div>
+
+
+<p>确认是pid为29229的sendmail占用了25端口，使用<code>kill 29229</code>结束sendmail进程。使用<code>dpkg -l | grep sendmail</code>查看sendmail的安装情况，输出如下:</p>
+<div class="codehilite"><pre>rc  sendmail-base          8.14.3-9.4            powerful, efficient, and scalable Mail Transport Agent
+rc  sendmail-bin           8.14.3-9.4            powerful, efficient, and scalable Mail Transport Agent
+rc  sendmail-cf            8.14.3-9.4            powerful, efficient, and scalable Mail
+</pre></div>
+
+
+<p>表示sendmail*已被删除，但是仍保留配置文件。如果想删除sendmail的配置文件，使用<code>apt-get purge sendmail*</code>即可。最后使用<code>service exim4 start</code>启动exim4服务。</p>
+<h2 id="ab7b60f461ffc477cc891a77418b83e8">nginx相关</h2>
+<p>这里收集与nginx相关的错误和解决方案。</p>
+<h3 id="7f92662aeb9c0434f756da0a25159329">访问软链接文件提示403 Forbidden</h3>
+<p>访问使用ln -s命令建立的软链接文件提示403 Forbidden错误，而链接原文件的权限为644，貌似没有问题。我的服务器用户为www-data，软链接文件为link-file，使用<code>sudo -u www-data vi link-file</code>后，无法读取该文件，vim提示Permission Denied错误。</p>
+<p>Google一番后，在<a href="http://unix.stackexchange.com/questions/20993/symbolic-link-not-allowed-or-link-target-not-accessible-apache-on-centos-6">这里</a>找到了答案，原来www-data用户无法访问链接文件的某些父目录，修改其权限(为www-data用户添加执行权限)后再访问该链接文件，错误消失。</p>
+<h3 id="a7593abf6271b0a84f8956c2e561f361">访问php页面提示An Error Occurred</h3>
+<p>采用了<a href="/tips/build_linux_host#安装和配置nginx">这里</a>的安装和配置方法，访问php页面的时候出现下述错误:</p>
+<div class="codehilite"><pre>An error occurred.
+
+Sorry, the page you are looking for is currently unavailable.
+Please try again later.
+
+If you are the system administrator of this resource then you should check the error log for details.
+
+Faithfully yours, nginx.
+</pre></div>
+
+
+<p>最常见的原因是php-fastcgi或php5-fpm服务没有正常运行，使用<code>service php-fastcgi start</code>启动php-fastcgi或<code>service php5-fpm restart</code>启动php5-fpm后恢复正常。</p>
+<h2 id="3cb565bf1514b0cff69f0e9fd9bff801">php相关</h2>
+<h3 id="c7e5cbd69c553317d747897bed985d51">php5-fpm和eaccelerator冲突</h3>
+<p>为了优化php，我在服务器上安装了php5-apc和eaccelerator，并使用php5-fpm管理fastcgi进程，我的wordpress博客使用w3 total cache进行缓存管理和优化，而w3 total cache使用php5-apc缓存php中间代码。问题发生在某次修改w3 total cache的配置时，博客突然就无法访问了，然而访问同一服务器下的dokuwiki时却十分正常。查看了相关的日志后发现如下信息。</p>
+<p>php5-fpm日志中连续报child exited on signal 11'这样的错, 如下所示:</p>
+<div class="codehilite"><pre>[07-Dec-2012 08:54:02] NOTICE: [pool www] child 15696 started
+[07-Dec-2012 08:54:02] WARNING: [pool www] child 15688 exited on signal 11 (SIGSEGV) after 3.914094 seconds
+</pre></div>
+
+
+<p>从而导致nginx报错'recv() failed (104: Connection reset by peer)', 如下:</p>
+<div class="codehilite"><pre>2012/12/06 19:08:26 [error] 7944#0: *160 recv() failed (104: Connection reset by peer) while reading response    header from upstream, client: 116.232.98.129, server: blog.atime.me, request: &quot;GET /about/ HTTP/1.1&quot;, upstream:  &quot;fastcgi://127.0.0.1:9000&quot;, host: &quot;blog.atime.me&quot;, referrer: &quot;http://blog.atime.me/archives/&quot;
+</pre></div>
+
+
+<p>暂时没找到问题原因。解决方案分两种:</p>
+<ol>
+<li>将php5-fpm换回spwan-fcgi。</li>
+<li>将php5-fpm的php配置中所有关于eaccelerator的内容删掉后再重启服务。</li>
+</ol>
+<h3 id="ebc134d80de2136047a9b57be544f63e">php5-fpm启动时报错segment fault: pthread.so ...</h3>
+<p>重启服务器后，php5-fpm报错segment fault，并启动失败。原因是apc.ini配置文件有错，apc.ini中定义的php-apc文件夹不存在导致。</p>
+<div class="codehilite"><pre>apc.mmap_file_mask=/tmp/php-apc/apc.XXXXXX
+</pre></div>
+
+
+<p>创建/tmp/php-apc文件夹后，php5-fpm启动正常。</p>
+<h3 id="7f9382e84e978f0397046e7c6ac47ad8">Class 'PMA_Message' not found</h3>
+<p>使用nginx配合php5-fpm解析php文件，某次登录phpmyadmin的时候，输入密码正确但无法进入，始终停留在登录页面。查看nginx日志发现如下错误信息:</p>
+<div class="codehilite"><pre>PHP message: PHP Notice:  Undefined property: PMA_Error...
+PHP message: PHP Fatal error:  Class &#39;PMA_Message&#39; not found in...
+</pre></div>
+
+
+<p>经查后发现是php session目录不存在(或权限不对)所致，重新创建php session目录并为www-data用户分配权限后问题解决。</p>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://www.exim.org/lurker/message/20030730.105421.ee14dd63.en.html">socket bind() to port 25 for address 146.232.128.43 failed</a> from exim4 mail list</li>
+<li><a href="http://stackoverflow.com/questions/3657236/grep-line-too-long-error-message">grep line too long error message</a> from StackOverflow</li>
+<li><a href="http://unix.stackexchange.com/questions/20993/symbolic-link-not-allowed-or-link-target-not-accessible-apache-on-centos-6">Symbolic link not allowed or link target not accessible</a> from StackExchange</li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-08 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2013-11-04 15:23</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/linux_server.html">linux_server</a><sup>3</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/problem.html">problem</a><sup>6</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Linux服务器常见错误</a></li>
+            <li><a href='#031a4fbbb6dafefbe8f00241d863fec3'>系统管理相关</a><ol><li><a href='#eae32b94bad66a339e600bd2bf7ed520'>exim4只监听本地(localhost)25端口</a></li><li><a href='#c00e1c2f7445db87413f1310b3d8a527'>mutt发送邮件到qq(foxmail)邮箱被屏蔽</a></li><li><a href='#13852e3895940dff235d5b983ab54164'>grep: line too long</a></li><li><a href='#081c3a7640fdabeabe46e443245a4c6b'>exim4 25端口被占用</a></li></ol></li><li><a href='#ab7b60f461ffc477cc891a77418b83e8'>nginx相关</a><ol><li><a href='#7f92662aeb9c0434f756da0a25159329'>访问软链接文件提示403 Forbidden</a></li><li><a href='#a7593abf6271b0a84f8956c2e561f361'>访问php页面提示An Error Occurred</a></li></ol></li><li><a href='#3cb565bf1514b0cff69f0e9fd9bff801'>php相关</a><ol><li><a href='#c7e5cbd69c553317d747897bed985d51'>php5-fpm和eaccelerator冲突</a></li><li><a href='#ebc134d80de2136047a9b57be544f63e'>php5-fpm启动时报错segment fault: pthread.so ...</a></li><li><a href='#7f9382e84e978f0397046e7c6ac47ad8'>Class 'PMA_Message' not found</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

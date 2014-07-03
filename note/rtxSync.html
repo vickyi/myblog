@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubuntu下使用rtxSync监听rtx - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/rtxSync.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Ubuntu下使用rtxSync监听rtx</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>介绍在ubuntu系统上使用rtxSync监听虚拟机内安装的rtx消息的方法。平时基本上在Ubuntu系统下工作，但是公司内部通讯用的是腾讯通rtx。尝试过用wine跑rtx，虽然可行但是效果不好，没办法只好在虚拟机里装rtx，为了及时查看新消息，需要rtxSync的帮助。</p>
+<h2 id="88a9998a9d1fe7398e9af7ca746f7848">rtxSync</h2>
+<p><a href="http://blog.csdn.net/xcwenn/article/details/8840646" title="rtxSync">rtxSync</a>主要包含一个rtx的插件<code>rtxsync.rpi</code>和ubuntu任务栏通知程序<code>xptray</code>，当有新的rtx消息时，xptray会闪烁。最新的rtxSync可在<a href="http://code.google.com/p/san2/downloads/detail?name=rtxSync.1.0.1.tar.gz&amp;can=2&amp;q=" title="download rtxSync 1.0.1">这里</a>下载。</p>
+<h2 id="2b31043d95446abc3edee0737cd73fea">安装依赖的软件包</h2>
+<p>首先为rtxSync的任务栏通知程序<code>xptray.py</code>安装依赖的软件包：</p>
+<div class="codehilite"><pre>sudo apt-get install python-appindicator python-gtk2
+</pre></div>
+
+
+<p>另外，<code>xptray.py</code>的代码里有引入<code>pynotify</code>库，不过在代码(1.0.1版本)里并没有实际使用。所以如果运行xptray提示找不到<code>pynotify</code>模块的话，可以注释掉<code>xptray.py</code>开头的这一行：</p>
+<div class="codehilite"><pre>#import pynotify
+</pre></div>
+
+
+<p>接下来按照作者的<a href="http://blog.csdn.net/xcwenn/article/details/8840646" title="rtxSync">教程</a>安装即可。</p>
+<h2 id="50d52dd929a75bb9b0f4afb0b7d879e1">常见问题</h2>
+<h3 id="c1e7267a8cb841984686088387d019fb">有新消息时xptray不闪烁</h3>
+<p>按如下步骤排查错误所在：</p>
+<ol>
+<li>在虚拟机上ping ubuntu系统，如果ping不通，则是虚拟机网络设置的问题。</li>
+<li>
+<p>如果网络正常，在<a href="http://joncraton.org/media/files/nc111nt.zip" title="download netcat for windows">这里</a>下载<a href="http://joncraton.org/blog/46/netcat-for-windows">netcat for windows</a>，解压后将nc.exe放在<code>C:\Windows</code>文件夹下，假设xptray的监听地址为
+<code>10.1.5.85:3000</code>，则在虚拟机的cmd上执行命令</p>
+<div class="codehilite"><pre>echo 1 | nc -u -w 1 10.1.5.85 3000
+</pre></div>
+
+
+<p>如果xptray不闪烁，很有可能是监听地址配置错误，或rtx上的rtxsync配置有误。重新配置后，重启rtx和xptray再查看。</p>
+</li>
+</ol>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://blog.csdn.net/xcwenn/article/details/8840646" title="rtxSync">rtx消息 虚拟机xp 通知到 主机ubuntu</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-10-17 11:12</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/rtx.html">rtx</a><sup>2</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/rtxsync.html">rtxSync</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/ubuntu.html">ubuntu</a><sup>15</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Ubuntu下使用rtxSync监听rtx</a></li>
+            <li><a href='#88a9998a9d1fe7398e9af7ca746f7848'>rtxSync</a></li><li><a href='#2b31043d95446abc3edee0737cd73fea'>安装依赖的软件包</a></li><li><a href='#50d52dd929a75bb9b0f4afb0b7d879e1'>常见问题</a><ol><li><a href='#c1e7267a8cb841984686088387d019fb'>有新消息时xptray不闪烁</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

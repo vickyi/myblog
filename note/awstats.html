@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>awstats+nginx配置笔记 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/awstats.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">awstats+nginx配置笔记</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>awstats可以分析服务器日志，并提供图形化的分析结果，demo可参考本博客的<a href="http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me">awstats页面</a>。以下是一篇简单的awstats教程，记录我在ubuntu系统上安装和配置awstats7.2 + nginx的过程。</p>
+<h2 id="71c03b4b4de3f934f490fddbba89ab5f">awstats7.2下载和配置</h2>
+<p>下载awstats</p>
+<div class="codehilite"><pre><span class="nb">cd</span> /tmp
+wget http://prdownloads.sourceforge.net/awstats/awstats-7.2.zip
+<span class="nb">cd</span> /usr/local 
+sudo unzip /tmp/awstats-7.2.zip
+sudo mv awstats-7.2 awstats
+</pre></div>
+
+
+<p>以<code>blog.atime.me</code>为例，创建新的配置文件<code>/etc/awstats/awstats.blog.atime.me.conf</code></p>
+<div class="codehilite"><pre><span class="nb">cd</span> /usr/local/awstats
+perl tools/awstats_configure.pl
+<span class="c"># 根据提示依次输入</span>
+<span class="c"># web server config file path: none</span>
+<span class="c"># build a new AWStats config/profile: y</span>
+<span class="c"># awstats config file name: blog.atime.me(改成自己的网站名即可)</span>
+<span class="c"># awstats config file path: (不填，使用默认值/etc/awstats)</span>
+
+<span class="c"># 编辑配置文件</span>
+sudo vi /etc/awstats/awstats.blog.atime.me.conf
+<span class="c"># 将LogFile改为nginx的access日志的位置</span>
+<span class="c"># LogFile=&quot;/var/log/nginx/access.log&quot;</span>
+
+sudo chown -R www-data:www-data /usr/local/awstats/wwwroot
+
+<span class="c"># 修改awstats的输出目录为/usr/local/awstats/wwwroot/output</span>
+<span class="c"># DirData=&quot;/usr/local/awstats/wwwroot/output&quot;</span>
+sudo -u www-data mkdir /usr/local/awstats/wwwroot/output
+
+<span class="c"># 测试新生成的配置文件是否有效</span>
+sudo ./wwwroot/cgi-bin/awstats.pl -config<span class="o">=</span>blog.atime.me
+</pre></div>
+
+
+<p>以上的过程如果顺利完成，则表示awstats已配置成功。</p>
+<h2 id="04537ebf8674a61ac34c014f147203d2">nginx配置</h2>
+<p>准备工作</p>
+<div class="codehilite"><pre># 安装spawn-fcgi
+sudo apt-get install spawn-fcgi libfcgi0ldbl fcgiwrap
+</pre></div>
+
+
+<p>配置nginx，添加一个新的子域<code>awstats.atime.me</code>，先在dns服务商那里添加相应的A记录。</p>
+<div class="codehilite"><pre>cd /etc/nginx/sites-available
+sudo vi awstats.conf
+</pre></div>
+
+
+<p>写入如下内容</p>
+<div class="codehilite"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="s">/usr/local/awstats/wwwroot</span><span class="p">;</span>
+    <span class="kn">server_name</span> <span class="s">awstats.atime.me</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.pl$</span> <span class="p">{</span>
+        <span class="kn">gzip</span> <span class="no">off</span><span class="p">;</span>
+        <span class="kn">include</span> <span class="s">/etc/nginx/fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> <span class="s">unix:/var/run/fcgiwrap.socket</span><span class="p">;</span>
+        <span class="kn">fastcgi_index</span> <span class="s">index.pl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>然后</p>
+<div class="codehilite"><pre>cd ../sites-enabled
+sudo ln -s ../sites-available/awstats.conf .
+</pre></div>
+
+
+<p>修改nginx的access日志的输出格式</p>
+<div class="codehilite"><pre>sudo vi /etc/nginx/nginx.conf
+</pre></div>
+
+
+<p>找到<code>Logging Settings</code>部分，将access_log改为</p>
+<div class="codehilite"><pre>log_format main &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39; &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39; &#39;&quot;$http_user_agent&quot;   &quot;$http_x_forwarded_for&quot;&#39;;
+access_log /var/log/nginx/access.log main;
+</pre></div>
+
+
+<p>最后，重新载入nginx配置文件</p>
+<div class="codehilite"><pre>sudo service nginx reload
+</pre></div>
+
+
+<p>载入配置无误，则可以通过如下网址访问awstats的分析结果</p>
+<p><a href="http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me">http://awstats.atime.me/cgi-bin/awstats.pl?config=blog.atime.me</a></p>
+<h2 id="9ffa8933f7f73ab6e162f410091cfd63">其他功能</h2>
+<h3 id="70d16221bce978f928a4ea8f442c7f0d">使用GeoIP插件分析访问者IP所在国家</h3>
+<p>详情可参考<a href="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html" title="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html">AWStats 国家地区扩展 GeoIP 安装配置</a>。</p>
+<div class="codehilite"><pre><span class="c"># 下载IP数据</span>
+<span class="nb">cd</span> /usr/local/awstats/wwwroot
+sudo wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+sudo gzip -d GeoIP.dat.gz
+
+<span class="c"># 安装GeoIP C API</span>
+<span class="nb">cd</span> /tmp
+wget http://geolite.maxmind.com/download/geoip/api/c/GeoIP-1.4.8.tar.gz
+tar -zxf GeoIP-1.4.8.tar.gz
+<span class="nb">cd </span>GeoIP-1.4.8/
+./configure
+make <span class="o">&amp;&amp;</span> make install
+
+<span class="c"># 安装GeoIP插件</span>
+<span class="nb">cd</span> /tmp
+wget http://geolite.maxmind.com/download/geoip/api/perl/Geo-IP-1.39.tar.gz
+tar -zxf Geo-IP-1.39.tar.gz
+<span class="nb">cd </span>Geo-IP-1.39
+perl Makefile.PL <span class="nv">LIBS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib&#39;</span>
+make <span class="o">&amp;&amp;</span> make install
+</pre></div>
+
+
+<p>最后，修改awstats的配置文件，将如下一行取消注释并修改为</p>
+<div class="codehilite"><pre>LoadPlugin=&quot;geoip GEOIP_STANDARD /usr/local/awstats/wwwroot/GeoIP.dat&quot;
+</pre></div>
+
+
+<h3 id="370cf6767f7c1c85ad45503e44073a43">通过网页界面更新awstats</h3>
+<p>确保www-data用户对awstats的输出目录拥有写权限，然后在awstats的配置文件里做如下修改</p>
+<div class="codehilite"><pre>AllowToUpdateStatsFromBrowser=1
+</pre></div>
+
+
+<h3 id="868176a0e035d89328aad3fa981b39d7">读取多个日志文件</h3>
+<p>按照官方的<a href="http://awstats.sourceforge.net/docs/awstats_faq.html#MULTILOG" title="FAQ-COM360 : HOW CAN I PROCESS SEVERAL LOG FILES IN ONE RUN?">建议</a>，可以使用awstats自带的一个脚本<code>logresolvemerge.pl</code>来解析多个日志文件。</p>
+<p><code>logresolvemerge.pl</code>脚本还支持直接读取gz和bz2等压缩文件，默认位于awstats安装目录的tools文件夹里。使用该脚本的话需要将配置文件里的<code>LogFile</code>改为类似下面的样子（注意修改logresolvemerge.pl的位置）：</p>
+<div class="codehilite"><pre>LogFile=&quot;/usr/local/awstats/tools/logresolvemerge.pl /var/log/nginx/access.log* |&quot;
+</pre></div>
+
+
+<p>需要注意的是，为使<code>logresolvemerge.pl</code>脚本能访问相应的日志文件，需要为分配合理的权限。</p>
+<div class="codehilite"><pre>chmod +x logresolvemerge.pl
+</pre></div>
+
+
+<h2 id="5dc99f6efe53adda80974655b26b8df8">问题</h2>
+<h3 id="6fd757292cbf672063d52c44c0d295a6">关键词乱码</h3>
+<p>修改配置文件，取消<code>LoadPlugin="decodeutfkeys"</code>一行的注释即可，然后重新生成报告。</p>
+<p>如果出现<code>Cannot locate URI/Escape.pm</code>这样的错误，则运行如下命令安装URI::Escape模块</p>
+<div class="codehilite"><pre>cpan -i URI::Escape
+</pre></div>
+
+
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://hi.baidu.com/icokeeer/item/2588471c9403c9e05f53b1e2" title="http://hi.baidu.com/icokeeer/item/2588471c9403c9e05f53b1e2">Ubuntu Nginx Awstats Fastcgi</a></li>
+<li><a href="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html" title="http://wangyan.org/blog/howto-setup-geoip-for-awstats.html">AWStats 国家地区扩展 GeoIP 安装配置</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-11-04 16:33</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-03-13 09:17</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/awstats.html">awstats</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/perl.html">perl</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/nginx.html">nginx</a><sup>6</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/ubuntu.html">ubuntu</a><sup>15</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/note.html">note</a><sup>14</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/jiao-cheng.html">教程</a><sup>13</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">awstats+nginx配置笔记</a></li>
+            <li><a href='#71c03b4b4de3f934f490fddbba89ab5f'>awstats7.2下载和配置</a></li><li><a href='#04537ebf8674a61ac34c014f147203d2'>nginx配置</a></li><li><a href='#9ffa8933f7f73ab6e162f410091cfd63'>其他功能</a><ol><li><a href='#70d16221bce978f928a4ea8f442c7f0d'>使用GeoIP插件分析访问者IP所在国家</a></li><li><a href='#370cf6767f7c1c85ad45503e44073a43'>通过网页界面更新awstats</a></li><li><a href='#868176a0e035d89328aad3fa981b39d7'>读取多个日志文件</a></li></ol></li><li><a href='#5dc99f6efe53adda80974655b26b8df8'>问题</a><ol><li><a href='#6fd757292cbf672063d52c44c0d295a6'>关键词乱码</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

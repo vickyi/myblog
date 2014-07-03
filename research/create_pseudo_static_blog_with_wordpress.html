@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用w3tc，ocp和cron让wordpress成为一个伪静态博客 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/research/create_pseudo_static_blog_with_wordpress.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/agreement.html" title="agreement">
+                <i class="fa fa-info-circle"></i>使用协议</a>
+            </li>
+            <li><a href="/my_projects.html" title="my projects">
+                <i class="fa fa-rocket"></i>项目</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">使用w3tc，ocp和cron让wordpress成为一个伪静态博客</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>前一段时间折腾了一会<a href="http://getpelican.com/" title="Pelican">Pelican</a>和<a href="http://ruhoh.com/" title="Ruhoh">Ruhoh</a>这些静态博客引擎，不过因为舍不得wordpress的众多优秀主题和插件，最终没有迁移到静态博客引擎上，我果然是一个懒人。使用过静态博客引擎的人肯定对其闪电般的页面加载速度(nginx+静态文件)印象深刻，相较之下wordpress这类动态博客便差强人意。好在wordpress有众多的缓存插件，适当的配置之后页面加载速度会有很大的提高。不过这还不够，我想要的效果是，既有动态博客的便利也要有静态博客的速度。所以，免不了又要折腾一翻。</p>
+<p>要让wordpress成为一个“伪静态博客“，至少要实现如下的几个功能:</p>
+<ul>
+<li>文章和页面必须被缓存，未注册用户访问时直接读取缓存的静态文件即可。这一点使用w3tc插件可以实现。</li>
+<li>使用<a href="http://zh.wikipedia.org/wiki/Markdown" title="Markdown from wikipedia">Markdown</a>撰写文章，这一点可以使用<a href="http://wordpress.org/extend/plugins/markdown-on-save-improved/" title="Markdown on Save Improved plugin">Markdown on Save Improved</a>插件实现。</li>
+<li>社会化评论，可以使用<a href="http://wordpress.org/extend/plugins/disqus-comment-system/" title="disqus社会化评论插件">Disqus</a>, <a href="http://wordpress.org/extend/plugins/duoshuo/" title="多说社会化评论插件">多说</a>或<a href="http://wordpress.org/extend/plugins/denglu/" title="灯鹭社会化评论插件">灯鹭</a>等社会化评论服务提供的插件实现。</li>
+</ul>
+<p>使用w3tc有一个缺点，当写完新的文章后，文章存档、文章分类和标签这些页面将无法及时更新。一个解决的方法是，在w3tc的page cache里，将Garbage collection interval(垃圾回收间隔)设置的小一些会有所帮助。不过垃圾回收后，所有的页面缓存都会失效，然而绝大多数的页面并未改变，所以每次都重新生成所有的页面缓存有点资源浪费。</p>
+<p>对此，我的解决方案是使用<a href="http://patrickmylund.com/projects/ocp/" title="Optimus Cache Prime(ocp)">Optimus Cache Prime(ocp)</a>爬取网站的sitemap.xml(使用<a href="http://wordpress.org/extend/plugins/google-xml-sitemaps-v3-for-qtranslate/" title="Google XML Sitemaps v3 for qTranslate plugin">Google XML Sitemaps v3 for qTranslate插件</a>自动生成)来自动更新文章存档、文章分类和标签的页面缓存(w3tc会自动删除新文章的页面缓存)。要达到这一目的必须对ocp和Google XML Sitemaps的代码做一些修改。</p>
+<p>首先，让Google XML Sitemaps v3 for qTranslate插件能够输出分类目录(category)和标签(tag)页的最后修改时间(lastmod)，修改后的插件代码放在<a href="https://github.com/wilbur-ma/wordpress-tweak/tree/master/google-xml-sitemaps-v3-for-qtranslate">这里</a>。注意在插件的配置页面，开启将分类目录(category)和tag(tag)加入sitemap内容中，并在高级设置里勾选“包含最后修改时间“。</p>
+<p>然后，让ocp能够处理sitemap.xml的修改时间(lastmod)，修改后的ocp代码放在<a href="https://github.com/wilbur-ma/ocp">这里</a>，请自行下载并用go编译。</p>
+<p>需要说明的是，目前的解决方案存在两点不足:</p>
+<ol>
+<li>人为删除文章(post)和页面(page)后，ocp无法删除对应的页面缓存，也无法更新包含删除文章或页面的缓存(比如文章存档，月归档，标签和文章分类页面)等，此时需要手动删除对应的页面缓存。</li>
+<li>一些使用插件生成的页面，比如文章存档和网站地图等，每次更新缓存时需要提前删除缓存。</li>
+</ol>
+<p>通常情况下(不考虑删除文章)，可以使用如下脚本update-wp-cache.sh来自动更新。</p>
+<div class="codehilite"><pre><span class="nv">purgeAllArg</span><span class="o">=</span><span class="s1">&#39;purgeAll&#39;</span>
+<span class="nv">localCacheDir</span><span class="o">=</span>/var/www/wordpress3/wp-content/w3tc/pgcache
+<span class="nv">sitemapPath</span><span class="o">=</span>/var/www/wordpress3/sitemap.xml
+<span class="nv">ocpPath</span><span class="o">=</span>/root/bin/ocp 
+<span class="nv">archiveDir</span><span class="o">=</span><span class="nv">$localCacheDir</span>/archives   <span class="c"># 使用插件的short code生成的archives页面必须手动删除，否则不会更新</span>
+<span class="nv">sitemapDir</span><span class="o">=</span><span class="nv">$localCacheDir</span>/sitemap    <span class="c"># 使用插件生成的sitemap页面必须手动删除，否则不会更新</span>
+
+<span class="c"># remove archive page and sitemap page manually</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$# </span>-ge 1 <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">=</span> <span class="nv">$purgeAllArg</span> <span class="o">]</span>
+<span class="k">then </span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Remove all the page cache...&quot;</span>
+    rm -Rf <span class="nv">$localCacheDir</span>/*
+<span class="k">else</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Remove archive page and sitemap page...&quot;</span>
+    rm -Rf <span class="nv">$archiveDir</span> <span class="nv">$sitemapDir</span>
+<span class="k">fi</span>
+<span class="c"># update cache with ocp</span>
+<span class="nb">echo</span> <span class="s2">&quot;Update page cache with ocp...&quot;</span>
+<span class="nv">$ocpPath</span> -u -rl <span class="s2">&quot;_index.html,_index.html_gzip,page&quot;</span> -v -l <span class="nv">$localCacheDir</span> -ls _index.html <span class="nv">$sitemapPath</span>
+</pre></div>
+
+
+<p>最后配置crontab，使ocp自动进行爬取，cron job的周期可以根据博客更新的频率设定。在w3tc的page cache配置页面，将Garbage collection interval设置的尽量大一些，至少要大于cron job执行的周期。通常我几天才会写一篇文章，所以用cron每天更新一次页面缓存足够了。</p>
+<p>下面是我的crontab设置，每天凌晨3点30分自动运行update-wp-cache.sh脚本，每周末凌晨3点30分清空所有页面缓存并更新。</p>
+<div class="codehilite"><pre>30 03 * * * /root/bin/update-wp-cache.sh
+30 03 * * 7 /root/bin/update-wp-cache.sh purgeAll
+</pre></div>
+
+
+<p>最后列出一些相关的资源:</p>
+<ul>
+<li><a href="http://patrickmylund.com/projects/ocp/" title="Optimus Cache Prime(ocp)">Optimus Cache Prime(ocp)</a></li>
+<li><a href="http://wordpress.org/extend/plugins/google-xml-sitemaps-v3-for-qtranslate/" title="Google XML Sitemaps v3 for qTranslate plugin">Google XML Sitemaps插件</a></li>
+<li><a href="http://wordpress.org/extend/plugins/w3-total-cache/" title="W3 totoal cache plugin">W3 total cache插件</a></li>
+<li><a href="http://wowubuntu.com/markdown/" title="Markdown 语法">Markdown中文语法说明</a></li>
+<li><a href="https://help.ubuntu.com/community/CronHowto" title="Cron howto from ubuntu wiki">Cron Howto</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2012-12-21 18:10</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-flask"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/research/index.html">实验室</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/php.html">php</a><sup>2</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/golang.html">golang</a><sup>4</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/wordpress.html">wordpress</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/static_blog.html">static_blog</a><sup>2</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">使用w3tc，ocp和cron让wordpress成为一个伪静态博客</a></li>
+            
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>
