@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphinx/Coreseek搭建全文搜索引擎二三事 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/sphinx-coreseek-summary.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Sphinx/Coreseek搭建全文搜索引擎二三事</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>最近忙着做一个coreseek全文检索的项目，都没时间更新博客了。目前项目已接近尾声，这里总结下coreseek的安装，配置和项目的设计考量等，以备将来查询。</p>
+<h2 id="29c80db55a999c5cd732e46e0c6650c6">开发环境</h2>
+<ul>
+<li>操作系统: Ubuntu 12.04 x86-64</li>
+<li>Coreseek: 4.1测试版(Sphinx-2.0.1)</li>
+<li>Python: 2.7</li>
+</ul>
+<h2 id="4afdb7df03bb281cc63ab7bfc30a7403">Sphinx/Coreseek简介</h2>
+<p><a href="http://sphinxsearch.com/">Sphinx</a>是一个高性能的全文检索引擎，使用C++语言开发，采用GPL协议发布，可购买商业授权，目前的稳定版本是2.1.7。</p>
+<p><a href="http://www.coreseek.cn/">Coreseek</a>是基于Sphinx的中文全文检索引擎，使用<a href="http://technology.chtsai.org/mmseg/">MMSEG算法</a>进行中文分词，并且提供<a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#pysource">Python数据源</a>。Coreseek采用GPLv2协议发布，可购买商业授权，目前的稳定版本是3.2.14，基于Sphinx-0.9.9，测试版本是4.1，基于Sphinx-2.0.1。（另外，Coreseek官方论坛在2013年的年末称即将发布<a href="http://www.coreseek.cn/forum/4_11166_0.html">5.0版本</a>，不过至今无详细消息）</p>
+<h2 id="6334257e417ff218d6399cc8168e53df">Sphinx/Coreseek安装</h2>
+<p>下载Coreseek-4.1的源代码</p>
+<div class="codehilite"><pre>wget http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz
+tar xvf coreseek-4.1.beta.tar.gz
+cd coreseek-4.1-beta
+</pre></div>
+
+
+<p>解压后发现有三个目录，主要的目录结构如下</p>
+<div class="codehilite"><pre>coreseek-4.1-beta/
+    csft-4.1/           coreseek修改sphinx-2.0.1后的代码
+        api/            sphinx searchd[查询API][6]的实现
+    mmseg-3.2.14/       libmmseg分词库
+    testpack/           测试和配置示例
+    README.txt          介绍和安装指南
+</pre></div>
+
+
+<p>按照官方的<a href="http://www.coreseek.cn/products-install/install_on_bsd_linux/">安装指南</a>，依次安装mmseg和csft。如果在configure过程中提示缺少头文件，可通过apt-file查询需要安装的软件包。</p>
+<h3 id="d081bf71f6724b49c0c1a17fe1c81122">安装mmseg-3.2.14</h3>
+<p>这里完全参考官方的安装指南即可</p>
+<div class="codehilite"><pre>cd mmseg-3.2.14
+./bootstrap
+./configure --prefix=/usr/local/mmseg3
+make &amp;&amp; sudo make install
+</pre></div>
+
+
+<h3 id="776de02149d0f2feec873dfaf5d57c92">安装libiconv-1.14</h3>
+<p>先安装<a href="https://www.gnu.org/software/libiconv/">libiconv</a>，用于字符集编码的转换。</p>
+<div class="codehilite"><pre>wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz
+tar xvf libiconv-1.14.tar.gz
+cd libiconv-1.14
+make &amp;&amp; sudo make install
+</pre></div>
+
+
+<p>如果你的glibc版本在2.16以上，make时很有可能出现如下错误</p>
+<div class="codehilite"><pre>In file included from progname.c:26:0:
+./stdio.h:1010:1: error: ‘gets’ undeclared here (not in a function)
+_GL_WARN_ON_USE (gets, &quot;gets is a security hole - use fgets instead&quot;);
+^
+</pre></div>
+
+
+<p>参考<a href="http://forum.z27315.com/topic/15662-%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91libiconv%E6%97%B6%E7%9A%84gets-undeclared-here%E9%94%99%E8%AF%AF/">这里</a>的方法，下载<a href="http://www.itkb.ro/userfiles/file/libiconv-glibc-2.16.patch.gz">patch文件</a>，解压后打上patch即可。</p>
+<p>在libiconv-1.14目录下执行</p>
+<div class="codehilite"><pre>wget -O - http://blog.atime.me/static/resource/libiconv-glibc-2.16.patch.gz | gzip -d - | patch -p0
+</pre></div>
+
+
+<p>或者考虑直接注释掉srclib/stdio.in.h文件的第698行（应该没问题），即</p>
+<div class="codehilite"><pre>//  _GL_WARN_ON_USE (gets, &quot;gets is a security hole - use fgets instead&quot;);
+</pre></div>
+
+
+<h3 id="0315abb694b3c20d0437b92ce05a2706">安装csft-4.1</h3>
+<p>这里configure的参数和<a href="http://www.coreseek.cn/products-install/install_on_bsd_linux/">安装指南</a>上稍有区别，一是添加<code>--with-python</code>选项来支持Python数据源，二是添加<code>LIBS=-liconv</code>来避免最后的链接错误。</p>
+<div class="codehilite"><pre>cd csft-4.1
+sh buildconf.sh
+./configure --prefix=/usr/local/coreseek  --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql --with-python LIBS=-liconv
+make -j2 &amp;&amp; sudo make install
+</pre></div>
+
+
+<p>如果<code>sh buildconf.sh</code>最后没有生成configure脚本，且提示<code>automake: warnings are treated as errors</code>，可以将configure.ac中的这行</p>
+<div class="codehilite"><pre>AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+</pre></div>
+
+
+<p>改为</p>
+<div class="codehilite"><pre>AM_INIT_AUTOMAKE([-Wall foreign])
+</pre></div>
+
+
+<p>即删掉<code>-Werror</code>，然后重新运行<code>sh buildconf.sh</code>。</p>
+<p>如果configure的时候提示没有安装MySQL的头文件，安装<code>libmysql++-dev</code>包即可。</p>
+<p>如果你的gcc版本在4.7以上，编译的时候可能会因为sphinx的一个<a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378">bug</a>报错</p>
+<div class="codehilite"><pre>sphinxexpr.cpp:1746:43: error: ‘ExprEval’ was not declared in this scope, and no declarations were found by argument-dependent lookup at the point of instantiation [-fpermissive]
+</pre></div>
+
+
+<p>解决方法参考<a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378">bug报告</a>里的一个patch，在csft-4.1目录下执行</p>
+<div class="codehilite"><pre>wget -O - http://blog.atime.me/static/resource/sphinxexpr-gcc4.7.patch.gz | gzip -d - | patch -p0
+</pre></div>
+
+
+<p>或者你也可以直接修改src/sphixexpr.cpp文件的1746, 1777和1823行，将三行中的<code>ExprEval</code>改为<code>this-&gt;ExprEval</code>。</p>
+<h3 id="220d59a488766e0198f4ce6119e6f5df">安装辅助工具</h3>
+<p>将<code>csft-4.1/contrib/scripts</code>目录下的searchd脚本拷贝到<code>/etc/init.d/</code>目录下，即可使用service命令启动和终止searchd服务。</p>
+<p>安装好coreseek后，将<code>/usr/local/coreseek/share/man/</code>目录下的所有文件和目录都拷贝到<code>/usr/local/share/man/</code>目录里，即可使用man命令查看indexer和searchd的使用手册。</p>
+<h2 id="f52aa5bc3f77e48efe37a5971ed541ef">Sphinx/Coreseek目录结构</h2>
+<p>按照上面的步骤正确安装Coreseek后，在<code>/usr/local/coreseek</code>可看到如下几个文件夹</p>
+<div class="codehilite"><pre>bin/            sphinx的程序目录
+    searchd     搜索服务器程序
+    indexer     索引建立工具
+etc/            配置文件目录
+    csft.conf   默认配置文件
+share/
+    man/        sphinx的man手册，建议拷贝到系统man目录，方便查询
+var/
+    data/       默认的索引存放目录
+    log/        默认的日志目录和pid文件目录
+</pre></div>
+
+
+<p>实际使用sphinx的流程大概如下:</p>
+<ol>
+<li>使用indexer建立或更新索引，如果searchd已经运行，则需要使用<code>--rotate</code>选项。</li>
+<li>运行searchd</li>
+</ol>
+<p>例如：</p>
+<div class="codehilite"><pre>cd /usr/local/coreseek
+./bin/indexer --all     # 第一次建立索引，使用默认配置文件/usr/local/coreseek/etc/csft.conf
+./bin/searchd           # 使用默认配置文件/usr/local/coreseek/etc/csft.conf
+</pre></div>
+
+
+<h2 id="7f336b9406b58dd8901674a146e93a99">Sphinx/Coreseek配置</h2>
+<p>配置文件可参考Sphinx的<a href="http://sphinxsearch.com/docs/archives/2.0.1/">官方文档</a>和配置例子<code>/usr/local/coreseek/etc/sphinx.conf.dist</code>。</p>
+<h3 id="f9e765f52e12807fbd858ce94988665a">searchd</h3>
+<p>配置示例</p>
+<div class="codehilite"><pre>searchd
+{
+    listen          = 9312
+    listen          = 9306:mysql41
+    log             = /usr/local/coreseek/var/log/searchd.log
+    query_log       = /usr/local/coreseek/var/log/query.log
+    read_timeout    = 5
+    max_children    = 30
+    pid_file        = /usr/local/coreseek/var/log/searchd.pid
+    max_matches     = 1000
+    seamless_rotate = 1
+    preopen_indexes = 1
+    unlink_old      = 1
+    workers         = threads # for RT to work
+}
+</pre></div>
+
+
+<p>这里面的诸多配置选项可参考<a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-searchd.html">searchd program configuration options</a>。</p>
+<p>其中，通过第二个listen配置<code>listen = 9306:mysql41</code>，你可以使用mysql的client来访问searchd的索引。</p>
+<div class="codehilite"><pre>mysql -h 127.0.0.1 -P 9306
+</pre></div>
+
+
+<p>然后使用<a href="http://sphinxsearch.com/docs/archives/2.0.1/sphinxql-reference.html">SphinxQL</a>查询语言即可搜索索引。</p>
+<h3 id="f45405398724f84de51df1f6c3cfa852">indexer</h3>
+<p>配置示例</p>
+<div class="codehilite"><pre>indexer {
+    mem_limit    = 1024M
+    write_buffer = 16M
+}
+</pre></div>
+
+
+<p>索引工具indexer的配置相对少一些，参考<a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-indexer.html">indexer program configuration options</a>。需要注意的是，mem_limit如果查过2048M会出问题<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>。</p>
+<h3 id="ecf3f3908d70c90cf34892e4f1d39e38">数据源和索引配置</h3>
+<p>参考示例配置文件<code>/usr/local/coreseek/etc/sphinx.conf.dist</code>和官方文档<a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-source.html">Data source configuration options</a>，<a href="http://sphinxsearch.com/docs/archives/2.0.1/confgroup-index.html">Index configuration options</a>即可。</p>
+<h2 id="c11322c9cc43ce3c004cf03f5ac0acd0">数据源</h2>
+<h3 id="696fea72c1ff31f7bffe5ff3627c9b55">Python数据源</h3>
+<p>Coreseek开发了一个号称万能的Python数据源，使用起来比xmlpipe2要方便一些。其实就是用Python脚本来获取待索引数据，配置文档见<a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#pysource">这里</a>，接口文档见<a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#coreseek-confgroup-pysource">这里</a>，示例程序见<a href="http://www.coreseek.cn/products-install/python/">这里</a>。</p>
+<h3 id="08caf24d2adf7c4ad11297b889355fb7">Xmlpipe2数据源</h3>
+<p>这是用Sphinx官方支持的一个"万能"数据源，其实就是将待索引数据按照xmlpipe2的<a href="http://sphinxsearch.com/docs/archives/2.0.1/xmlpipe2.html">schema</a>写入标准输出中。</p>
+<p>在数据源的配置项中需要设置type为xmlpipe2，另外还要设置一个xmlpipe_command选项，该选项的命令必须输出符合<a href="http://sphinxsearch.com/docs/archives/2.0.1/xmlpipe2.html">xmlpipe2 schema</a>的xml文档到标准输出流(stdout)里，比如:</p>
+<div class="codehilite"><pre>source news_src
+{
+    type = xmlpipe2
+    xmlpipe_command = cat /tmp/xmlpipe2_out.xml
+}
+</pre></div>
+
+
+<h2 id="4c4c472130611891d3174ce7166e7159">建立索引</h2>
+<p>Sphinx使用indexer工具建立和更新索引，据称indexer的索引速度能达到10~15MB/秒<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>。实际使用过程中，我尝试过分别用Python数据源和xmlpipe2数据源来建立索引，xmlpipe2稍微快一点点。使用Python数据源索引14G文本，大约50万个文件，最后生成2.3G索引，最快在2.8MB/秒左右，估计是慢在中文分词上。</p>
+<h3 id="be5690783b8a141f5b40aa698e97a9cd">自定义中文词库</h3>
+<h2 id="bee912d79eefb7335988c4997aa9138d">查询</h2>
+<p>Sphinx支持使用SphinxAPI和SphinxQL查询数据。</p>
+<h3 id="a760b4ca118bf868f0fa8badad7a4e29">SphinxAPI</h3>
+<p>SphinxAPI用于和searchd通信，官方提供PHP, Python和Java的实现，API的文档见<a href="http://sphinxsearch.com/docs/archives/2.0.1/api-reference.html">此</a>。Coreseek携带的API和示例程序实现都放在<code>csft-4.1/api/</code>目录下。</p>
+<h3 id="6ac23085ea41f5410c39295ba7b65d8a">SphinxQL</h3>
+<p>SphinxQL是Sphinx提供的SQL方言，用于查询和管理索引，相比SphinxAPI，SphinxQL支持的操作更多，比如删除索引等，文档在<a href="http://sphinxsearch.com/docs/archives/2.0.1/sphinxql-reference.html">此</a>。</p>
+<h2 id="0a3168ec9adb92136b230a8aef26e195">实际应用</h2>
+<h3 id="dcb8ee94be150f19b518ddee0953d426">项目简介</h3>
+<p>项目的部分需求：</p>
+<ol>
+<li>目前需要做全文检索的数据是html网页文件，总数在1000万左右，文件总大小大概是200GB，每天新增几千个文件左右。将来很可能需要检索pdf和mysql等不同的数据来源。</li>
+<li>提供RESTful风格的搜索接口，返回json格式的查询结果。因为搜索服务主要是内部使用，估计搜索请求的压力不大。</li>
+</ol>
+<p>为缩短开发周期，整个项目采用Python实现，使用coreseek自带的Python数据源建立索引。</p>
+<p>在开发过程中使用了如下的第三方Python packages:</p>
+<ul>
+<li>lxml-3.3.4: 解析html文件</li>
+<li>tornado-3.2: 异步http服务器，异步socket通信等</li>
+</ul>
+<h3 id="808267253cd4c75f0a4afec7bce40a80">设计考量</h3>
+<h4 id="b271e427962758c71e342a2c06df493a">索引</h4>
+<p>上面有提到过，indexer是一个单线程的工具，建立中文索引的速度基本上很难超过3MB/秒，因此可以考虑将大的索引拆分成若干小索引，这些小索引可以同时建立，最后再合并成一个完整的索引。</p>
+<p>因为待索引文档的基数很大，但每天更新的数量又比较小，所以建立索引的时候最好使用官方推荐的一种<code>Main + Delta</code>的方式，主(Main)索引只需要最开始建立一次，然后每天重建一次增量(Delta)索引并合并到主索引中，相关文档见<a href="http://sphinxsearch.com/docs/archives/2.0.1/delta-updates.html">Delta index updates</a>。</p>
+<h4 id="0e82895b9f8fd648e812cb35dc4748b8">Python相关</h4>
+<p>项目里需要使用Python查找和解析html文件。</p>
+<p>文件查找没有使用Python标准库os的walk函数，当文件数量较多时，walk函数的效率会比较低。有兴趣的可以看下一个叫<a href="https://github.com/benhoyt/betterwalk">betterwalk</a>的第三方库，据称比<code>os.walk</code>快不少。实际项目中，因为待索引文件的目录结构固定且很有规律，直接用<code>os.listdir</code>和<code>os.lstat</code>即可解决，<code>os.lstat</code>可以获取文件的最后修改日期，在建立增量索引的时候非常有用。</p>
+<p>html文件的解析使用了口碑很给力的lxml库，用lxml解析html文件时通常有多种方法，使用之前最好仔细看一下lxml各个函数的<a href="http://lxml.de/performance.html">benchmark</a>，了解一下哪种方法更快一些，比如使用xpath查找html节点时，lxml的XPath类比xpath()函数要快好几倍<sup id="fnref:3"><a class="footnote-ref" href="#fn:3" rel="footnote">3</a></sup>。</p>
+<p>另外，Python的多线程处理计算密集型(CPU Bound)任务是一个众所周知的大坑，比如多线程解析html文件。这时最好用多进程分别做解析任务，然后将解析好的文件收集起来。</p>
+<p>前面说过indexer比较慢，一般建立索引的时候，速度瓶颈就在indexer上。因此解析好的文件通常要缓存起来，比如缓存在内存里。然而内存是紧俏资源，必须限量节约使用。</p>
+<p>关于内存的限量使用，在实现时可以为缓存设定一个阀值，缓存满了就先暂停所有的文件扫描和解析进程，等缓存快没了的时候再继续，在Linux上使用SIGSTOP和SIGCONT信号可以很容易就实现这一功能。相比之下，如何准确的获取缓存对象所占用的内存大小倒是比较困难，折中的办法是统计整个进程的内存占用或是<a href="http://stackoverflow.com/questions/563840/how-can-i-check-the-memory-usage-of-objects-in-ipython/565382#565382">间接的方法</a>，或者干脆通过限制缓存对象的数目来做限制（这个比较弱智的感觉）。</p>
+<p>关于内存的节约使用，大家都知道一般的Python对象都会自动创建一个<a href="https://docs.python.org/2/library/stdtypes.html#object.__dict__">__dict__</a>属性来存储其他的属性，然而不太广为人知的是，Python的内置类型dict是一个内存大户，当Python对象少的时候可能很难发现，如果在内存里存储十万或一百万个Python对象时，用Memory
+Profiler（比如<a href="http://guppy-pe.sourceforge.net/#Heapy">Heapy</a>）做下profiling你会发现，光是<code>__dict__</code>本身（不包括存在<code>__dict__</code>里的数据）就能吃掉你巨量的内存。</p>
+<p>通过设置类属性<a href="https://docs.python.org/release/2.5.2/ref/slots.html">__slots__</a>可以禁止<code>__dict__</code>属性的自动创建，其中一个成功故事在<a href="http://tech.oyster.com/save-ram-with-python-slots/">这里</a>，这个哥们通过<code>__slots__</code>节约了9G内存。需要说明的是，<code>__slots__</code>会带来一些<a href="http://stackoverflow.com/questions/472000/python-slots">负面作用</a>，比较明显的一个是，使用version
+0版本的pickle协议序列化定义了<code>__slots__</code>属性的对象会有报错，但使用更高级别的pickle协议则没问题<sup id="fnref:4"><a class="footnote-ref" href="#fn:4" rel="footnote">4</a></sup>（一般很少用到cPickle的<a href="https://docs.python.org/2.7/library/pickle.html#data-stream-format">protocol version 0</a>，因为又慢又占空间)。</p>
+<p>另外缓存所使用的数据结构也比较重要，直接用Python的内置类型list肯定不行，因为缓存应该是一个FIFO的队列，而<code>del(list[0])</code>操作是O(n)的复杂度<sup id="fnref:5"><a class="footnote-ref" href="#fn:5" rel="footnote">5</a></sup>，用collections.deque比较合适。</p>
+<h2 id="0307a3fd172b3739b3c312b426d3d4ac">资源和参考资料</h2>
+<ol>
+<li><a href="http://sphinxsearch.com/docs/archives/2.0.1/">Sphinx 2.0.1 Documentation</a></li>
+<li><a href="http://team.91town.com/2011/05/coreseek%E4%B8%8E%E7%AC%AC%E5%9B%9B%E5%9F%8E%E6%90%9C%E7%B4%A2/">Coreseek与第四城搜索</a>，有很多性能相关的测试，很详尽。</li>
+</ol>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Sphinx indexer program configuration options, <a href="http://sphinxsearch.com/docs/archives/2.0.1/conf-mem-limit.html">mem_limit</a>，引用于2014-04-17。&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="http://en.wikipedia.org/wiki/Sphinx_(search_engine)#Performance_and_scalability">Wikipedia:Sphinx</a>，引用于2014-04-17。&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>lxml benchmarks and speed, <a href="http://lxml.de/performance.html#xpath">xpath</a>，引用于2014-04-18。&#160;<a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="http://stackoverflow.com/questions/3522765/python-pickling-slots-error">python pickling slots error</a>，引用于2014-04-18。&#160;<a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://wiki.python.org/moin/TimeComplexity">Python Time Complexity</a>，引用于2014-04-18。&#160;<a class="footnote-backref" href="#fnref:5" rev="footnote" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2014-04-10 20:09</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-04-18 16:01</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/sou-suo-yin-qing.html">搜索引擎</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/zong-jie.html">总结</a><sup>13</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Sphinx/Coreseek搭建全文搜索引擎二三事</a></li>
+            <li><a href='#29c80db55a999c5cd732e46e0c6650c6'>开发环境</a></li><li><a href='#4afdb7df03bb281cc63ab7bfc30a7403'>Sphinx/Coreseek简介</a></li><li><a href='#6334257e417ff218d6399cc8168e53df'>Sphinx/Coreseek安装</a><ol><li><a href='#d081bf71f6724b49c0c1a17fe1c81122'>安装mmseg-3.2.14</a></li><li><a href='#776de02149d0f2feec873dfaf5d57c92'>安装libiconv-1.14</a></li><li><a href='#0315abb694b3c20d0437b92ce05a2706'>安装csft-4.1</a></li><li><a href='#220d59a488766e0198f4ce6119e6f5df'>安装辅助工具</a></li></ol></li><li><a href='#f52aa5bc3f77e48efe37a5971ed541ef'>Sphinx/Coreseek目录结构</a></li><li><a href='#7f336b9406b58dd8901674a146e93a99'>Sphinx/Coreseek配置</a><ol><li><a href='#f9e765f52e12807fbd858ce94988665a'>searchd</a></li><li><a href='#f45405398724f84de51df1f6c3cfa852'>indexer</a></li><li><a href='#ecf3f3908d70c90cf34892e4f1d39e38'>数据源和索引配置</a></li></ol></li><li><a href='#c11322c9cc43ce3c004cf03f5ac0acd0'>数据源</a><ol><li><a href='#696fea72c1ff31f7bffe5ff3627c9b55'>Python数据源</a></li><li><a href='#08caf24d2adf7c4ad11297b889355fb7'>Xmlpipe2数据源</a></li></ol></li><li><a href='#4c4c472130611891d3174ce7166e7159'>建立索引</a><ol><li><a href='#be5690783b8a141f5b40aa698e97a9cd'>自定义中文词库</a></li></ol></li><li><a href='#bee912d79eefb7335988c4997aa9138d'>查询</a><ol><li><a href='#a760b4ca118bf868f0fa8badad7a4e29'>SphinxAPI</a></li><li><a href='#6ac23085ea41f5410c39295ba7b65d8a'>SphinxQL</a></li></ol></li><li><a href='#0a3168ec9adb92136b230a8aef26e195'>实际应用</a><ol><li><a href='#dcb8ee94be150f19b518ddee0953d426'>项目简介</a></li><li><a href='#808267253cd4c75f0a4afec7bce40a80'>设计考量</a><ol><li><a href='#b271e427962758c71e342a2c06df493a'>索引</a></li><li><a href='#0e82895b9f8fd648e812cb35dc4748b8'>Python相关</a></li></ol></li></ol></li><li><a href='#0307a3fd172b3739b3c312b426d3d4ac'>资源和参考资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

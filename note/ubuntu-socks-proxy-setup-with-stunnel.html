@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用dante-server和stunnel搭建socks代理服务器 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/ubuntu-socks-proxy-setup-with-stunnel.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">使用dante-server和stunnel搭建socks代理服务器</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>总结在Ubuntu上使用Dante和Stunnel搭建socks代理服务器的过程，以供日后查询。</p>
+<p>dante-server是一个免费的socks代理服务器，stunnel可以对tcp连接进行ssl加密，相关程序的版本为</p>
+<ul>
+<li>Ubuntu: 12.04 x86_64</li>
+<li>dante-server: v1.1.19</li>
+<li>stunnel: 4.42</li>
+</ul>
+<h2 id="7d12605a98cf2d9746e79f9abda1f4f9">安装和配置dante-server</h2>
+<h3 id="56ad2f29762cff498a288883a200ebba">安装dante-server</h3>
+<div class="codehilite"><pre>apt-get install dante-server
+</pre></div>
+
+
+<h3 id="48cdd0965b3b8fa7c9b04c851cb2a3d6">配置dante-server</h3>
+<p>dante-server的默认配置文件为<code>/etc/danted.conf</code>，配置说明</p>
+<ol>
+<li>仅在本地(localhost)监听1999端口，端口可任意选（注意使用netstat -nap | grep 1999查看端口是否被占用)。</li>
+<li>不写日志文件(dante-server会写超多日志）。</li>
+<li>method设置为none表示没有登录验证。</li>
+</ol>
+<p>完整的配置文件如下</p>
+<div class="codehilite"><pre>#logoutput: /var/log/danted.log
+logoutput: stderr
+# listen locally
+internal: 127.0.0.1 port = 1999
+#internal: eth0 port = 1999
+external: eth0
+
+method: none
+
+user.privileged: proxy
+user.notprivileged: nobody
+user.libwrap: nobody
+
+connecttimeout: 30
+iotimeout: 86400
+
+client pass {
+    from: 192.168.0.0/0 port 1-65535 to: 0.0.0.0/0
+}
+
+client pass {
+    from: 127.0.0.0/8 port 1-65535 to: 0.0.0.0/0
+}
+
+client block {
+    from: 0.0.0.0/0 to: 0.0.0.0/0
+    log: connect error
+}
+
+block {
+    from: 0.0.0.0/0 to: 127.0.0.0/8
+    log: connect error
+}
+
+pass {
+    from: 192.168.0.0/0 to: 0.0.0.0/0
+    protocol: tcp udp
+}
+
+pass {
+    from: 127.0.0.0/8 to: 0.0.0.0/0
+    protocol: tcp udp
+}
+
+block {
+    from: 0.0.0.0/0 to: 0.0.0.0/0
+    log: connect error
+}
+</pre></div>
+
+
+<p>配置完毕后重启dante-server</p>
+<div class="codehilite"><pre>service danted restart
+</pre></div>
+
+
+<h3 id="b4ca197b25a2bae008ce9d269cae28b7">使用freeradius进行登录验证</h3>
+<p>未完成</p>
+<h3 id="861c87d40177ef00d5f66566d1d619a6">dante-server查错</h3>
+<p>关闭dante-server服务</p>
+<div class="codehilite"><pre>service danted stop
+</pre></div>
+
+
+<p>非daemon模式运行，并打开debug输出</p>
+<div class="codehilite"><pre>danted -d -f /etc/danted.conf
+</pre></div>
+
+
+<h2 id="61f16abb3b7781a1a1f4d6f8ec5196cb">安装和配置stunnel</h2>
+<h3 id="4a02a37873d0daaf5f64a846b52bd1b7">安装stunnel</h3>
+<div class="codehilite"><pre>apt-get install stunnel
+</pre></div>
+
+
+<h3 id="3df421c173b16780c9ec39c2547988ec">配置stunnel服务器</h3>
+<p>stunnel4的配置文件默认位于<code>/etc/stunnel</code>目录内，配置文件的例子在<code>/usr/share/doc/stunnel4/examples</code>目录。</p>
+<p>首先，将<code>/etc/default/stunnel4</code>的ENABLED改为1，以启用stunnel服务。</p>
+<p>然后创建stunnel的服务器证书</p>
+<div class="codehilite"><pre>cd /etc/stunnel
+mkdir certs &amp;&amp; cd certs
+openssl req -new -x509 -days 3650 -nodes -config /usr/share/doc/stunnel4/examples/stunnel.cnf -out stunnel.pem -keyout stunnel.pem
+</pre></div>
+
+
+<p>接下来创建stunnel配置文件<code>/etc/stunnel/stunnel.conf</code>，配置说明</p>
+<ol>
+<li>日志位于/var/lib/stunnel4/stunnel4.log，默认日志级别为debug(7)，下面的配置里修改为warning(4)。</li>
+<li>证书和key都为上面创建的stunnel.pem。</li>
+<li>最后的danted服务配置，stunnel将在1998端口监听dante-server的连接请求，并转发到dante-server的监听端口1999。</li>
+</ol>
+<p>完整的配置文件如下</p>
+<div class="codehilite"><pre><span class="na">chroot</span> <span class="o">=</span> <span class="s">/var/lib/stunnel4/</span>
+<span class="c1">; Chroot jail can be escaped if setuid option is not used</span>
+<span class="na">setuid</span> <span class="o">=</span> <span class="s">stunnel4</span>
+<span class="na">setgid</span> <span class="o">=</span> <span class="s">stunnel4</span>
+
+<span class="c1">; PID is created inside the chroot jail</span>
+<span class="na">pid</span> <span class="o">=</span> <span class="s">/stunnel4.pid</span>
+
+<span class="c1">; Debugging stuff (may useful for troubleshooting)</span>
+<span class="c1">; log level is waring(4), debug log level is 7</span>
+<span class="na">debug</span> <span class="o">=</span> <span class="s">4 </span>
+<span class="na">output</span> <span class="o">=</span> <span class="s">/stunnel.log</span>
+
+<span class="na">CAfile</span> <span class="o">=</span> <span class="s">/etc/stunnel/certs/stunnel.pem</span>
+<span class="na">cert</span> <span class="o">=</span> <span class="s">/etc/stunnel/certs/stunnel.pem</span>
+<span class="na">verify</span> <span class="o">=</span> <span class="s">2</span>
+
+<span class="c1">; Disable support for insecure SSLv2 protocol</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">NO_SSLv2</span>
+
+<span class="c1">; The following options provide additional security at some performance penalty</span>
+<span class="c1">; Default ECDH/DH parameters are strong/conservative, so it is quite safe to</span>
+<span class="c1">; comment out these lines in order to get a performance boost</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">SINGLE_ECDH_USE</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">SINGLE_DH_USE</span>
+
+<span class="na">client</span> <span class="o">=</span> <span class="s">no</span>
+
+<span class="k">[danted]</span>
+<span class="na">accept</span> <span class="o">=</span> <span class="s">1998</span>
+<span class="na">connect</span> <span class="o">=</span> <span class="s">127.0.0.1:1999</span>
+</pre></div>
+
+
+<p>最后，重启stunnel服务</p>
+<div class="codehilite"><pre>service stunnel4 restart
+</pre></div>
+
+
+<h3 id="c42cd9bb4375901406bcc5e89deb6e8c">配置stunnel客户端</h3>
+<p>在你的客户端机器上安装stunnel，并将<code>/etc/default/stunnel4</code>的ENABLED改为1。</p>
+<p>然后将服务器端生成的stunnel.pem拷贝到客户端系统，假设放在<code>/etc/stunnel/stunnel.pem</code>。</p>
+<p>接下来创建配置文件<code>/etc/stunnel/stunnel.conf</code>，配置说明</p>
+<ol>
+<li>客户端配置文件与服务端基本类似(日志配置等)，注意将client设置为yes。</li>
+<li>最后的danted服务配置，stunnel将在本地的1997端口监听dante-server的socks连接请求，并发送到服务端stunnel监听的1998端口（见服务端配置）。注意将配置中的YOUR_SERVER改为你的服务器域名或IP。</li>
+</ol>
+<p>完整的配置文件如下</p>
+<div class="codehilite"><pre><span class="na">chroot</span> <span class="o">=</span> <span class="s">/var/lib/stunnel4/</span>
+<span class="na">setuid</span> <span class="o">=</span> <span class="s">stunnel4</span>
+<span class="na">setgid</span> <span class="o">=</span> <span class="s">stunnel4</span>
+
+<span class="c1">; actually /var/lib/stunnel4/stunnel4.pid</span>
+<span class="na">pid</span> <span class="o">=</span> <span class="s">/stunnel4.pid</span>
+
+<span class="na">verify</span> <span class="o">=</span> <span class="s">2</span>
+
+<span class="c1">; Debugging stuff (may useful for troubleshooting)</span>
+<span class="c1">; warning level 4, debug is level 7</span>
+<span class="na">debug</span> <span class="o">=</span> <span class="s">4 </span>
+<span class="na">output</span> <span class="o">=</span> <span class="s">/stunnel.log</span>
+
+<span class="c1">; Disable support for insecure SSLv2 protocol</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">NO_SSLv2</span>
+
+<span class="c1">; The following options provide additional security at some performance penalty</span>
+<span class="c1">; Default ECDH/DH parameters are strong/conservative, so it is quite safe to</span>
+<span class="c1">; comment out these lines in order to get a performance boost</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">SINGLE_ECDH_USE</span>
+<span class="na">options</span> <span class="o">=</span> <span class="s">SINGLE_DH_USE</span>
+
+<span class="na">cert</span> <span class="o">=</span> <span class="s">/etc/stunnel/stunnel.pem</span>
+<span class="na">CAfile</span> <span class="o">=</span> <span class="s">/etc/stunnel/stunnel.pem</span>
+<span class="na">client</span> <span class="o">=</span> <span class="s">yes</span>
+
+<span class="k">[danted]</span>
+<span class="na">accept</span> <span class="o">=</span> <span class="s">127.0.0.1:1997</span>
+<span class="na">connect</span> <span class="o">=</span> <span class="s">YOUR_SERVER:1998</span>
+</pre></div>
+
+
+<p>最后重启客户端stunnel服务</p>
+<div class="codehilite"><pre>service stunnel4 restart
+</pre></div>
+
+
+<h2 id="8f83ca1010b39a01c6a0db6076c95154">使用socks5代理</h2>
+<p>按照上文的相关配置，将浏览器的socks5代理项设置为localhost:1997即可使用。</p>
+<h2 id="89d768a46a018e147672311bd3ec52d9">查错</h2>
+<p>遇到问题先检查程序日志，如有需要可修改配置文件的日志输出级别。 根据日志的相关错误输出，先在程序官网的faq页面检索。</p>
+<ul>
+<li><a href="http://www.inet.no/dante/doc/faq.html" title="http://www.inet.no/dante/doc/faq.html">dante-server faq</a></li>
+<li><a href="http://www.stunnel.org/faq.html" title="http://www.stunnel.org/faq.html">stunnel faq</a></li>
+</ul>
+<p>如果不能找到解决方案，再查看相关文档和google即可。</p>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ol>
+<li><a href="https://wido.me/sunteya/setup-a-socks-proxy-server-pass-by-secure-firewall/" title="https://wido.me/sunteya/setup-a-socks-proxy-server-pass-by-secure-firewall/">通过 stunnel 搭建安全高性能的 sockts 代理服务器</a></li>
+<li><a href="https://www.digitalocean.com/community/articles/how-to-set-up-an-ssl-tunnel-using-stunnel-on-ubuntu" title="https://www.digitalocean.com/community/articles/how-to-set-up-an-ssl-tunnel-using-stunnel-on-ubuntu">How To Set Up an SSL Tunnel Using Stunnel on Ubuntu</a></li>
+</ol>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-12-04 13:30</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-03-12 15:55</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/note.html">note</a><sup>14</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/proxy.html">proxy</a><sup>2</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/socks5.html">socks5</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/ubuntu.html">ubuntu</a><sup>15</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">使用dante-server和stunnel搭建socks代理服务器</a></li>
+            <li><a href='#7d12605a98cf2d9746e79f9abda1f4f9'>安装和配置dante-server</a><ol><li><a href='#56ad2f29762cff498a288883a200ebba'>安装dante-server</a></li><li><a href='#48cdd0965b3b8fa7c9b04c851cb2a3d6'>配置dante-server</a></li><li><a href='#b4ca197b25a2bae008ce9d269cae28b7'>使用freeradius进行登录验证</a></li><li><a href='#861c87d40177ef00d5f66566d1d619a6'>dante-server查错</a></li></ol></li><li><a href='#61f16abb3b7781a1a1f4d6f8ec5196cb'>安装和配置stunnel</a><ol><li><a href='#4a02a37873d0daaf5f64a846b52bd1b7'>安装stunnel</a></li><li><a href='#3df421c173b16780c9ec39c2547988ec'>配置stunnel服务器</a></li><li><a href='#c42cd9bb4375901406bcc5e89deb6e8c'>配置stunnel客户端</a></li></ol></li><li><a href='#8f83ca1010b39a01c6a0db6076c95154'>使用socks5代理</a></li><li><a href='#89d768a46a018e147672311bd3ec52d9'>查错</a></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

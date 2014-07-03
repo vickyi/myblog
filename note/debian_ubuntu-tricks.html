@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debian/Ubuntu系统小技巧收集 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/debian_ubuntu-tricks.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Debian/Ubuntu系统小技巧收集</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>整理一些Debian/Ubuntu上的小技巧，包括系统管理、系统美化和娱乐等方面。</p>
+<h2 id="4d85ac125077e6d217238d0ff835730b">系统管理</h2>
+<h3 id="f9e11ddf3fd7606485834750593f17a4">彻底关闭pulseaudio服务</h3>
+<p>pulseaudio是一个音乐服务程序，如果想彻底关闭它，可做如下操作。</p>
+<p>首先禁止其开机自启动：</p>
+<div class="codehilite"><pre>update-rc.d pulseaudio disable
+</pre></div>
+
+
+<p>修改配置文件<code>/etc/pulse/client.conf</code>，将下面两行配置取消注释并改为<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>：</p>
+<div class="codehilite"><pre>autospawn = no
+daemon-binary = /bin/true
+</pre></div>
+
+
+<h3 id="f63016525c78816d48cbf1b2dff84f8d">kubuntu的l2tp vpn支持</h3>
+<p>安装l2tp-ipsec-vpn</p>
+<div class="codehilite"><pre><span class="c"># sudo apt-add-repository ppa:werner-jaeger/ppa-werner-vpn</span>
+<span class="c"># sudo apt-get update</span>
+sudo apt-get install l2tp-ipsec-vpn
+</pre></div>
+
+
+<p>重启系统。</p>
+<p><strong>!!!下面的NetworkManager-l2tp会导致系统崩溃，以下内容仅为安装记录，不推荐操作。!!!</strong></p>
+<p>安装软件</p>
+<div class="codehilite"><pre>sudo apt-get install build-essential git intltool ppp-dev libdbus-glib-1-dev libnm-util-dev libnm-glib-dev libnm-glib-vpn-dev libgtk-3-dev libgnome-keyring-dev
+</pre></div>
+
+
+<p>安装NetworkManager-l2tp</p>
+<div class="codehilite"><pre>git clone https://github.com/seriyps/NetworkManager-l2tp
+cd NetworkManager-l2tp
+./autogensh
+make
+make install
+</pre></div>
+
+
+<h3 id="deefe4d9e898be347da58bd861ee5ed6">手动添加locale</h3>
+<p>查看当前已安装的locale</p>
+<div class="codehilite"><pre>locale -a
+</pre></div>
+
+
+<p>在Ubuntu上安装<code>zh_CN.UTF-8</code></p>
+<div class="codehilite"><pre>sudo /usr/share/locales/install-language-pack zh_CN
+</pre></div>
+
+
+<p>然后，修改默认locale</p>
+<div class="codehilite"><pre>sudo cat &gt; /etc/default/locale &lt;&lt; EOF
+LANG=&quot;zh_CN.UTF-8&quot;
+LANGUAGE=&quot;zh_CN&quot;
+
+source /etc/default/locale
+</pre></div>
+
+
+<p>在Debian上安装<code>zh_CN.UTF-8</code><sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup></p>
+<div class="codehilite"><pre>apt-get install debconf
+dpkg-reconfigure locales
+</pre></div>
+
+
+<h3 id="291cbe239673fbb245a6846fecae92b2">设置默认UMASK</h3>
+<p>umask影响新创建的文件的默认权限，详细的介绍可参考<a href="http://www.cyberciti.biz/tips/understanding-linux-unix-umask-value-usage.html">这篇文章</a>。设置系统的默认UMASK，首先在<code>/etc/pam.d/common-session</code>里添加（可能已存在）如下一行</p>
+<div class="codehilite"><pre>session optional pam_umask.so
+</pre></div>
+
+
+<p>然后修改<code>/etc/login.defs</code>的UMASK值即可。如果只需要改某个用户的UMASK，只要在<code>~/.bashrc</code>或<code>~/.profile</code>里加入如下一行，注意将00002改为你想要的UMASK。</p>
+<div class="codehilite"><pre>umask 0002
+</pre></div>
+
+
+<h3 id="db61dfb20328e0ad92b335fb6d5998ab">使用SetGid和umask继承父目录组权限</h3>
+<p>用一个例子说明，首先创建两个临时用户temp和temp2并设置密码。</p>
+<div class="codehilite"><pre>sudo useradd temp
+sudo passwd temp
+
+sudo useradd temp2
+sudo passwd temp2
+</pre></div>
+
+
+<p>创建一个临时组temp-group并将两个临时用户加入临时组里。</p>
+<div class="codehilite"><pre>sudo groupadd temp-group
+sudo usermod -a -G temp-group temp
+sudo usermod -a -G temp-group temp2
+</pre></div>
+
+
+<p>用temp用户创建一个新的文件夹<code>/tmp/test</code></p>
+<div class="codehilite"><pre>cd /tmp
+sudo -u temp mkdir test
+
+ls -ld test
+# drwxr-xr-x 2 temp temp 4096 Nov 10 10:35 test
+</pre></div>
+
+
+<p>将<code>/tmp/test</code>文件夹的组改为temp-group，并为其添加组的写权限</p>
+<div class="codehilite"><pre>sudo chgrp temp-group test
+ls -ld test
+# drwxr-xr-x 2 temp temp-group 4096 Nov 10 10:35 test
+
+sudo chmod g+w test
+ls -ld test
+# drwxrwxr-x 2 temp temp-group 4096 Nov 10 10:35 test
+</pre></div>
+
+
+<p>设置<code>/tmp/test</code>文件夹的SetGid权限</p>
+<div class="codehilite"><pre>sudo chmod g+s test
+ls -ld test
+# drwxrwsr-x 2 temp temp-group 4096 Nov 10 10:35 test
+</pre></div>
+
+
+<p>这样以来，在<code>/tmp/test</code>里用temp-group组的用户创建的文件，都会集成父目录<code>/tmp/test</code>的组。常见的一个用处就是，temp用户创建的文件，temp2用户也可以直接访问和修改。</p>
+<p><code>umask 0002</code>会使新创建文件和文件夹的组用户拥有写权限。</p>
+<div class="codehilite"><pre>cd test
+sudo -u temp bash -c &#39;umask 0002 &amp;&amp; mkdir test-sub-dir&#39;
+sudo -u temp2 bash -c &#39;umask 0002 &amp;&amp; touch test-file&#39;
+
+ls -ld test-dir test-file
+# drwxrwsr-x 2 temp  temp-group 4096 Nov 10 10:45 test-dir
+# -rw-rw-r-- 1 temp2 temp-group    0 Nov 10 10:45 test-file
+</pre></div>
+
+
+<h3 id="146d5ad952c5c40b2b25b535a53000d8">同步系统时间</h3>
+<div class="codehilite"><pre>ntpdate time.nist.gov
+</pre></div>
+
+
+<h3 id="7974a9ccd8ad4e285ff48b076a469206">设置时区</h3>
+<div class="codehilite"><pre>dpkg-reconfigure tzdata
+</pre></div>
+
+
+<p>通常，修改系统时间后，最好重启相关的服务，比如cron和rsyslog等，否则修改不会对其生效。</p>
+<div class="codehilite"><pre>service cron restart
+service rsyslog restart
+</pre></div>
+
+
+<h3 id="31ce2b0825b47ab4d6e0931402e93dfd">crontab默认编辑器</h3>
+<p>在Debian/Ubuntu上，运行<code>crontab -e</code>命令默认使用nano编辑器，如果想使用vim，可在<code>~/.bashrc</code>里加入如下一行:</p>
+<div class="codehilite"><pre>export EDITOR=vi
+</pre></div>
+
+
+<p>然后使用source命令重新载入<code>~/.bashrc</code>即可。</p>
+<div class="codehilite"><pre>source ~/.bashrc
+</pre></div>
+
+
+<h3 id="6b8103c34ede38ed6a714d9084f24987">kubuntu开启和关闭笔记本的触摸板</h3>
+<p>使用如下命令开启或关闭触摸板。</p>
+<div class="codehilite"><pre>synclient touchpadoff=1 # 关闭触摸板
+synclient touchpadoff=0 # 打开触摸板
+syndaemon -i 3 -d       # 打字时关闭触摸板，3秒打字结束后触摸板关闭的时间
+</pre></div>
+
+
+<h3 id="b0581816b19e5a411bfc49c46c81655d">使用chkconfig管理系统服务</h3>
+<p>参考<a href="http://www.aboutlinux.info/2006/04/enabling-and-disabling-services-during_01.html">这篇文章</a>，使用chkconfig可以方便的启用和禁用<code>/etc/rcX.d</code>下的服务，常用的命令有:</p>
+<ul>
+<li>'chkconfig --list' 查看所有服务的启动状态。</li>
+<li>'chkconfig apache2 on --level 2,3,5' 使apache2服务在2,3,5运行级别上自动启动。</li>
+<li>'chkconfig apache2 --add' 添加apache2服务。</li>
+<li><code>chkconfig apache2 off</code> 在所有运行级别上禁止apache2服务自启动。</li>
+</ul>
+<p>Linux系统运行级别简介:</p>
+<ul>
+<li>0 开机</li>
+<li>1 单人 文字界面</li>
+<li>2 多人 无网络功能</li>
+<li>3 多人 文字界面</li>
+<li>4 保留</li>
+<li>5 多人 图形界面</li>
+<li>6 重启</li>
+</ul>
+<p>使用<code>runlevel</code>查看当前运行级别。</p>
+<h3 id="81b946c715e023cc04458d7aeae15546">ssh配置</h3>
+<p>详细内容可参考<code>man ssh_config</code></p>
+<h4 id="1c4c5c9c483c92c17adf9121ba068bd6">管理多个ssh key文件</h4>
+<p>生成key:</p>
+<div class="codehilite"><pre>ssh-keygen -t rsa -f ~/.ssh/id_rsa.home -C &quot;home key&quot;
+ssh-keygen -t rsa -f ~/.ssh/id_rsa.work -C &quot;work key&quot;
+</pre></div>
+
+
+<p>修改~/.ssh/config，管理key:</p>
+<div class="codehilite"><pre>Host home
+Hostname home.example.com
+IdentityFile ~/.ssh/id_rsa.home
+User `&lt;your home account&gt;`
+
+Host work
+Hostname work.example.com
+IdentityFile ~/.ssh/id_rsa.work
+User `&lt;your work account&gt;`
+</pre></div>
+
+
+<h4 id="dc8af7794e6857e1d6d6ff6ec3ddb7c5">定义ssh端口号</h4>
+<p>如果sshd监听的端口不是默认的22，则可在<code>~/.ssh/config</code>里如下设置</p>
+<div class="codehilite"><pre>Host atime.me
+IdentityFile ~/.ssh/id_rsa.atime_me
+Port 12345
+</pre></div>
+
+
+<h3 id="28e445cd021ddd6fc86533af76882af5">为不同的用户使用单独的sshd配置</h3>
+<p>在<code>/etc/ssh/sshd_config</code>文件中，使用Match块可以为某些用户启用单独的配置，这些配置将覆盖全局配置，详情可参考<code>man sshd_config</code>.</p>
+<h3 id="a9fdddebe057905ddb5f79156808dd09">为debian启用单独的Cron日志</h3>
+<p>Debian上cron的日志默认和其他系统日志记录在一起，查看起来十分不方便，参考<a href="http://pc-freak.net/blog/enable-rsyslog-and-syslog-cron-events-logging-in-varlogcron-log-on-debian-lenny/">这篇文章</a>，为debian6的cron启用单独的日志。</p>
+<ol>
+<li>
+<p>修改配置文件/etc/rsyslog.conf，</p>
+<p>去掉<code>#cron.* /var/log/cron.log</code>这一行的注释符<code>#</code>。将<code>*.*;auth,authpriv.none -/var/log/syslog</code>改为<code>*.*;auth,authpriv.none,cron.none  -/var/log/syslog</code>，如下</p>
+<div class="codehilite"><pre>*.*;auth,authpriv.none,cron.none  -/var/log/syslog
+cron.* /var/log/cron.log
+</pre></div>
+
+
+</li>
+<li>
+<p>重启rsyslogd</p>
+<div class="codehilite"><pre>service rsyslog restart
+</pre></div>
+
+
+</li>
+</ol>
+<h3 id="17ce4f73e8918582a1af9434b23e6ea7">自动挂载windows分区</h3>
+<p>对于ntfs分区，安装如下的软件包，并运行<code>ntfs-config</code>配置挂载点。</p>
+<div class="codehilite"><pre>sudo apt-get install ntfs-config ntfs-3g
+</pre></div>
+
+
+<p>对于fat32分区，可参考<a href="https://help.ubuntu.com/community/MountingWindowsPartitions#FAT32">Mounting Windows Partitions</a>。</p>
+<h3 id="3f08a3770d60022e22f09e0c0442059e">修改系统的时区</h3>
+<div class="codehilite"><pre>tzselect
+</pre></div>
+
+
+<p>或</p>
+<div class="codehilite"><pre>dpkg-reconfigure tzdata
+</pre></div>
+
+
+<h3 id="bcde3c3248e4aaec232ef62155281cd1">生成ssh key</h3>
+<div class="codehilite"><pre>ssh-keygen -t rsa -C &quot;wilbur.ma@hotmail.com&quot;
+</pre></div>
+
+
+<h3 id="d8b441c32edb7a5bc614de30b86f7a11">nohup and screen</h3>
+<p>nohup帮助程序在后台运行，即使终端关闭也不会有影响。</p>
+<div class="codehilite"><pre>nohup ./test.sh &amp;
+</pre></div>
+
+
+<p>标准输出会被写入nohup.out，如果当前目录无法正常写入，会写在<code>~/nohup.out</code>。</p>
+<p>当使用远程连接(ssh)进行系统升级时，screen很有用，即便期间连接断开，也不会影响升级过程，重新连接后还可以方便的恢复到之前的会话。可参考<a href="/tips/build_linux_host#开始升级">这里</a>。</p>
+<h3 id="352ea70fcc282e96307388a1f4473b9c">编译po文件</h3>
+<p>编译gettext的po文件需要安装<code>translate-toolkit</code>工具，安装好后运行如下命令即可。</p>
+<div class="codehilite"><pre>pocompile zh_CN.po -o zh_CN.mo
+</pre></div>
+
+
+<p>或使用msgfmt</p>
+<div class="codehilite"><pre>msgfmt -cvo zh_CN.mo zh_CN.po
+</pre></div>
+
+
+<h2 id="ba311d8a6a1386ac811b1caa28ef029d">脚本</h2>
+<h3 id="94b8d3f919141b9ee804bfd0ddf59bf9">获取bash脚本的所在目录</h3>
+<div class="codehilite"><pre><span class="c">#!/bin/bash</span>
+<span class="nv">SCRIPT_DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;$0&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
+</pre></div>
+
+
+<h2 id="db07fab43795965f39e7cb7ce7cfc2f2">系统美化</h2>
+<h3 id="97b0e057471eee3c1c54716aae59c2bc">VLC中文字幕乱码</h3>
+<p>修改两项配置:</p>
+<ol>
+<li>视频&gt;字幕／OSD&gt;文本渲染器&gt;字体 选择一个中文字体。</li>
+<li>输入／编码解码器&gt;字幕编解码器&gt;字幕文本编码 选择GB18030，然后去掉"UTF－8字幕"和"格式化字幕"前面的勾。</li>
+</ol>
+<h3 id="8456bc40d48da5af833f1c63385e9879">字体</h3>
+<p>可以考虑使用微软雅黑字体C:\Windows\Fonts\msyh.ttf和C:\Windows\Fonts\msyhbd.ttf，效果会好很多。</p>
+<h3 id="7e515088efa29618cb9a72c0aad43cf9">ibus输入法</h3>
+<div class="codehilite"><pre>sudo apt-get install ibus gnome-icon-theme
+</pre></div>
+
+
+<p>如果安装ibus后，无法显示系统托盘图标和候选词框，安装gnome-icon-theme即可。如果安装后依然有问题，可执行如下命令。</p>
+<div class="codehilite"><pre>ibus-daemon -x -r -d
+</pre></div>
+
+
+<p>设置ibus-pinyin的候选词个数:</p>
+<p>/usr/lib/ibus-pinyin/ibus-setup-pinyin</p>
+<h2 id="9acf9c6f117a4c2d02de30294ec29da9">娱乐</h2>
+<h3 id="764e04a9825ec3674b31dd031e51e8e5">1. MP3标签中文乱码</h3>
+<p>尚需完善</p>
+<h4 id="5c37f80125a0f733f925c9c2a8ee5c78">a) 图形界面转码工具</h4>
+<p>easytag</p>
+<h4 id="43e8ff51f96af3466b3b5956e03b3b86">b) mutagen</h4>
+<div class="codehilite"><pre>sudo apt-get install convmv iconv python-mutagen
+find . -iname &quot;*.mp3&quot; -execdir mid3iconv -e GBK {} \;
+</pre></div>
+
+
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-cn-nohup/">Linux 技巧：让进程在后台可靠运行的几种方法</a></li>
+<li><a href="http://pc-freak.net/blog/enable-rsyslog-and-syslog-cron-events-logging-in-varlogcron-log-on-debian-lenny/">Enable Rsyslog and Syslog cron events logging in /var/log/cron.log on Debian Lenny</a></li>
+<li><a href="http://www.einit.com/user1/11/archives/2006/3603.html">用nohup命令让Linux下程序永远在后台执行</a></li>
+<li><a href="http://wiki.ubuntu.org.cn/解决文件名mp3标签和文本文件内容的乱码问题">解决文件名mp3标签和文本文件内容的乱码问题</a></li>
+<li><a href="http://forum.ubuntu.org.cn/viewtopic.php?f=80&amp;t=373310">kubuntu 12.04 (KDE) ibus 图标及选词框不出现、firefox不支持的解决方法</a></li>
+<li><a href="http://forum.ubuntu.org.cn/viewtopic.php?t=201887">简单方法解决VLC中文字幕乱码</a></li>
+<li><a href="http://serverfault.com/questions/221760/multiple-public-keys-for-one-user">Multiple public keys for one user</a></li>
+<li><a href="http://www.aboutlinux.info/2006/04/enabling-and-disabling-services-during_01.html">Enabling and disabling services during start up in GNU/Linux</a></li>
+<li><a href="http://wiki.ubuntu.org.cn/%E8%A7%A6%E6%91%B8%E6%9D%BF">触摸板</a> from ubuntu wiki cn</li>
+<li><a href="https://help.ubuntu.com/community/MountingWindowsPartitions">Mounting Windows Partitions</a></li>
+<li><a href="http://stackoverflow.com/questions/10220531/how-to-set-system-wide-umask">How to set system wide umask?</a></li>
+<li><a href="http://www.cyberciti.biz/tips/understanding-linux-unix-umask-value-usage.html">What is Umask and How To Setup Default umask Under Linux?</a></li>
+<li><a href="http://gsienkiewicz.wordpress.com/2013/04/05/configure-inherit-group-ownership-on-linux-folder/">Configure inherit group ownership on Linux folder</a></li>
+</ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>配置文件修改参考了<a href="http://www.linuxplanet.com/linuxplanet/tutorials/7130/2">Ubuntu Tip: Turning PulseAudio On and Off</a>，引用于2014-03-20。&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>参考<a href="https://wiki.debian.org/Locale#Standard">Debian Wiki: Locale</a>，引用于2014-03-12。&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-03-20 14:07</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/debian.html">debian</a><sup>8</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/ubuntu.html">ubuntu</a><sup>15</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/trick.html">trick</a><sup>6</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Debian/Ubuntu系统小技巧收集</a></li>
+            <li><a href='#4d85ac125077e6d217238d0ff835730b'>系统管理</a><ol><li><a href='#f9e11ddf3fd7606485834750593f17a4'>彻底关闭pulseaudio服务</a></li><li><a href='#f63016525c78816d48cbf1b2dff84f8d'>kubuntu的l2tp vpn支持</a></li><li><a href='#deefe4d9e898be347da58bd861ee5ed6'>手动添加locale</a></li><li><a href='#291cbe239673fbb245a6846fecae92b2'>设置默认UMASK</a></li><li><a href='#db61dfb20328e0ad92b335fb6d5998ab'>使用SetGid和umask继承父目录组权限</a></li><li><a href='#146d5ad952c5c40b2b25b535a53000d8'>同步系统时间</a></li><li><a href='#7974a9ccd8ad4e285ff48b076a469206'>设置时区</a></li><li><a href='#31ce2b0825b47ab4d6e0931402e93dfd'>crontab默认编辑器</a></li><li><a href='#6b8103c34ede38ed6a714d9084f24987'>kubuntu开启和关闭笔记本的触摸板</a></li><li><a href='#b0581816b19e5a411bfc49c46c81655d'>使用chkconfig管理系统服务</a></li><li><a href='#81b946c715e023cc04458d7aeae15546'>ssh配置</a><ol><li><a href='#1c4c5c9c483c92c17adf9121ba068bd6'>管理多个ssh key文件</a></li><li><a href='#dc8af7794e6857e1d6d6ff6ec3ddb7c5'>定义ssh端口号</a></li></ol></li><li><a href='#28e445cd021ddd6fc86533af76882af5'>为不同的用户使用单独的sshd配置</a></li><li><a href='#a9fdddebe057905ddb5f79156808dd09'>为debian启用单独的Cron日志</a></li><li><a href='#17ce4f73e8918582a1af9434b23e6ea7'>自动挂载windows分区</a></li><li><a href='#3f08a3770d60022e22f09e0c0442059e'>修改系统的时区</a></li><li><a href='#bcde3c3248e4aaec232ef62155281cd1'>生成ssh key</a></li><li><a href='#d8b441c32edb7a5bc614de30b86f7a11'>nohup and screen</a></li><li><a href='#352ea70fcc282e96307388a1f4473b9c'>编译po文件</a></li></ol></li><li><a href='#ba311d8a6a1386ac811b1caa28ef029d'>脚本</a><ol><li><a href='#94b8d3f919141b9ee804bfd0ddf59bf9'>获取bash脚本的所在目录</a></li></ol></li><li><a href='#db07fab43795965f39e7cb7ce7cfc2f2'>系统美化</a><ol><li><a href='#97b0e057471eee3c1c54716aae59c2bc'>VLC中文字幕乱码</a></li><li><a href='#8456bc40d48da5af833f1c63385e9879'>字体</a></li><li><a href='#7e515088efa29618cb9a72c0aad43cf9'>ibus输入法</a></li></ol></li><li><a href='#9acf9c6f117a4c2d02de30294ec29da9'>娱乐</a><ol><li><a href='#764e04a9825ec3674b31dd031e51e8e5'>1. MP3标签中文乱码</a><ol><li><a href='#5c37f80125a0f733f925c9c2a8ee5c78'>a) 图形界面转码工具</a></li><li><a href='#43e8ff51f96af3466b3b5956e03b3b86'>b) mutagen</a></li></ol></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

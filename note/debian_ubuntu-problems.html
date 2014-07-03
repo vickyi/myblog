@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debian/Ubuntu常见问题及解决方法整理 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/debian_ubuntu-problems.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Debian/Ubuntu常见问题及解决方法整理</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>记录使用Debian/Ubuntu时遇到的问题及其解决方法。</p>
+<h2 id="eb3b4b90b9921031aedcfe9ce9c56bbb">网络问题</h2>
+<h3 id="97d205888f956cc597c762fa48988112">ping: connect: network is unreachable</h3>
+<p>使用<code>service networking restart</code>后无法联网，运行<code>ifconfig</code>后发现没有eth0，这时需要手动配置eth0接口，注意将$IP_ADDRESS, $MASK和$GATE_WAY改为你的IP地址、子网掩码和网关地址:</p>
+<div class="codehilite"><pre>ifconfig eth0 $IP_ADDRESS netmask $MASK
+route add default gw $GATE_WAY
+</pre></div>
+
+
+<h2 id="d61d7ca2c01e3ecd0f83d3998e35f504">Kubuntu常见问题合集</h2>
+<h3 id="141661e18bb0d73c47803982d5d9c9f4">fcitx无法在konsole和kate中使用</h3>
+<p>安装qt4-qtconfig，并在qtconfig的<code>界面</code>选项卡中选择<code>fcitx</code>为默认输入法，保存后退出。然后重启konsole或kate即可。</p>
+<h3 id="192001e6d7791e4a11cb3485d512b546">ssh连接慢</h3>
+<p>编辑<code>/etc/ssh/ssh_config</code>文件，注释掉如下的两行配置：</p>
+<div class="codehilite"><pre>#GSSAPIAuthentication yes
+#GSSAPIDelegateCredentials no
+</pre></div>
+
+
+<p>关于GSSAPI Authentication，可参考<a href="http://www.slac.stanford.edu/comp/unix/sshGSSAPI.html">Using GSSAPI authentication at SLAC</a>。</p>
+<h2 id="4d85ac125077e6d217238d0ff835730b">系统管理</h2>
+<h3 id="157f8733075caeb56d10d39705b46b7b">fcitx无法使用</h3>
+<p>在Chrome和Firefox中，fcitx无法使用。运行<code>fctix-diagnose</code>根据提示在<code>~/.xprofile</code>里设置如下变量。</p>
+<div class="codehilite"><pre>export QT_IM_MODULE=fcitx
+export GTK_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+</pre></div>
+
+
+<p>如果使用kdm，还需要创建文件<code>/etc/X11/Xsession.d/93fcitx</code>:</p>
+<div class="codehilite"><pre>!#/bin/bash
+
+export QT_IM_MODULE=fcitx
+export GTK_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+</pre></div>
+
+
+<p>最后重启系统即可。</p>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://blog.csdn.net/xuyaqun/article/details/6283829">connect: network is unreachable的解决</a></li>
+<li><a href="http://magic282.me/2012/09/fix-the-problem-that-fcitx-cannot-input-the-qt-programs-such-as-konsole-and-kate/">fcitx在konsole和kate等程序中无法使用的解决办法</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2013-11-30 12:04</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/debian.html">debian</a><sup>8</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/ubuntu.html">ubuntu</a><sup>15</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/problem.html">problem</a><sup>6</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Debian/Ubuntu常见问题及解决方法整理</a></li>
+            <li><a href='#eb3b4b90b9921031aedcfe9ce9c56bbb'>网络问题</a><ol><li><a href='#97d205888f956cc597c762fa48988112'>ping: connect: network is unreachable</a></li></ol></li><li><a href='#d61d7ca2c01e3ecd0f83d3998e35f504'>Kubuntu常见问题合集</a><ol><li><a href='#141661e18bb0d73c47803982d5d9c9f4'>fcitx无法在konsole和kate中使用</a></li><li><a href='#192001e6d7791e4a11cb3485d512b546'>ssh连接慢</a></li></ol></li><li><a href='#4d85ac125077e6d217238d0ff835730b'>系统管理</a><ol><li><a href='#157f8733075caeb56d10d39705b46b7b'>fcitx无法使用</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

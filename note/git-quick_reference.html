@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git快速使用指南 - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/git-quick_reference.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">Git快速使用指南</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>阅读“<a href="http://git-scm.com/book">Pro Git</a>“后写的笔记，当做速查手册(quick git reference)来用，以供日常查阅。常见的git错误和解决方案可参考<a href="/note/git-problems.html">git问题整理</a>，更多内容可参考<a href="/note/git-advanced_tutorial.html">这里</a>。</p>
+<p>使用git的时候，不管出现什么问题，只要修改被commit了，你所要做的就是:</p>
+<p><img alt="Keep calm and use git reflog" width="200px" src="/static/images/note/keep-calm-and-use-git-reflog.png"></p>
+<p>(图片取自<a href="http://www.keepcalm-o-matic.co.uk/p/keep-calm-and-use-git-reflog/">
+KEEP CALM AND USE GIT REFLOG</a>)</p>
+<h2 id="7b068b8c7627412da04087f44b1b5efb">特殊符号</h2>
+<p>详细内容可参考gitglossary的man页。</p>
+<div class="codehilite"><pre>man 7 gitglossary
+</pre></div>
+
+
+<p>或直接查看<a href="http://linux.die.net/man/7/gitglossary">这里</a>。</p>
+<div class="codehilite"><pre>HEAD      # the commit at the tip of a branch
+HEAD^     # first parent of HEAD
+HEAD~2    # second parent of HEAD
+HEAD^^    # first parent of HEAD^ 
+HEAD~3    # first parent of HEAD^^(HEAD~2)
+HEAD~3^2  # second parent of HEAD^^
+
+ORIG_HEAD # previous state of HEAD, equivalent to HEAD@{1}
+
+origin    # default upstream repository
+master    # default development branch
+</pre></div>
+
+
+<h2 id="aefa68b64d13ba940b3a9fbed7ba6de9">常见的使用场景</h2>
+<p>介绍git的常用场景。</p>
+<h3 id="fc8bc6e2a42d906cb4c856b56d58afd7">克隆远程仓库</h3>
+<div class="codehilite"><pre>git clone https://github.com/git/git.git
+git log --stat
+</pre></div>
+
+
+<h3 id="caa88e2c4386434d79fc66c4fae7e127">创建新的仓库</h3>
+<div class="codehilite"><pre>git init
+git add .
+git status
+git commit -m &quot;first commit&quot;
+git remote add origin https://github.com/your/git/repo.git
+git push -u origin master
+</pre></div>
+
+
+<h3 id="c845fc1c783eff4dfeabaee6ad45963f">查看改动内容</h3>
+<p>| A | git commit | B | git add | C | 
+ | - | ---------- | - | ------- | - | </p>
+<p>以上面的图为例进行说明，A表示最后一次提交的版本，B表示最后一次追踪或暂存(stage，使用git add命令)后的版本，C表示尚未加入追踪的版本。</p>
+<p>比较尚未追踪的文件改动和已追踪的版本，即比较C和B。</p>
+<div class="codehilite"><pre>git diff
+</pre></div>
+
+
+<p>比较尚未提交但已追踪的文件改动和已提交的版本，即比较B和A。</p>
+<div class="codehilite"><pre>git diff --cached
+</pre></div>
+
+
+<p>或</p>
+<div class="codehilite"><pre>git diff --staged
+</pre></div>
+
+
+<h3 id="cc26dcf90f22e39591ec0e720e5c03a5">取消文件跟踪或修改</h3>
+<p>如果想停止追踪已提交的文件，可以使用如下命令。下面的命令仅将文件从暂存里移除，不会删除文件。</p>
+<div class="codehilite"><pre>git rm --cached file1 file2 ...
+</pre></div>
+
+
+<p>对于尚未提交的文件，也可以用git reset将文件恢复到某次提交时的状态。下面的命令仅将文件的修改从暂存里移除，不会影响到实际的文件内容。</p>
+<div class="codehilite"><pre>git reset HEAD file1 file2 ...
+</pre></div>
+
+
+<p>也可使用如下命令取消文件修改，不过提交之后的所有修改内容(包括暂存的修改内容)都会丢失且<strong>不可恢复</strong>。</p>
+<div class="codehilite"><pre>git checkout HEAD -- file1 file2 ...
+</pre></div>
+
+
+<p>若想丢弃(不可恢复)提交后暂存的修改，可用如下命令。尚未用git add加入暂存的修改不会受影响。</p>
+<div class="codehilite"><pre>git reset HEAD --hard
+</pre></div>
+
+
+<h3 id="0427a72fa9a2305357d0907c76d1d92e">提交更改</h3>
+<div class="codehilite"><pre>git add .
+git status
+git commit -am &quot;commit message&quot;
+git pull
+git push origin master
+</pre></div>
+
+
+<h3 id="1c0c133becf59479b7b265bd67bb1716">修改最后一次提交</h3>
+<p>仅修改<strong>本地</strong>的提交。</p>
+<div class="codehilite"><pre>git commit --amend
+</pre></div>
+
+
+<h3 id="cba4d171f2496e2edefe7708df586986">查看上一次提交的文件path/to/file</h3>
+<div class="codehilite"><pre>git show HEAD^:path/to/file
+</pre></div>
+
+
+<h2 id="e83197432d26024a668142c21bbead9f">命令详解</h2>
+<h3 id="73e58b95f74075f9c67cbb699d6b1940">git add</h3>
+<p>git add默认情况下只更新新添加文件和修改过的文件的索引，对于不是用git rm删除的文件，会被忽略掉。可以使用<code>git add --all</code>选项来更新所有改动的索引。</p>
+<blockquote>
+<p>'git add --ignore-removal <pathspec>', which is the current default, ignores paths you removed from your working tree.</p>
+<p>'git add --all <pathspec>' will let you also record the removals.</p>
+</blockquote>
+<h3 id="d4d26c74c10b7bf1931515b68e327004">git-tag</h3>
+<p>查看man页获取详细信息。</p>
+<div class="codehilite"><pre>man git-tag
+</pre></div>
+
+
+<p>查看所有标签。</p>
+<div class="codehilite"><pre>git tag
+</pre></div>
+
+
+<p>使用模式匹配查找标签。</p>
+<div class="codehilite"><pre>git tag -l &#39;v1.*&#39;
+</pre></div>
+
+
+<p>创建annotated标签。</p>
+<div class="codehilite"><pre>git tag -a v1.0 -m &quot;version 1.0&quot;
+</pre></div>
+
+
+<p>查看刚刚添加的标签。</p>
+<div class="codehilite"><pre>git show v1.0
+</pre></div>
+
+
+<p>创建使用gpg签署的标签。</p>
+<div class="codehilite"><pre>git tag -s v1.5 -m &quot;version 1.5, signed tag&quot;
+</pre></div>
+
+
+<p>验证被签署的标签，需要有签署者的公钥。</p>
+<div class="codehilite"><pre>git tag -v v1.5
+</pre></div>
+
+
+<p>为之前的某次提交创建标签，假设该次提交的校验和是9fceb02d0ae598e95dc970b74767f19372d61af8。</p>
+<div class="codehilite"><pre>git tag -a v2.0 -m &quot;version 2.0, previous commit&quot; 9fceb02d0ae598e95dc970b74767f19372d61af8
+</pre></div>
+
+
+<p>把某个标签推送到远程服务器上。</p>
+<div class="codehilite"><pre>git push origin v2.0
+</pre></div>
+
+
+<p>把所有标签都推送到远程服务器上。</p>
+<div class="codehilite"><pre>git push origin --tags
+</pre></div>
+
+
+<h3 id="bbf5afbfa5a4e942e8ab54a614cf19b9">git-branch</h3>
+<p>查看man页获取详细信息。</p>
+<div class="codehilite"><pre>man git-branch
+</pre></div>
+
+
+<p>查看所有分支，以星号(*)开头的分支为当前分支。</p>
+<div class="codehilite"><pre>git branch -v
+</pre></div>
+
+
+<p>新建并切换到某一分支。</p>
+<div class="codehilite"><pre>git branch issue20
+git checkout issue20
+</pre></div>
+
+
+<p>或</p>
+<div class="codehilite"><pre>git branch -b issue20
+</pre></div>
+
+
+<p>分支合并，将issue20分支并入master分支。</p>
+<div class="codehilite"><pre>git checkout master
+git merge issue20
+</pre></div>
+
+
+<p>删除无用的分支。</p>
+<div class="codehilite"><pre>git branch -d issue20
+</pre></div>
+
+
+<p>强制删除未合并的分支。</p>
+<div class="codehilite"><pre>git branch -D issue21
+</pre></div>
+
+
+<p>分支合并时遇到冲突，可参考<a href="http://git-scm.com/book/zh/Git-%E5%88%86%E6%94%AF-%E5%88%86%E6%94%AF%E7%9A%84%E6%96%B0%E5%BB%BA%E4%B8%8E%E5%90%88%E5%B9%B6#遇到冲突时的分支合并">这里</a>的方法解决冲突后再合并。</p>
+<p>查看已合并到当前分支的分支，通常而言，未用星号(*)标识的分支均可被删除。。</p>
+<div class="codehilite"><pre>git branch --merged
+</pre></div>
+
+
+<p>查看尚未合并的分支。</p>
+<div class="codehilite"><pre>git branch --no-merged
+</pre></div>
+
+
+<p>删除远程分支</p>
+<div class="codehilite"><pre>git push origin :branch-name
+</pre></div>
+
+
+<h3 id="9d67825753863a88c038ba5fbb3f4a2e">git-bundle</h3>
+<p>查看man页获取以详细信息。</p>
+<div class="codehilite"><pre>man git-bundle
+</pre></div>
+
+
+<p>bundle命令可以对git仓库进行打包，如下所示。</p>
+<div class="codehilite"><pre>cd hello-world.git
+git bundle create hello-world.bundle --all
+</pre></div>
+
+
+<p>验证打包文件</p>
+<div class="codehilite"><pre>git bundle verify hello-world.bundle
+</pre></div>
+
+
+<p>打包文件解包</p>
+<div class="codehilite"><pre>git clone hello-world.bundle
+</pre></div>
+
+
+<h3 id="60ceb10847a392a9fe85ad7bc3f29ca1">git-log</h3>
+<p>控制git-log输出格式的选项:</p>
+<div class="codehilite"><pre>选项             说明
+-p               按补丁格式显示每个更新之间的差异。
+--stat           显示每次更新的文件修改统计信息。
+--shortstat      只显示 --stat 中最后的行数修改添加移除统计。
+--name-only      仅在提交信息后显示已修改的文件清单。
+--name-status    显示新增、修改、删除的文件清单。
+--abbrev-commit  仅显示 SHA-1 的前几个字符，而非所有的 40 个字符。
+--relative-date  使用较短的相对时间显示（比如，“2 weeks ago”）。
+--graph          显示 ASCII 图形表示的分支合并历史。
+--pretty         使用其他格式显示历史提交信息。可用的选项包括 oneline，short，full，fuller 和 format（后跟指定格式）。
+</pre></div>
+
+
+<p>控制git-log输出范围的选项，可与以上选项同时使用:</p>
+<div class="codehilite"><pre>选项               说明
+-(n)               仅显示最近的 n 条提交
+--since, --after   仅显示指定时间之后的提交。
+--until, --before  仅显示指定时间之前的提交。
+--author           仅显示指定作者相关的提交。
+--committer        仅显示指定提交者相关的提交。
+</pre></div>
+
+
+<p>输出日志仅限于影响到某些文件的提交，下面的命令仅输出修改LICENSE或README的提交的日志。</p>
+<div class="codehilite"><pre>git log -- LICENSE README
+</pre></div>
+
+
+<p>检索日志和修改内容</p>
+<ul>
+<li>
+<p>检索提交消息</p>
+<div class="codehilite"><pre>git log --grep &quot;hello world&quot;
+</pre></div>
+
+
+</li>
+<li>
+<p>检索修改内容</p>
+<div class="codehilite"><pre>git log -S &quot;hello world&quot;
+</pre></div>
+
+
+</li>
+<li>
+<p>使用正则表达式检索修改内容</p>
+<div class="codehilite"><pre>git log -G &quot;^hello world$&quot;
+</pre></div>
+
+
+</li>
+</ul>
+<h3 id="f2304138958897e9813c7619b5629a4c">git-remote</h3>
+<p>使用man查看详细内容。</p>
+<div class="codehilite"><pre>man git-retmote
+</pre></div>
+
+
+<p>查看所有的远程仓库。</p>
+<div class="codehilite"><pre>git remote -v
+</pre></div>
+
+
+<p>查看某个远程仓库(short-name为其别名)的详细内容。</p>
+<div class="codehilite"><pre>git remote show [short-name]
+</pre></div>
+
+
+<p>修改远程仓库的别名(short-name)。</p>
+<div class="codehilite"><pre>git remote rename [short-name] [short-name]
+</pre></div>
+
+
+<p>删除远程仓库(short-name为其别名)。</p>
+<div class="codehilite"><pre>git remote rm [short-name]
+</pre></div>
+
+
+<h3 id="7a895e8dc26096a6d872edf51753fda4">git-stash</h3>
+<p>将未缓存的修改暂时存储起来。</p>
+<h3 id="2c4cb72dd45a75b7d95fbefd99b37ab0">git-cherry-pick</h3>
+<p>通常用于将其他分支的提交rebase到当前分支上。</p>
+<h3 id="abddd89b71c4b4d0f61633371e72c79e">git-bitsect</h3>
+<p>二分查找commit历史</p>
+<h3 id="4307b0e25c98c793c32dc1980770a73f">git-blame</h3>
+<p>查看每一行的具体修改时间和修改人员。</p>
+<h3 id="7b0b9b638df84c176c045184baec43d9">git-update-index</h3>
+<p>更新git索引</p>
+<h3 id="4c380cb00de9a263abee9f147525c56f">git-ls-files</h3>
+<p>列出文件</p>
+<div class="codehilite"><pre>-c, --cached
+Show cached files in the output (default)
+
+-d, --deleted
+Show deleted files in the output
+
+-m, --modified
+Show modified files in the output
+
+-o, --others
+Show other (i.e. untracked) files in the output
+</pre></div>
+
+
+<p>使用ls-files和update-index来更新git索引</p>
+<div class="codehilite"><pre>git ls-files -d -m -o -z | xargs -0 git update-index --add --remove
+</pre></div>
+
+
+<h2 id="115cf49db30d256267fbfd166c433c53">Git技巧</h2>
+<p>一些git的小技巧。</p>
+<h3 id="d548d3e938088d5d469a28c20e939750">自动补全</h3>
+<p>git的代码仓库里有针对shell和bash等unix shell的命令行补全脚本，使用后会提高不少工作效率，可以从<a href="https://github.com/git/git/tree/master/contrib/completion">这里</a>下载。</p>
+<p>以bash为例，依次执行以下命令即可。</p>
+<div class="codehilite"><pre>wget -O ~/.git-completion.bash https://raw.github.com/git/git/master/contrib/completion/git-completion.bash
+echo &quot;source ~/.git-completion.bash&quot; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+</pre></div>
+
+
+<h3 id="4f8ad9857fcaddcd2afd67413d2475c4">命令别名</h3>
+<p>对于使用频率较高的git命令，可以为其创建短小的别名。可以参考<a href="http://git-scm.com/book/zh/Git-%E5%9F%BA%E7%A1%80-%E6%8A%80%E5%B7%A7%E5%92%8C%E7%AA%8D%E9%97%A8#Git-命令别名">这里</a>和<a href="/tools/git/config#我的gitconfig">我的git配置</a>里的alias部分。</p>
+<h3 id="6bfeaaf418368ab15df3b1edf9c18b3f">使用ssh协议访问远程仓库</h3>
+<p>使用ssh协议访问远程仓库时，如果仓库所在服务器的sshd端口号不是默认的22的话，git将无法访问。解决方法是，在~/.ssh/config里修改服务器的port。</p>
+<div class="codehilite"><pre>Host ip_or_host_name_of_target_server
+Port sshd_port_number
+</pre></div>
+
+
+<p>比如，</p>
+<div class="codehilite"><pre>Host github.com
+Port 22
+Host *
+Port 1234
+</pre></div>
+
+
+<h3 id="03d5cd614f029db02496d7fea93ba2ec">忽略某些文件</h3>
+<p>可参考<a href="/tools/git/config#我的gitgnore">我的Ignore</a>文件。</p>
+<h3 id="8c9242176cd1ab7eff1be8b60d031386">提交范围</h3>
+<p>可参考<a href="http://git-scm.com/book/ch6-1.html#Commit-Ranges">Commit Ranges</a>。</p>
+<p>通常用于git log和git diff，主要有两种格式:</p>
+<ul>
+<li>double dot ..</li>
+<li>triple dot ...</li>
+</ul>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://git-scm.com/book/zh/">The Pro Git Book</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">Git user manual</a></li>
+<li><a href="http://linux.die.net/man/7/gitglossary">gitglossary(7)</a></li>
+<li><a href="http://linux.die.net/man/1/git-tag">git-tag(1)</a></li>
+<li><a href="http://linux.die.net/man/1/git-branch">git-branch(1)</a></li>
+<li><a href="http://linux.die.net/man/1/git-bundle">git-bundle(1)</a></li>
+<li><a href="http://linux.die.net/man/1/git-remote">git-remote(1)</a></li>
+<li><a href="http://serverfault.com/questions/218256/specify-ssh-port-for-git">Specify ssh port for git</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2014-03-03 16:28</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/git.html">git</a><sup>6</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/jiao-cheng.html">教程</a><sup>13</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">Git快速使用指南</a></li>
+            <li><a href='#7b068b8c7627412da04087f44b1b5efb'>特殊符号</a></li><li><a href='#aefa68b64d13ba940b3a9fbed7ba6de9'>常见的使用场景</a><ol><li><a href='#fc8bc6e2a42d906cb4c856b56d58afd7'>克隆远程仓库</a></li><li><a href='#caa88e2c4386434d79fc66c4fae7e127'>创建新的仓库</a></li><li><a href='#c845fc1c783eff4dfeabaee6ad45963f'>查看改动内容</a></li><li><a href='#cc26dcf90f22e39591ec0e720e5c03a5'>取消文件跟踪或修改</a></li><li><a href='#0427a72fa9a2305357d0907c76d1d92e'>提交更改</a></li><li><a href='#1c0c133becf59479b7b265bd67bb1716'>修改最后一次提交</a></li><li><a href='#cba4d171f2496e2edefe7708df586986'>查看上一次提交的文件path/to/file</a></li></ol></li><li><a href='#e83197432d26024a668142c21bbead9f'>命令详解</a><ol><li><a href='#73e58b95f74075f9c67cbb699d6b1940'>git add</a></li><li><a href='#d4d26c74c10b7bf1931515b68e327004'>git-tag</a></li><li><a href='#bbf5afbfa5a4e942e8ab54a614cf19b9'>git-branch</a></li><li><a href='#9d67825753863a88c038ba5fbb3f4a2e'>git-bundle</a></li><li><a href='#60ceb10847a392a9fe85ad7bc3f29ca1'>git-log</a></li><li><a href='#f2304138958897e9813c7619b5629a4c'>git-remote</a></li><li><a href='#7a895e8dc26096a6d872edf51753fda4'>git-stash</a></li><li><a href='#2c4cb72dd45a75b7d95fbefd99b37ab0'>git-cherry-pick</a></li><li><a href='#abddd89b71c4b4d0f61633371e72c79e'>git-bitsect</a></li><li><a href='#4307b0e25c98c793c32dc1980770a73f'>git-blame</a></li><li><a href='#7b0b9b638df84c176c045184baec43d9'>git-update-index</a></li><li><a href='#4c380cb00de9a263abee9f147525c56f'>git-ls-files</a></li></ol></li><li><a href='#115cf49db30d256267fbfd166c433c53'>Git技巧</a><ol><li><a href='#d548d3e938088d5d469a28c20e939750'>自动补全</a></li><li><a href='#4f8ad9857fcaddcd2afd67413d2475c4'>命令别名</a></li><li><a href='#6bfeaaf418368ab15df3b1edf9c18b3f'>使用ssh协议访问远程仓库</a></li><li><a href='#03d5cd614f029db02496d7fea93ba2ec'>忽略某些文件</a></li><li><a href='#8c9242176cd1ab7eff1be8b60d031386'>提交范围</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>

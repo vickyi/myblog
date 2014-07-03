@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用pptpd搭建VPN - 小V吃鱼卡到了</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="http://www.zhuimengle.com/theme/css/niu2.min.css" type="text/css" />
+
+    <link rel="canonical" href="http://www.zhuimengle.com/note/pptpd.html" />
+    
+    <script type="text/javascript">window.onload=function(){};</script>
+    <!--[if lt IE 9]>
+        <script src="http://www.zhuimengle.com/theme/js/html5shiv.js"></script>
+        <script src="http://www.zhuimengle.com/theme/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body> 
+    <div id="body-header">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="col-md-12">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.zhuimengle.com">
+            <i class="fa fa-home"></i>小V吃鱼卡到了
+        </a>
+    </div>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+            <li><a href="/about.html" title="about me">
+                <i class="fa fa-anchor"></i>关于</a>
+            </li>
+            <li><a href="/archives.html" title="blog archives">
+                <i class="fa fa-archive"></i>存档</a>
+            </li>
+            <li><a href="/tag/" title="blog tags">
+                <i class="fa fa-tag"></i>标签</a>
+            </li>
+        <!-- category dropdown list -->
+        <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-folder-open"></i>分类<b class="caret"></b>
+           </a>
+           <ul class="dropdown-menu">
+               <li><a href="http://www.zhuimengle.com/note/index.html">
+                      <i class="fa fa-book"></i>印象-笔记
+                      (88)</a></li>
+               <li><a href="http://www.zhuimengle.com/research/index.html">
+                      <i class="fa fa-flask"></i>实验室
+                      (2)</a></li>
+           </ul>
+        </li>
+        <!--  self defined dropdown list -->
+        </ul>
+        
+        <!-- right nav bar -->
+        <ul class="nav navbar-nav navbar-right">
+        <!-- google custom search -->
+       </ul>
+    </nav>
+</div>
+</div>    </div>
+    
+    <div id="body-content">
+<div class="col-md-8 col-md-offset-2">
+    <h1 id="content-heading">使用pptpd搭建VPN</h1>
+</div>
+<div id="niu2-left-container" class="col-md-6 col-md-offset-2 with-right-border">
+    <div id="niu2-main-content">
+        <p>pptpd存在安全隐患，详情可参考<a href="http://pptpclient.sourceforge.net/protocol-security.phtml">这里</a>。</p>
+<p>介绍在debian squeeze上使用pptpd搭建vpn的方法。</p>
+<h2 id="874baef08565830008b0339622be4264">安装并配置pptpd</h2>
+<p>安装pptpd</p>
+<div class="codehilite"><pre>apt-get install pptpd
+</pre></div>
+
+
+<p>修改pptpd的配置文件<code>/etc/pptpd.conf</code>，将以下两行的注释符<code>#</code>去掉:</p>
+<div class="codehilite"><pre>localip 192.168.0.1
+remoteip 192.168.0.234-238,192.168.0.245
+</pre></div>
+
+
+<h2 id="a6806427d8503901c9426636bcb063c6">修改PPPD DNS配置</h2>
+<p>在<code>/etc/ppp/options</code>添加Google的Public DNS:</p>
+<div class="codehilite"><pre>ms-dns 8.8.8.8
+ms-dns 8.8.4.4
+</pre></div>
+
+
+<p>可以使用<code>man pppd</code>查看pppd及其配置文件的用户手册。</p>
+<h2 id="0aabe350d6b1f69208dc9297148ee679">修改日志输出位置</h2>
+<p>pptpd默认将日志写入<code>/var/log/syslog</code>系统日志，在<code>/etc/ppp/options</code>里加入如下一行启用单独的日志。</p>
+<div class="codehilite"><pre>logfile /var/log/ppp.log
+</pre></div>
+
+
+<p>需要注意的是，pptpd依然会写系统日志。</p>
+<h2 id="e368bc7cb77497509b3df5c32cf9d11e">修改连接数</h2>
+<p>pptpd的默认配置只有6个IP可供分配，pptpd启动时日志里经常见到如下的警告信息。</p>
+<div class="codehilite"><pre>Maximum of 100 connections reduced to 6, not enough IP addresses given
+</pre></div>
+
+
+<p>如果想要增加更多的连接，可修改<code>/etc/pptpd.conf</code>的<code>remoteip</code>选项。</p>
+<div class="codehilite"><pre>remoteip 192.168.0.234-248,192.168.0.245
+</pre></div>
+
+
+<p>上面的配置将连接数增加到16个，需要注意的是，连接数同时受<code>remoteip</code>和<code>connections</code>两个配置项控制，详情可参考<code>man pptpd.conf</code>。</p>
+<h2 id="a55a9e932a83ff21733c8b731db72e8d">设置VPN用户名和密码</h2>
+<p>假设用户名为<code>xiaoming</code>，密码为<code>123</code>(不要设置过于简单的密码)，则在<code>/etc/ppp/chap-secrets</code>添加如下一行:</p>
+<div class="codehilite"><pre>xiaoming pptpd 123 *
+</pre></div>
+
+
+<p>上面的<code>*</code>表示任何ip均可访问你的vpn，也可以改为自己的一些ip，ip之间用逗号或空格隔开。</p>
+<h2 id="8269d1eb547d651a0f20780b24760228">设置iptables规则</h2>
+<p>首先配置nat表的翻译规则, 将目标IP为192.168.0.0/24的包转向eth0接口. 在<a href="/tips/server_security#iptables">iptables配置文件</a>的nat表中添加如下规则:</p>
+<div class="codehilite"><pre>-A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+</pre></div>
+
+
+<p>若配置文件中还没有nat表的配置, 添加如下规则:</p>
+<div class="codehilite"><pre>*nat
+-A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+COMMIT
+</pre></div>
+
+
+<p>然后配置filter表的规则, 在合适的位置((比如在<code>-A INPUT -j DROP</code>这种规则的前面))添加如下内容:</p>
+<div class="codehilite"><pre>-A FORWARD -s 192.168.0.0/24 -j ACCEPT
+-A FORWARD -d 192.168.0.0/24 -j ACCEPT
+</pre></div>
+
+
+<p>最后运行iptables-restore命令导入以上配置文件即可. 如果使用以上规则后无法连接成功，则在合适的位置添加如下规则:</p>
+<div class="codehilite"><pre>-A INPUT -p tcp --dport 1723 -m state --state NEW -j ACCEPT
+</pre></div>
+
+
+<p>上面的规则允许使用tcp协议建立到1723端口的连接。pptpd默认监听1723端口，可以使用如下命令查看:</p>
+<div class="codehilite"><pre>sudo netstat -nap | grep pptpd
+</pre></div>
+
+
+<h2 id="06086768b02d45fd964a983f6b5fd526">修改sysctl.conf</h2>
+<p>修改<code>/etc/sysctl.conf</code>，去掉下面一句前面的注释符<code>#</code>:</p>
+<div class="codehilite"><pre>net.ipv4.ip_forward=1
+</pre></div>
+
+
+<p>重新加载sysctl.conf:</p>
+<div class="codehilite"><pre>sysctl -p
+</pre></div>
+
+
+<h2 id="9b286b967d9fd0cde887f4f9a5bea0d0">重启pptpd服务</h2>
+<div class="codehilite"><pre>service pptpd restart
+service pppd-dns restart
+</pre></div>
+
+
+<h2 id="cac66b823f329aef48f25f02f6e1e0e3">遇到问题?</h2>
+<h3 id="01afd0d6ce38c39eb8a2f96a2b955387">无法连接或连接后无法解析DNS</h3>
+<p>经过以上设置后，如果依然无法成功连接到VPN服务器，或者连接成后却无法正常访问网络。出现类似<code>DNS 查找失败</code>的错误，首先检查你的iptables规则，如果没有问题可以先停掉pptpd服务:</p>
+<div class="codehilite"><pre>service stop pptpd
+</pre></div>
+
+
+<p>修改pptpd的配置文件<code>/etc/ppp/options</code>，开启debug输出。然后运行<code>pptpd -f</code>，这时候再从客户端连接，根据<code>pptpd -f</code>的输出信息解决问题。</p>
+<p>也可查看pppd的日志，默认情况下，pptpd将日志记录于系统日志<code>/var/log/syslog.*</code>。</p>
+<h3 id="92d376522abef15fa247c76928361ccf">ppp0: compressor dropped pkt</h3>
+<p>貌似不能算错，在日志里看到很多这样的信息。Google一番后发现<a href="http://comments.gmane.org/gmane.linux.ppp/1594">这里</a>的解答比较靠谱，但是要修改pppd的源码并重新编译，所以没有实际测试。问题出在:</p>
+<blockquote>
+<p>PPPD reduces the MTU of the interface, because MPPE encryption needs
+additional 4 bytes. Windows clients do not see if that way, however.
+This leads to problems, because the Windows client sends a TCP MSS
+of 4 bytes too large for PPPD.
+What you can do is change the PPPD, so that it does not reduce the MTU anymore.
+See the patch below.</p>
+<p>Alternatively, set the MTU of the PPP interface in the ip-up script.</p>
+</blockquote>
+<p>解决方法是给pppd源码打patch:</p>
+<div class="codehilite"><pre><span class="gd">--- sources/p/pppd/pppd/ccp.c   2004/01/16 09:47:28 1.1.1.1</span>
+<span class="gi">+++ sources/p/pppd/pppd/ccp.c   2004/10/15 15:08:50 1.1.1.1.4.1</span>
+<span class="gu">@@ -1191,7 +1191,12 @@</span>
+
+             */
+            mtu = netif_get_mtu(f-&gt;unit);
+            if (mtu)
+<span class="gd">-           netif_set_mtu(f-&gt;unit, mtu - MPPE_PAD);</span>
+<span class="gi">+           {</span>
+<span class="gi">+           // Removed the lowering of the MTU, because it causes</span>
+<span class="gi">+           // problems with routing (TCP/MSS: Windows clients</span>
+<span class="gi">+           // do not care about this reduced packet size)</span>
+<span class="gi">+           //netif_set_mtu(f-&gt;unit, mtu - MPPE_PAD);</span>
+<span class="gi">+           }</span>
+            else
+            newret = CONFREJ;
+        }
+</pre></div>
+
+
+<h3 id="9c7c06cfc708d6d5d66660dc746e7936">Virtualbox上的系统无法使用pptp vpn</h3>
+<p>Virtualbox的NAT实现不支持GRE协议，解决方案可参考<a href="http://angryfifer.blogspot.com/2012/03/pptp-vpn-connections-from-virtualbox.html">PPTP VPN connections from VirtualBox guests</a></p>
+<h2 id="81f5d554d30e82d475ed29a45a7c4277">阅读资料</h2>
+<ul>
+<li><a href="http://popu.org/post_5.html">Debian、Ubuntu下pptpd的架设方法</a></li>
+<li><a href="http://liuzuhuijunlian.blog.163.com/blog/static/72489767201111233410835/">debian下设置pptpd</a></li>
+<li><a href="http://www.dd-wrt.com/wiki/index.php/PPTP_Server_Configuration">PPTP Server Configuration</a></li>
+<li><a href="http://blog.gmane.org/gmane.network.poptop/page=15">PPTP and iptables problem</a></li>
+<li><a href="http://comments.gmane.org/gmane.linux.ppp/1594">ppp_mppe osize issue</a> for error "compressor dropped pkt"</li>
+<li><a href="http://pptpclient.sourceforge.net/howto-diagnosis.phtml">pptp client diagnosis howto</a></li>
+</ul>
+    </div>
+    <div id="content-comments">
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">var duoshuoQuery={short_name:"vic-story"};(function(){var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src=(document.location.protocol=="https:"?"https:":"http:")+"//static.duoshuo.com/embed.js";a.charset="UTF-8";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(a)})();</script>
+<!-- Duoshuo Comment END --></div>
+
+</div>
+<div class="niu2-right-container col-md-2">
+    <div id="niu2-sidebar-meta" class="niu2-sidebar">
+        <div class="niu2-sidebar-label"><i class="fa fa-calendar"></i>发布时间:</div>
+        <div class="niu2-sidebar-value">2013-08-25 12:14</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-pencil" style="font-size: 1.05em;"></i>最后修改:</div>
+        <div class="niu2-sidebar-value">2013-12-06 13:08</div>
+        <div class="niu2-sidebar-label"><i class="fa fa-book"></i>分类:</div>
+        <div class="niu2-sidebar-value"><a href="http://www.zhuimengle.com/note/index.html">印象-笔记</a></div>
+        <div class="niu2-sidebar-label"><i class="fa fa-tag"></i>标签:</div>
+ 
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/pptpd.html">pptpd</a><sup>1</sup></div>
+            <div class="niu2-sidebar-inter-value niu2-sidebar-tag"><a href="http://www.zhuimengle.com/tag/vpn.html">vpn</a><sup>3</sup></div>
+    </div>
+</div>
+
+<div class="niu2-right-container col-md-3">
+    <div id="niu2-sidebar-toc" class="niu2-sidebar" data-status="closed">
+        <div class="niu2-sidebar-label">
+            <i id="niu2-sidebar-toc-ctrl" class="fa fa-plus"></i>目录
+        </div>
+        <ol id="niu2-sidebar-toc-list">
+            <li><a href="#content-heading">使用pptpd搭建VPN</a></li>
+            <li><a href='#874baef08565830008b0339622be4264'>安装并配置pptpd</a></li><li><a href='#a6806427d8503901c9426636bcb063c6'>修改PPPD DNS配置</a></li><li><a href='#0aabe350d6b1f69208dc9297148ee679'>修改日志输出位置</a></li><li><a href='#e368bc7cb77497509b3df5c32cf9d11e'>修改连接数</a></li><li><a href='#a55a9e932a83ff21733c8b731db72e8d'>设置VPN用户名和密码</a></li><li><a href='#8269d1eb547d651a0f20780b24760228'>设置iptables规则</a></li><li><a href='#06086768b02d45fd964a983f6b5fd526'>修改sysctl.conf</a></li><li><a href='#9b286b967d9fd0cde887f4f9a5bea0d0'>重启pptpd服务</a></li><li><a href='#cac66b823f329aef48f25f02f6e1e0e3'>遇到问题?</a><ol><li><a href='#01afd0d6ce38c39eb8a2f96a2b955387'>无法连接或连接后无法解析DNS</a></li><li><a href='#92d376522abef15fa247c76928361ccf'>ppp0: compressor dropped pkt</a></li><li><a href='#9c7c06cfc708d6d5d66660dc746e7936'>Virtualbox上的系统无法使用pptp vpn</a></li></ol></li><li><a href='#81f5d554d30e82d475ed29a45a7c4277'>阅读资料</a></li>
+            <li><a href="#content-comments">评论</a></li>
+        </ol>
+    </div>
+</div>
+    </div>
+
+    <div id="body-footer" class="col-md-6 col-md-offset-2">
+<div class="niu2-footer">
+    <hr/>
+	<p>
+		Powered by <a href="https://github.com/getpelican/pelican">Pelican</a>, 
+        <a href="https://github.com/mawenbao/niu-x2-sidebar">theme</a> built with <a href="http://getbootstrap.com">Bootstrap3</a>
+		by <a href="http://blog.atime.me">Ma Wenbao</a>, icons by 
+		<a href="http://fortawesome.github.io/Font-Awesome">Font Awesome</a>.
+	</p>
+	<p>
+		©
+				2009-2014
+		<a class="niu2-footer-link" href="http://www.zhuimengle.com">vk</a>
+    </p>
+    <p class="niu2-icons">
+	        <a class="niu2-footer-icon" href="/my_gnupg.html" title="my public key">
+	            <i class="fa fa-key fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="V: dolphinzhang1987@gmail.com" title="my email address">
+	            <i class="fa fa-envelope-o fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="https://github.com/vickyi" title="my github page">
+	            <i class="fa fa-github-alt fa-lg"></i>
+	        </a>
+	        <a class="niu2-footer-icon" href="/feed.xml" title="subscribe my blog">
+	            <i class="fa fa-rss fa-lg"></i>
+	        </a>
+	</p>
+</div>    </div>
+    
+    <div id="niu2-pygments" data-theme="github"></div>
+
+    <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/niu2.min.js"></script>
+    <script type="text/javascript" src="http://www.zhuimengle.com/theme/js/bootstrap.min.js"></script>
+    <script type="text/javascript">onContentLoaded();</script>
+  </body>
+</html>
