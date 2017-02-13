@@ -8,7 +8,7 @@ sys.setdefaultencoding("utf-8")
 
 AUTHOR = u'vk'
 SITENAME = u'小V吃鱼卡到了'
-SITEURL = 'http://vickyi.github.io'
+SITEURL = 'https://vickyi.github.io'
 #SITEURL = 'http://localhost:8000'
 
 TIMEZONE = 'Asia/Shanghai'
