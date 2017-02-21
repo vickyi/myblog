@@ -82,7 +82,7 @@ PLUGIN_PATH = './plugins'
 PLUGINS = [
     #'gzip_cache',
     'update_date',
-    'extract_headings',
+    # 'extract_headings',
     'sitemap',
     'summary',
     ]
@@ -123,7 +123,6 @@ SITEMAP = {
 
 # theme config
 THEME = './themes/niu-x2-sidebar'
-#THEME = '../niu-x2-sidebar'
 
 # niu-x2 theme config
 NIUX2_404_TITLE_TRANSL = '404错误 页面未找到!'
