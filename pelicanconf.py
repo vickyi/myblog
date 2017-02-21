@@ -82,7 +82,7 @@ PLUGIN_PATH = './plugins'
 PLUGINS = [
     #'gzip_cache',
     'update_date',
-    #'extract_headings',
+    'extract_headings',
     'sitemap',
     'summary',
     ]
