@@ -32,16 +32,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <meta name="author" content="Dolphin Zhang" />
-    <meta name="description" content="Dolphin Zhang's Thoughts and Writings" />
+<meta name="author" content="Dolphin Zhang" />
+<meta name="description" content="[TOC] qrsbox qrsbox 是七牛云存储提供的同步上传客户端工具，支持 Linux、Mac OS X、Windows 等操作系统。使用 qrsbox，可将用户本地某个目录的所有文件同步上传到七牛云存储中，同时监控目录变化，将目录中新增的文件也上传至七牛云存储。 配合操作系统已有的强大文件管理功能（分级存放、按指定项目排序、查找匹配指定条件的文件等），即可轻松优雅地完成繁复的文件管理事务。 注意：qrsbox 不会同步文件的删除操作。也就是说，如果受监控的目录中有文件被删除，已上传至七牛云存储的文件副本仍旧保留。如果用户确实需要删除该文件，可以到七牛开发者平台中删除。这一设计的目的是为了防止误删文件造成数据丢失。同时还可以收获另一个好处，就是同步上传完一个文件后，本地可以马上删除该文件以释放磁盘空间。 注意: qrsbox 的 Windows版本适用于华东，华北，华南，北美机房。 qrsbox 的 Mac 和 Linux 版本仅适用于华东空间，其他地区的空间可以使用qshell。 功能特性 …" />
+<meta name="keywords" content="">
 <meta property="og:site_name" content="Dolphin Zhang's Blog"/>
-<meta property="og:type" content="blog"/>
-<meta property="og:title" content="Dolphin Zhang's Blog"/>
-<meta property="og:description" content="Dolphin Zhang's Thoughts and Writings"/>
+<meta property="og:title" content="用七牛做图床-同步工具qrsbox"/>
+<meta property="og:description" content="[TOC] qrsbox qrsbox 是七牛云存储提供的同步上传客户端工具，支持 Linux、Mac OS X、Windows 等操作系统。使用 qrsbox，可将用户本地某个目录的所有文件同步上传到七牛云存储中，同时监控目录变化，将目录中新增的文件也上传至七牛云存储。 配合操作系统已有的强大文件管理功能（分级存放、按指定项目排序、查找匹配指定条件的文件等），即可轻松优雅地完成繁复的文件管理事务。 注意：qrsbox 不会同步文件的删除操作。也就是说，如果受监控的目录中有文件被删除，已上传至七牛云存储的文件副本仍旧保留。如果用户确实需要删除该文件，可以到七牛开发者平台中删除。这一设计的目的是为了防止误删文件造成数据丢失。同时还可以收获另一个好处，就是同步上传完一个文件后，本地可以马上删除该文件以释放磁盘空间。 注意: qrsbox 的 Windows版本适用于华东，华北，华南，北美机房。 qrsbox 的 Mac 和 Linux 版本仅适用于华东空间，其他地区的空间可以使用qshell。 功能特性 …"/>
 <meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="http://honren.club"/>
+<meta property="og:url" content="http://honren.club/yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-12-03 10:20:00+08:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://honren.club/author/dolphin-zhang.html">
+<meta property="article:section" content="Cloud"/>
+<meta property="og:image" content="">
 
-  <title>Dolphin Zhang's Blog</title>
+  <title>Dolphin Zhang's Blog &ndash; 用七牛做图床-同步工具qrsbox</title>
 
 </head>
 <body>
@@ -81,20 +87,19 @@
 
     </nav>
 
-
-
-<article>
+<article class="single">
   <header>
-    <h2><a href="http://honren.club/yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox.html#yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox">用七牛做图床-同步工具qrsbox</a></h2>
+    <h1 id="yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox">用七牛做图床-同步工具qrsbox</h1>
     <p>
           Posted on Sat 03 December 2016 in <a href="http://honren.club/category/cloud.html">Cloud</a>
 
 
-
     </p>
   </header>
+
+
   <div>
-      <p>[TOC]</p>
+    <p>[TOC]</p>
 <h2><a href="https://developer.qiniu.com/kodo/tools/qrsbox">qrsbox</a></h2>
 <p>qrsbox 是七牛云存储提供的同步上传客户端工具，支持 Linux、Mac OS X、Windows 等操作系统。使用 qrsbox，可将用户本地某个目录的所有文件同步上传到七牛云存储中，同时监控目录变化，将目录中新增的文件也上传至七牛云存储。</p>
 <p>配合操作系统已有的强大文件管理功能（分级存放、按指定项目排序、查找匹配指定条件的文件等），即可轻松优雅地完成繁复的文件管理事务。</p>
@@ -104,18 +109,37 @@
 <li>qrsbox 的 Windows版本适用于华东，华北，华南，北美机房。</li>
 <li>qrsbox 的 Mac 和 Linux 版本仅适用于华东空间，其他地区的空间可以使用qshell。</li>
 </ul>
-<h2>功能特性 …</h2>
-      <br>
-      <a class="btn" href="http://honren.club/yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox.html#yong-qi-niu-zuo-tu-chuang-tong-bu-gong-ju-qrsbox">    Continue reading
-</a>
+<h2>功能特性</h2>
+<ul>
+<li>支持配置文件</li>
+<li>支持大文件上传</li>
+<li>支持增量部分同步更新</li>
+<li>支持在后台运行监控</li>
+</ul>
+<h2>下载</h2>
+<ul>
+<li>图形化工具：<ul>
+<li><a href="http://7xvilo.com1.z0.glb.clouddn.com/qrsbox_2016_11_24.zip">Windows：qrsbox windows_386</a></li>
+</ul>
+</li>
+<li>命令行工具：<ul>
+<li><a href="http://devtools.qiniu.com/darwin/amd64/qrsboxcli">Mac OS</a></li>
+<li><a href="http://devtools.qiniu.com/linux/amd64/qrsboxcli">Linux 64bits</a></li>
+<li><a href="http://devtools.qiniu.com/linux/386/qrsboxcli">Linux 32bits</a></li>
+<li><a href="http://devtools.qiniu.com/linux/arm/qrsboxcli">Linux ARMv6</a></li>
+</ul>
+</li>
+</ul>
   </div>
+  <div class="tag-cloud">
+    <p>
+    </p>
+  </div>
+
+
+
+
 </article>
-
-  <div class="pagination">
-  </div>
-
-
-
 
     <footer>
 <p>
